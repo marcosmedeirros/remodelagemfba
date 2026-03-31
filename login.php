@@ -12,7 +12,15 @@
 	<link rel="apple-touch-icon" href="/img/fba-logo.png">
 	<title>FBA Manager - Login</title>
 
-	<?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+	<?php
+	$headPwaPath = __DIR__ . '/includes/head-pwa.php';
+	if (!is_file($headPwaPath)) {
+		$headPwaPath = __DIR__ . '/../includes/head-pwa.php';
+	}
+	if (is_file($headPwaPath)) {
+		include $headPwaPath;
+	}
+	?>
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
