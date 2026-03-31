@@ -60,21 +60,21 @@ try {
     // Se o erro é sobre coluna 'league' não existir, retorna mensagem específica
     if (strpos($e->getMessage(), "Unknown column 'league'") !== false) {
         jsonResponse(500, [
-            'error' => 'Schema do banco desatualizado. Execute a migração: https://fbabrasil.com.br/backend/migrate.php',
+            'error' => 'Schema do banco desatualizado. Execute a migração: https://blue-turkey-597782.hostingersite.com/backend/migrate.php',
             'technical' => $e->getMessage()
         ]);
     }
     // Tabela users não existe
     if (strpos($e->getMessage(), 'Base table or view not found') !== false && strpos($e->getMessage(), 'users') !== false) {
         jsonResponse(500, [
-            'error' => 'Tabela users ausente. Execute a migração: https://fbabrasil.com.br/backend/migrate.php',
+            'error' => 'Tabela users ausente. Execute a migração: https://blue-turkey-597782.hostingersite.com/backend/migrate.php',
             'technical' => $e->getMessage()
         ]);
     }
     // Coluna password_hash/email_verified ausente
     if (strpos($e->getMessage(), "Unknown column 'password_hash'") !== false || strpos($e->getMessage(), "Unknown column 'email_verified'") !== false) {
         jsonResponse(500, [
-            'error' => 'Schema do banco desatualizado. Execute a migração: https://fbabrasil.com.br/backend/migrate.php',
+            'error' => 'Schema do banco desatualizado. Execute a migração: https://blue-turkey-597782.hostingersite.com/backend/migrate.php',
             'technical' => $e->getMessage()
         ]);
     }

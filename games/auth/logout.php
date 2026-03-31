@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 
 // Limpa tudo
@@ -13,6 +13,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redireciona para a tela de login do games
-header("Location: https://games.fbabrasil.com.br/auth/login.php");
+header("Location: https://blue-turkey-597782.hostingersite.com/games/auth/login.php");
 exit;
 ?>

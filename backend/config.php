@@ -9,9 +9,9 @@ return [
         'charset' => 'utf8mb4',
     ],
     'mail' => [
-    'from' => getenv('FBA_MAIL_FROM') ?: 'no-reply@fbabrasil.com.br',
-    'verify_base_url' => getenv('FBA_VERIFY_BASE_URL') ?: 'https://fbabrasil.com.br/api/verify.php?token=',
-    'reset_base_url' => getenv('FBA_RESET_BASE_URL') ?: 'https://fbabrasil.com.br/reset-password.php?token=',
+    'from' => getenv('FBA_MAIL_FROM') ?: 'no-reply@blue-turkey-597782.hostingersite.com',
+    'verify_base_url' => getenv('FBA_VERIFY_BASE_URL') ?: 'https://blue-turkey-597782.hostingersite.com/api/verify.php?token=',
+    'reset_base_url' => getenv('FBA_RESET_BASE_URL') ?: 'https://blue-turkey-597782.hostingersite.com/reset-password.php?token=',
     ],
     'app' => [
         'cap_min' => 618,

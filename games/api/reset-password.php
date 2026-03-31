@@ -1,5 +1,5 @@
-Ôªø<?php
-// API - Solicitar redefini√ß√£o de senha (FBA games)
+<?php
+// API - Solicitar redefiniÁ„o de senha (FBA games)
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -13,7 +13,7 @@ try {
 
     $email = strtolower(trim($body['email'] ?? ''));
     if ($email === '') {
-        jsonResponse(422, ['error' => 'E-mail √© obrigat√≥rio.']);
+        jsonResponse(422, ['error' => 'E-mail È obrigatÛrio.']);
     }
 
     ensureResetColumns($pdo);
@@ -23,8 +23,8 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        // N√£o revelamos se o e-mail existe ou n√£o
-        jsonResponse(200, ['message' => 'Se o e-mail existir, voc√™ receber√° um link de recupera√ß√£o.']);
+        // N„o revelamos se o e-mail existe ou n„o
+        jsonResponse(200, ['message' => 'Se o e-mail existir, vocÍ receber· um link de recuperaÁ„o.']);
     }
 
     $token = bin2hex(random_bytes(32));
@@ -37,23 +37,23 @@ try {
 
     $sent = sendGamesPasswordResetEmail($email, $user['nome'] ?? 'jogador', $resetUrl);
     if (!$sent) {
-        error_log('Falha ao enviar e-mail de recupera√ß√£o (games) para: ' . $email);
-        jsonResponse(500, ['error' => 'Falha ao enviar o e-mail de recupera√ß√£o. Tente novamente.']);
+        error_log('Falha ao enviar e-mail de recuperaÁ„o (games) para: ' . $email);
+        jsonResponse(500, ['error' => 'Falha ao enviar o e-mail de recuperaÁ„o. Tente novamente.']);
     }
 
     $config = loadConfig();
     if (!empty($config['app']['debug_reset_link'])) {
         error_log('DEBUG games reset link para ' . $email . ': ' . $resetUrl);
         jsonResponse(200, [
-            'message' => 'Link de recupera√ß√£o enviado! Verifique seu e-mail.',
+            'message' => 'Link de recuperaÁ„o enviado! Verifique seu e-mail.',
             'debug_reset_link' => $resetUrl
         ]);
     }
 
-    jsonResponse(200, ['message' => 'Link de recupera√ß√£o enviado! Verifique seu e-mail.']);
+    jsonResponse(200, ['message' => 'Link de recuperaÁ„o enviado! Verifique seu e-mail.']);
 } catch (PDOException $e) {
     error_log('Erro SQL no games/api/reset-password.php: ' . $e->getMessage());
-    jsonResponse(500, ['error' => 'Erro ao processar solicita√ß√£o.', 'details' => $e->getMessage()]);
+    jsonResponse(500, ['error' => 'Erro ao processar solicitaÁ„o.', 'details' => $e->getMessage()]);
 } catch (Exception $e) {
     error_log('Erro no games/api/reset-password.php: ' . $e->getMessage());
     jsonResponse(500, ['error' => 'Erro interno do servidor.', 'details' => $e->getMessage()]);
@@ -76,8 +76,8 @@ function buildGamesResetUrl(string $token): string
 
     if (!$base) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'fbabrasil.com.br';
-        // Dom√≠nio games.* j√° est√° na raiz; n√£o repetir /games no caminho
+        $host = $_SERVER['HTTP_HOST'] ?? 'blue-turkey-597782.hostingersite.com';
+        // DomÌnio games.* j· est· na raiz; n„o repetir /games no caminho
         $base = $scheme . '://' . $host . '/auth/resetar.php';
     }
 
@@ -96,13 +96,13 @@ function buildGamesResetUrl(string $token): string
 function sendGamesPasswordResetEmail(string $email, string $name, string $resetUrl): bool
 {
     $config = loadConfig();
-    $subject = 'Recupera√ß√£o de Senha - FBA games';
-    $message = "Ol√° {$name},\n\n" .
-        "Recebemos uma solicita√ß√£o para redefinir sua senha no FBA games.\n\n" .
+    $subject = 'RecuperaÁ„o de Senha - FBA games';
+    $message = "Ol· {$name},\n\n" .
+        "Recebemos uma solicitaÁ„o para redefinir sua senha no FBA games.\n\n" .
         "Clique no link abaixo para criar uma nova senha:\n" .
         "{$resetUrl}\n\n" .
         "Este link expira em 1 hora.\n\n" .
-        "Se voc√™ n√£o solicitou esta altera√ß√£o, ignore este e-mail.\n\n" .
+        "Se vocÍ n„o solicitou esta alteraÁ„o, ignore este e-mail.\n\n" .
         "Atenciosamente,\nEquipe FBA games";
 
     if (!empty($config['mail']['smtp']['host'])) {

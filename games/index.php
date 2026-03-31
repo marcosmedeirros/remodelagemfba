@@ -1,8 +1,8 @@
-Ôªø<?php
+<?php
 require __DIR__ . '/index.clean.php';
 __halt_compiler();
 
-// Seguran√ßa
+// SeguranÁa
 if (!isset($_SESSION['user_id'])) {
     header("Location: auth/login.php");
     exit;
@@ -12,13 +12,13 @@ $user_id = $_SESSION['user_id'];
 $msg = isset($_GET['msg']) ? htmlspecialchars($_GET['msg']) : "";
 $erro = isset($_GET['erro']) ? htmlspecialchars($_GET['erro']) : "";
 
-// 1. Dados do Usu√°rio
+// 1. Dados do Usu·rio
 try {
     $stmt = $pdo->prepare("SELECT nome, pontos, is_admin FROM usuarios WHERE id = :id");
     $stmt->execute([':id' => $user_id]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Erro ao carregar usu√°rio: " . $e->getMessage());
+    die("Erro ao carregar usu·rio: " . $e->getMessage());
 }
 
 // 2. Top 5 Ranking Geral
@@ -34,9 +34,9 @@ try {
     $top_5_ranking = [];
 }
 
-// 3. Sequ√™ncias de jogos (mantidas para futuras extens√µes)
+// 3. SequÍncias de jogos (mantidas para futuras extensıes)
 
-// 7. Eventos abertos (por liga) e √∫ltimas apostas
+// 7. Eventos abertos (por liga) e ˙ltimas apostas
 try {
     try {
         $stmt = $pdo->query("
@@ -56,7 +56,7 @@ try {
         $eventos_abertos = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         foreach ($eventos_abertos as &$evento) {
             $evento['league'] = 'GERAL';
-        <!-- SE√á√ÉO: RANKINGS -->
+        <!-- SE«√O: RANKINGS -->
 
         <div class="ranking-container" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 30px;">
             <div class="ranking-card">
@@ -68,7 +68,7 @@ try {
                 <?php else: ?>
                     <?php foreach($top_5_ranking as $idx => $jogador): ?>
                         <div class="ranking-item medal-<?= $idx+1 ?>">
-                            <span class="ranking-position" aria-label="Posi√ß√£o <?= $idx+1 ?>"></span>
+                            <span class="ranking-position" aria-label="PosiÁ„o <?= $idx+1 ?>"></span>
                             <div style="display: flex; flex-direction: column; flex: 1; margin: 0 10px;">
                                 <span class="ranking-name"><?= htmlspecialchars($jogador['nome']) ?></span>
                             </div>
@@ -236,7 +236,7 @@ try {
             opacity: 0.2;
         }
 
-        /* ===== SE√á√ïES ===== */
+        /* ===== SE«’ES ===== */
         .section-title {
             color: #999;
             font-size: 0.9rem;
@@ -318,14 +318,14 @@ try {
             text-align: right;
         }
 
-        /* Medal Icons (sem repetir n√∫mero) */
-        .medal-1::before { content: 'ü•á'; margin-right: 5px; }
-        .medal-2::before { content: 'ü•à'; margin-right: 5px; }
-        .medal-3::before { content: 'ü•â'; margin-right: 5px; }
-        .medal-4::before { content: 'üèÖ'; margin-right: 5px; }
-        .medal-5::before { content: 'üèÖ'; margin-right: 5px; }
+        /* Medal Icons (sem repetir n˙mero) */
+        .medal-1::before { content: '??'; margin-right: 5px; }
+        .medal-2::before { content: '??'; margin-right: 5px; }
+        .medal-3::before { content: '??'; margin-right: 5px; }
+        .medal-4::before { content: '??'; margin-right: 5px; }
+        .medal-5::before { content: '??'; margin-right: 5px; }
 
-        /* ===== √öLTIMA APOSTA ===== */
+        /* ===== ⁄LTIMA APOSTA ===== */
         .aposta-card {
             background: linear-gradient(135deg, #5a0a16, #9b0d24);
             border: 1px solid #FC082B;
@@ -558,7 +558,7 @@ try {
 
 <!-- NAVBAR -->
 <div class="navbar-custom d-flex justify-content-between align-items-center sticky-top">
-            <a href="#" class="brand-name">üéÆ FBA games</a>
+            <a href="#" class="brand-name">?? FBA games</a>
     
     <div class="d-flex align-items-center gap-3">
         <div class="d-none d-md-flex align-items-center gap-2">
@@ -600,8 +600,8 @@ try {
         </div>
     <?php endif; ?>
 
-    <!-- SE√á√ÉO: MINHAS STATS (CARDS NO TOPO) -->
-    <h6 class="section-title"><i class="bi bi-person-circle"></i>Minhas Estat√≠sticas</h6>
+    <!-- SE«√O: MINHAS STATS (CARDS NO TOPO) -->
+    <h6 class="section-title"><i class="bi bi-person-circle"></i>Minhas EstatÌsticas</h6>
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4">
             <div class="stat-card">
@@ -631,13 +631,13 @@ try {
         </div>
         <div class="col-12 col-md-4">
             <div class="stat-card">
-                <div class="stat-label"><i class="bi bi-clock-history me-2"></i>√öltima Aposta</div>
+                <div class="stat-label"><i class="bi bi-clock-history me-2"></i>⁄ltima Aposta</div>
                 <?php if($ultima_aposta): ?>
                     <div class="stat-value" style="font-size: 1.3rem;">
                         <?= number_format($ultima_aposta['valor'], 0, ',', '.') ?> pts
                     </div>
                     <small class="text-secondary">
-                        <?= htmlspecialchars($ultima_aposta['evento_nome']) ?> ‚Ä¢ <?= htmlspecialchars($ultima_aposta['opcao_descricao']) ?>
+                        <?= htmlspecialchars($ultima_aposta['evento_nome']) ?> ï <?= htmlspecialchars($ultima_aposta['opcao_descricao']) ?>
                     </small>
                 <?php else: ?>
                     <div class="stat-value" style="font-size: 1.1rem;">Sem apostas</div>
@@ -685,11 +685,11 @@ try {
                 $resultado_aposta = ((int)$ultima_aposta['vencedor_opcao_id'] === (int)$ultima_aposta['opcao_id']) ? 'Ganhou' : 'Perdeu';
             }
         ?>
-        <h6 class="section-title"><i class="bi bi-cash-stack"></i>Minha √öltima Aposta</h6>
+        <h6 class="section-title"><i class="bi bi-cash-stack"></i>Minha ⁄ltima Aposta</h6>
         <div class="aposta-card">
             <div class="aposta-label mb-1">Evento</div>
             <div class="aposta-evento"><?= htmlspecialchars($ultima_aposta['evento_nome']) ?></div>
-            <div class="text-light mb-3">Op√ß√£o: <?= htmlspecialchars($ultima_aposta['opcao_descricao']) ?></div>
+            <div class="text-light mb-3">OpÁ„o: <?= htmlspecialchars($ultima_aposta['opcao_descricao']) ?></div>
             <div class="aposta-details">
                 <div class="aposta-detail-item">
                     <span class="aposta-detail-label">Valor</span>
@@ -718,7 +718,7 @@ try {
     <?php endif; ?>
 
     <?php if(!empty($ultimos_eventos_abertos)): ?>
-        <h6 class="section-title"><i class="bi bi-lightning-fill"></i>√öltimas Apostas</h6>
+        <h6 class="section-title"><i class="bi bi-lightning-fill"></i>⁄ltimas Apostas</h6>
         <?php foreach($ultimos_eventos_abertos as $evento): ?>
             <div class="card-evento">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -726,7 +726,7 @@ try {
                         <div class="evento-titulo"><?= htmlspecialchars($evento['nome']) ?></div>
                         <small class="evento-data">
                             <i class="bi bi-clock-history me-1 text-warning"></i>
-                            Encerra em: <?= date('d/m/Y √†s H:i', strtotime($evento['data_limite'])) ?>
+                            Encerra em: <?= date('d/m/Y ‡s H:i', strtotime($evento['data_limite'])) ?>
                         </small>
                     </div>
                 </div>
@@ -743,20 +743,20 @@ try {
             </div>
         <?php endforeach; ?>
     <?php else: ?>
-        <h6 class="section-title"><i class="bi bi-lightning-fill"></i>3 √öltimas Apostas Dispon√≠veis</h6>
+        <h6 class="section-title"><i class="bi bi-lightning-fill"></i>3 ⁄ltimas Apostas DisponÌveis</h6>
         <div class="empty-state">
             <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-            <div class="empty-text">Nenhum evento dispon√≠vel no momento</div>
+            <div class="empty-text">Nenhum evento disponÌvel no momento</div>
         </div>
     <?php endif; ?>
 
-    <!-- SE√á√ÉO: GAMES -->
+    <!-- SE«√O: GAMES -->
     <h6 class="section-title"><i class="bi bi-joystick"></i>Escolha um Jogo</h6>
     
     <div class="row g-3 mb-5">
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/index.php?game=flappy" class="game-card" style="--accent: #ff9800;">
-                <span class="game-icon">üê¶</span>
+                <span class="game-icon">??</span>
                 <div class="game-title">Flappy Bird</div>
                 <div class="game-subtitle">Desvie dos canos</div>
             </a>
@@ -764,7 +764,7 @@ try {
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/index.php?game=pinguim" class="game-card" style="--accent: #29b6f6;">
-                <span class="game-icon">üêß</span>
+                <span class="game-icon">??</span>
                 <div class="game-title">Pinguim Run</div>
                 <div class="game-subtitle">Corra e ganhe</div>
             </a>
@@ -772,7 +772,7 @@ try {
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/index.php?game=xadrez" class="game-card" style="--accent: #9c27b0;">
-                <span class="game-icon">‚ôõ</span>
+                <span class="game-icon">?</span>
                 <div class="game-title">Xadrez PvP</div>
                 <div class="game-subtitle">Desafie e aposte</div>
             </a>
@@ -780,15 +780,15 @@ try {
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/index.php?game=memoria" class="game-card" style="--accent: #00bcd4;">
-                <span class="game-icon">üß†</span>
-                <div class="game-title">Mem√≥ria</div>
+                <span class="game-icon">??</span>
+                <div class="game-title">MemÛria</div>
                 <div class="game-subtitle">Desafio mental</div>
             </a>
         </div>
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/index.php?game=termo" class="game-card" style="--accent: #4caf50;">
-                <span class="game-icon">üìù</span>
+                <span class="game-icon">??</span>
                 <div class="game-title">Termo</div>
                 <div class="game-subtitle">Adivinhe a palavra</div>
             </a>
@@ -796,7 +796,7 @@ try {
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/roleta.php" class="game-card" style="--accent: #d32f2f;">
-                <span class="game-icon">üé°</span>
+                <span class="game-icon">??</span>
                 <div class="game-title">Roleta</div>
                 <div class="game-subtitle">Cassino Europeu</div>
             </a>
@@ -804,7 +804,7 @@ try {
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/blackjack.php" class="game-card" style="--accent: #d32f2f;">
-                <span class="game-icon">üÉè</span>
+                <span class="game-icon">??</span>
                 <div class="game-title">Blackjack</div>
                 <div class="game-subtitle">Chegue a 21</div>
             </a>
@@ -812,22 +812,22 @@ try {
 
         <div class="col-6 col-md-4 col-lg-3">
             <a href="games/batalhanaval.php" class="game-card" style="--accent: #00bcd4;">
-                <span class="game-icon">‚öîÔ∏è</span>
+                <span class="game-icon">??</span>
                 <div class="game-title">Batalha Naval</div>
                 <div class="game-subtitle">Desafio multiplayer</div>
             </a>
         </div>
 
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="https://games.fbabrasil.com.br/album-fba.php" class="game-card" style="--accent: #e53935;">
-                <span class="game-icon">üñºÔ∏è</span>
+            <a href="https://blue-turkey-597782.hostingersite.com/games/album-fba.php" class="game-card" style="--accent: #e53935;">
+                <span class="game-icon">???</span>
                 <div class="game-title">Album FBA</div>
                 <div class="game-subtitle">Colecione figurinhas</div>
             </a>
         </div>
     </div>
 
-    <!-- SE√á√ÉO: RANKINGS -->
+    <!-- SE«√O: RANKINGS -->
     <h6 class="section-title"><i class="bi bi-trophy"></i>Rankings</h6>
 
     <div class="ranking-container" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 30px;">
@@ -840,7 +840,7 @@ try {
             <?php else: ?>
                 <?php foreach($top_5_ranking as $idx => $jogador): ?>
                     <div class="ranking-item medal-<?= $idx+1 ?>">
-                        <span class="ranking-position" aria-label="Posi√ß√£o <?= $idx+1 ?>"></span>
+                        <span class="ranking-position" aria-label="PosiÁ„o <?= $idx+1 ?>"></span>
                         <div style="display: flex; flex-direction: column; flex: 1; margin: 0 10px;">
                             <span class="ranking-name"><?= htmlspecialchars($jogador['nome']) ?></span>
                         </div>
@@ -857,7 +857,7 @@ try {
 
 <!-- Footer -->
 <div style="background-color: var(--secondary-dark); border-top: 1px solid var(--border-dark); padding: 20px; text-align: center; color: #666; margin-top: 60px;">
-    <small><i class="bi bi-heart-fill" style="color: #ff6b6b;"></i> FBA games ¬© 2025 | Jogue Responsavelmente</small>
+    <small><i class="bi bi-heart-fill" style="color: #ff6b6b;"></i> FBA games © 2025 | Jogue Responsavelmente</small>
 </div>
 
 </body>

@@ -153,31 +153,31 @@ echo $novoSidebarThemeCss;
   <ul class="sidebar-menu">
 
     <li>
-      <a href="novos/dashboard.php">
+      <a href="dashboard.php">
         <i>🏠</i> Dashboard
       </a>
     </li>
 
     <li>
-      <a href="novos/elenco.php">
+      <a href="elenco.php">
         <i>👥</i> Elenco
       </a>
     </li>
 
     <li>
-      <a href="novos/jogos.php">
+      <a href="jogos.php">
         <i>🏀</i> Jogos
       </a>
     </li>
 
     <li>
-      <a href="novos/financas.php">
+      <a href="financas.php">
         <i>💰</i> Finanças
       </a>
     </li>
 
     <li>
-      <a href="novos/configuracoes.php">
+      <a href="configuracoes.php">
         <i>⚙️</i> Configurações
       </a>
     </li>

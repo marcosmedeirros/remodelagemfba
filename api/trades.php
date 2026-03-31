@@ -71,7 +71,7 @@ function postTradeWebhook(string $webhookUrl, array $payload, string $context, i
 
 function sendTradeWebhook(PDO $pdo, int $tradeId, string $event = 'trade_created'): void
 {
-    $webhookUrl = 'https://fbabrasil.com.br/nova-trade';
+    $webhookUrl = 'https://blue-turkey-597782.hostingersite.com/nova-trade';
 
     $stmtTrade = $pdo->prepare('SELECT id, from_team_id, to_team_id, league, notes, status, created_at FROM trades WHERE id = ?');
     $stmtTrade->execute([$tradeId]);
@@ -219,7 +219,7 @@ function sendTradeWebhook(PDO $pdo, int $tradeId, string $event = 'trade_created
 
 function sendMultiTradeWebhook(PDO $pdo, int $tradeId, string $event = 'trade_created'): void
 {
-    $webhookUrl = 'https://fbabrasil.com.br/nova-trade';
+    $webhookUrl = 'https://blue-turkey-597782.hostingersite.com/nova-trade';
 
     $stmtTrade = $pdo->prepare('SELECT id, league, notes, status, created_at, created_by_team_id FROM multi_trades WHERE id = ?');
     $stmtTrade->execute([$tradeId]);

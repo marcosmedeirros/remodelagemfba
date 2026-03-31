@@ -679,81 +679,81 @@ try {
 
         <ul class="sidebar-menu">
             <li>
-                <a href="https://fbabrasil.com.br/novos/dashboard.php" class="active">
+                <a href="https://blue-turkey-597782.hostingersite.com/dashboard.php" class="active">
                     <i class="bi bi-house-door-fill"></i>
                     Dashboard
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/teams.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/teams.php">
                     <i class="bi bi-people-fill"></i>
                     Times
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/my-roster.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/my-roster.php">
                     <i class="bi bi-person-fill"></i>
                     Meu Elenco
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/picks.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/picks.php">
                     <i class="bi bi-calendar-check-fill"></i>
                     Picks
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/trades.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/trades.php">
                     <i class="bi bi-arrow-left-right"></i>
                     Trades
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/free-agency.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/free-agency.php">
                     <i class="bi bi-coin"></i>
                     Free Agency
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/leilao.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/leilao.php">
                     <i class="bi bi-hammer"></i>
                     Leilão
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/drafts.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/drafts.php">
                     <i class="bi bi-trophy"></i>
                     Draft
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/rankings.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/rankings.php">
                     <i class="bi bi-bar-chart-fill"></i>
                     Rankings
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/history.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/history.php">
                     <i class="bi bi-clock-history"></i>
                     Histórico
                 </a>
             </li>
             <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
             <li>
-                <a href="https://fbabrasil.com.br/novos/admin.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/admin.php">
                     <i class="bi bi-shield-lock-fill"></i>
                     Admin
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/temporadas.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/temporadas.php">
                     <i class="bi bi-calendar3"></i>
                     Temporadas
                 </a>
             </li>
             <?php endif; ?>
             <li>
-                <a href="https://fbabrasil.com.br/novos/settings.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/settings.php">
                     <i class="bi bi-gear-fill"></i>
                     Configurações
                 </a>
@@ -819,7 +819,7 @@ try {
         <!-- Quick Actions -->
         <div class="row g-4 mb-4">
             <div class="col-md-3">
-                <a href="https://fbabrasil.com.br/novos/my-roster.php" class="text-decoration-none">
+                <a href="https://blue-turkey-597782.hostingersite.com/my-roster.php" class="text-decoration-none">
                     <div class="stat-card hover-lift">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -853,7 +853,7 @@ try {
             </div>
 
             <div class="col-md-3">
-                <a href="https://fbabrasil.com.br/novos/picks.php" class="text-decoration-none">
+                <a href="https://blue-turkey-597782.hostingersite.com/picks.php" class="text-decoration-none">
                     <div class="stat-card hover-lift">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -868,7 +868,7 @@ try {
             </div>
 
             <div class="col-md-3">
-                <a href="https://fbabrasil.com.br/novos/trades.php" class="text-decoration-none">
+                <a href="https://blue-turkey-597782.hostingersite.com/trades.php" class="text-decoration-none">
                     <div class="stat-card hover-lift">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -957,7 +957,7 @@ try {
                             </div>
 
                             <div class="col-md-4">
-                                <a href="https://games.fbabrasil.com.br/auth/login.php" class="text-decoration-none" target="_blank" rel="noopener">
+                                <a href="https://blue-turkey-597782.hostingersite.com/games/auth/login.php" class="text-decoration-none" target="_blank" rel="noopener">
                                     <div class="quick-action-card">
                                         <div class="text-center py-3">
                                             <i class="bi bi-controller display-1 text-warning mb-2"></i>
@@ -1029,7 +1029,7 @@ try {
                         <h4 class="mb-0 text-white">
                             <i class="bi bi-chat-left-text me-2 text-orange"></i>Último rumor
                         </h4>
-                        <a href="https://fbabrasil.com.br/novos/trades.php" class="btn btn-sm btn-outline-orange">Ver Rumores</a>
+                        <a href="https://blue-turkey-597782.hostingersite.com/trades.php" class="btn btn-sm btn-outline-orange">Ver Rumores</a>
                     </div>
                     <div class="card-body">
                         <?php if ($latestRumor): ?>
@@ -1076,7 +1076,7 @@ try {
                         <h4 class="mb-0 text-white">
                             <i class="bi bi-arrow-left-right me-2 text-orange"></i>Trades
                         </h4>
-                        <a href="https://fbabrasil.com.br/novos/trades.php" class="btn btn-sm btn-outline-orange">Ver Todas</a>
+                        <a href="https://blue-turkey-597782.hostingersite.com/trades.php" class="btn btn-sm btn-outline-orange">Ver Todas</a>
                     </div>
                     <div class="card-body">
                         <?php if ($tradesEnabled == 0): ?>
@@ -1453,7 +1453,7 @@ try {
                             <div class="text-center text-light-gray py-5">
                                 <i class="bi bi-exclamation-circle display-1"></i>
                                 <p class="mt-3">Você ainda não tem jogadores titulares.</p>
-                                <a href="https://fbabrasil.com.br/novos/my-roster.php" class="btn btn-orange">
+                                <a href="https://blue-turkey-597782.hostingersite.com/my-roster.php" class="btn btn-orange">
                                     <i class="bi bi-plus-circle me-2"></i>Adicionar Jogadores
                                 </a>
                             </div>

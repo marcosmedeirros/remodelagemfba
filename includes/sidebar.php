@@ -37,7 +37,7 @@ if (!isset($user) || !isset($team)) {
 }
 
 $currentPage = basename($_SERVER['PHP_SELF']);
-$sidebarBaseUrl = 'https://fbabrasil.com.br';
+$sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
 ?>
 <div class="dashboard-sidebar">
     <div class="text-center mb-4">

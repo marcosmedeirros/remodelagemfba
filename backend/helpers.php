@@ -222,7 +222,7 @@ function buildPasswordResetUrl(string $token): string
         $resetBase = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/reset-password.php';
     }
     if (!$resetBase) {
-        $resetBase = 'https://fbabrasil.com.br/reset-password.php';
+        $resetBase = 'https://blue-turkey-597782.hostingersite.com/reset-password.php';
     }
 
     if (str_contains($resetBase, '{token}')) {

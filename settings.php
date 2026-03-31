@@ -49,81 +49,81 @@ $team = $stmtTeam->fetch() ?: null;
 
         <ul class="sidebar-menu">
             <li>
-                <a href="https://fbabrasil.com.br/novos/dashboard.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/dashboard.php">
                     <i class="bi bi-house-door-fill"></i>
                     Dashboard
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/teams.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/teams.php">
                     <i class="bi bi-people-fill"></i>
                     Times
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/my-roster.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/my-roster.php">
                     <i class="bi bi-person-fill"></i>
                     Meu Elenco
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/picks.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/picks.php">
                     <i class="bi bi-calendar-check-fill"></i>
                     Picks
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/trades.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/trades.php">
                     <i class="bi bi-arrow-left-right"></i>
                     Trades
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/free-agency.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/free-agency.php">
                     <i class="bi bi-coin"></i>
                     Free Agency
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/leilao.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/leilao.php">
                     <i class="bi bi-hammer"></i>
                     Leilão
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/drafts.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/drafts.php">
                     <i class="bi bi-trophy"></i>
                     Draft
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/rankings.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/rankings.php">
                     <i class="bi bi-bar-chart-fill"></i>
                     Rankings
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/history.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/history.php">
                     <i class="bi bi-clock-history"></i>
                     Histórico
                 </a>
             </li>
             <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
             <li>
-                <a href="https://fbabrasil.com.br/novos/admin.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/admin.php">
                     <i class="bi bi-shield-lock-fill"></i>
                     Admin
                 </a>
             </li>
             <li>
-                <a href="https://fbabrasil.com.br/novos/temporadas.php">
+                <a href="https://blue-turkey-597782.hostingersite.com/temporadas.php">
                     <i class="bi bi-calendar3"></i>
                     Temporadas
                 </a>
             </li>
             <?php endif; ?>
             <li>
-                <a href="https://fbabrasil.com.br/novos/settings.php" class="active">
+                <a href="https://blue-turkey-597782.hostingersite.com/settings.php" class="active">
                     <i class="bi bi-gear-fill"></i>
                     Configurações
                 </a>
@@ -151,7 +151,7 @@ $team = $stmtTeam->fetch() ?: null;
         <div class="page-header mb-4">
             <h1 class="text-white fw-bold mb-2"><i class="bi bi-gear-fill me-2 text-orange"></i>Configurações</h1>
             <div class="page-actions">
-                <a class="btn btn-outline-orange" href="https://fbabrasil.com.br/novos/dashboard.php"><i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard</a>
+                <a class="btn btn-outline-orange" href="https://blue-turkey-597782.hostingersite.com/dashboard.php"><i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard</a>
             </div>
         </div>
 
