@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../backend/auth.php';
-require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+require_once __DIR__ . '/backend/db.php';
 requireAuth();
 $user = getUserSession();
 if (($user['user_type'] ?? 'jogador') !== 'admin') {
@@ -17,7 +17,7 @@ $team = $stmtTeam->fetch();
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+  <?php include __DIR__ . '/includes/head-pwa.php'; ?>
   <title>Punições - Admin</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0a0a0c">

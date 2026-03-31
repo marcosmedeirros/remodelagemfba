@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../backend/auth.php';
-require_once __DIR__ . '/../backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+require_once __DIR__ . '/backend/db.php';
 requireAuth();
 
 $user = getUserSession();
@@ -88,7 +88,7 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+  <?php include __DIR__ . '/includes/head-pwa.php'; ?>
   <title>Trades - FBA Manager</title>
   
   <!-- PWA Meta Tags -->

@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../backend/auth.php';
-require_once __DIR__ . '/../backend/db.php';
-require_once __DIR__ . '/../backend/helpers.php';
+require_once __DIR__ . '/backend/auth.php';
+require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/helpers.php';
 requireAuth();
 
 $user = getUserSession();
@@ -16,7 +16,7 @@ $team = $stmtTeam->fetch(PDO::FETCH_ASSOC);
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+    <?php include __DIR__ . '/includes/head-pwa.php'; ?>
     <title>Ouvidoria - FBA Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@ $team = $stmtTeam->fetch(PDO::FETCH_ASSOC);
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="d-flex">
-        <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+        <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
         <div class="dashboard-content">
             <div class="mb-4">

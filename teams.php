@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../backend/auth.php';
-require_once __DIR__ . '/../backend/db.php';
-require_once __DIR__ . '/../backend/helpers.php';
+require_once __DIR__ . '/backend/auth.php';
+require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/helpers.php';
 requireAuth();
 
 $user = getUserSession();
@@ -103,7 +103,7 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+    <?php include __DIR__ . '/includes/head-pwa.php'; ?>
     <title>Times - FBA Manager</title>
     
     <!-- PWA Meta Tags -->
@@ -128,7 +128,7 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
     <!-- Overlay para fechar sidebar no mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <?php include __DIR__ . '/../includes/sidebar.php'; ?>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="dashboard-content">

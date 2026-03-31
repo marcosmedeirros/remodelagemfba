@@ -12,7 +12,7 @@
 	<link rel="apple-touch-icon" href="/img/fba-logo.png">
 	<title>FBA Manager - Redefinir senha</title>
 
-	<?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+	<?php include __DIR__ . '/includes/head-pwa.php'; ?>
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="preconnect" href="https://fonts.googleapis.com">

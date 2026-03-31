@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../backend/auth.php';
+require_once __DIR__ . '/backend/auth.php';
 requireAuth();
 
 $user = getUserSession();
@@ -15,7 +15,7 @@ $user = getUserSession();
 	<meta name="apple-mobile-web-app-title" content="FBA Manager">
 	<link rel="manifest" href="/manifest.json">
 	<link rel="apple-touch-icon" href="/img/fba-logo.png">
-	<?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+	<?php include __DIR__ . '/includes/head-pwa.php'; ?>
 	<title>Configuracao Inicial - FBA Manager</title>
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">

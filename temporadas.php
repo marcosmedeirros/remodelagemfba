@@ -26,7 +26,7 @@ if (!$team) {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <?php include __DIR__ . '/../includes/head-pwa.php'; ?>
+  <?php include __DIR__ . '/includes/head-pwa.php'; ?>
   <title>Temporadas - GM FBA</title>
   
   <!-- PWA Meta Tags -->
