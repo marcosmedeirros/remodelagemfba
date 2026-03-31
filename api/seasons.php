@@ -1,0 +1,1352 @@
+<?php
+session_start();
+header('Content-Type: application/json');
+
+require_once dirname(__DIR__) . '/backend/auth.php';
+require_once dirname(__DIR__) . '/backend/db.php';
+
+function columnExists(PDO $pdo, string $table, string $column): bool
+{
+    $stmt = $pdo->prepare("SHOW COLUMNS FROM `$table` LIKE ?");
+    $stmt->execute([$column]);
+    return (bool) $stmt->fetch();
+}
+
+$user = getUserSession();
+if (!$user) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Não autenticado']);
+    exit;
+}
+
+// Libera o lock da sessão imediatamente após ler os dados do usuário.
+// Isso evita bloqueios quando múltiplas requisições são feitas em paralelo
+// (ex.: salvar histórico e, em seguida, carregar o histórico na aba).
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
+}
+
+function resolveSeasonYear(PDO $pdo, string $league): int {
+    $currentYear = (int)date('Y');
+
+    try {
+        $hasSeasons = $pdo->query("SHOW TABLES LIKE 'seasons'")->fetch();
+        if (!$hasSeasons) {
+            return $currentYear;
+        }
+
+        $stmtIndexes = $pdo->query('SHOW INDEX FROM seasons');
+        $hasYearUnique = false;
+        $hasYearLeagueUnique = false;
+
+        if ($stmtIndexes) {
+            $uniqueIndexes = [];
+            while ($index = $stmtIndexes->fetch(PDO::FETCH_ASSOC)) {
+                if ((int)($index['Non_unique'] ?? 1) === 0) {
+                    $keyName = $index['Key_name'] ?? '';
+                    if (!isset($uniqueIndexes[$keyName])) {
+                        $uniqueIndexes[$keyName] = [];
+                    }
+                    $uniqueIndexes[$keyName][] = $index['Column_name'] ?? '';
+                }
+            }
+
+            foreach ($uniqueIndexes as $columns) {
+                sort($columns);
+                if (count($columns) === 1 && $columns[0] === 'year') {
+                    $hasYearUnique = true;
+                }
+                if (count($columns) === 2 && in_array('year', $columns, true) && in_array('league', $columns, true)) {
+                    $hasYearLeagueUnique = true;
+                }
+            }
+        }
+
+        $yearCandidate = $currentYear;
+
+        if ($hasYearUnique) {
+            $stmtMaxYear = $pdo->query('SELECT COALESCE(MAX(year), 0) as max_year FROM seasons');
+            $maxYear = (int)($stmtMaxYear->fetch()['max_year'] ?? 0);
+            $yearCandidate = max($yearCandidate, $maxYear + 1);
+        }
+
+        if ($hasYearLeagueUnique) {
+            $stmtMaxLeagueYear = $pdo->prepare('SELECT COALESCE(MAX(year), 0) as max_year FROM seasons WHERE league = ?');
+            $stmtMaxLeagueYear->execute([$league]);
+            $maxLeagueYear = (int)($stmtMaxLeagueYear->fetch()['max_year'] ?? 0);
+            $yearCandidate = max($yearCandidate, $maxLeagueYear + 1);
+        }
+
+        // Garantir que não exista conflito com combinação liga+ano, mesmo sem índice único
+        $stmtExists = $pdo->prepare('SELECT COUNT(*) FROM seasons WHERE league = ? AND year = ?');
+        while (true) {
+            $stmtExists->execute([$league, $yearCandidate]);
+            if ((int)$stmtExists->fetchColumn() === 0) {
+                break;
+            }
+            $yearCandidate++;
+        }
+
+        return $yearCandidate;
+    } catch (Exception $ignored) {
+        // Mantém ano atual se não for possível inspecionar os índices
+    }
+
+    return $currentYear;
+}
+
+function fetchLeagueTeams(PDO $pdo, string $league): array
+{
+    $stmt = $pdo->prepare("SELECT id FROM teams WHERE league = ?");
+    $stmt->execute([$league]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function ensureLeagueSprintDefaults(PDO $pdo): void
+{
+    try {
+        $pdo->exec("
+            INSERT INTO league_sprint_config (league, max_seasons) VALUES
+            ('ELITE', 20),
+            ('NEXT', 21),
+            ('RISE', 15),
+            ('ROOKIE', 10)
+            ON DUPLICATE KEY UPDATE max_seasons = VALUES(max_seasons)
+        ");
+    } catch (Exception $e) {
+        error_log('Erro ao garantir league_sprint_config: ' . $e->getMessage());
+    }
+}
+
+function ensureSprintStartYear(PDO $pdo, array $sprint, ?int $requestedStartYear, ?int $currentSeasonYear = null, ?int $currentSeasonNumber = null): int
+{
+    $startYear = (int)($sprint['start_year'] ?? 0);
+    if ($startYear > 0) {
+        return $startYear;
+    }
+
+    if ($requestedStartYear && $requestedStartYear > 0) {
+        $startYear = $requestedStartYear;
+    } elseif ($currentSeasonYear && $currentSeasonNumber) {
+        $startYear = $currentSeasonYear - $currentSeasonNumber + 1;
+    } else {
+        $startYear = (int)date('Y');
+    }
+
+    $stmtUpdate = $pdo->prepare("UPDATE sprints SET start_year = ? WHERE id = ?");
+    $stmtUpdate->execute([$startYear, $sprint['id']]);
+
+    return $startYear;
+}
+
+function calculateSeasonYear(int $startYear, int $seasonNumber): int
+{
+    return $startYear + $seasonNumber - 1;
+}
+
+function getPickWindowYears(int $startYear, int $seasonNumber, int $maxSeasons, int $horizon = 5): array
+{
+    $windowStart = $startYear + $seasonNumber;
+    $windowEnd = $windowStart + $horizon - 1;
+
+    if ($maxSeasons > 0) {
+        // O último ano do sprint não pode ter pick, então vai até um ano antes do fim
+        $endYear = $startYear + $maxSeasons - 1;
+        $lastPickYear = $endYear - 1;
+
+        if ($windowStart > $lastPickYear) {
+            return [];
+        }
+
+        $windowEnd = min($windowEnd, $lastPickYear);
+    }
+
+    if ($windowEnd < $windowStart) {
+        return [];
+    }
+
+    return range($windowStart, $windowEnd);
+}
+
+function syncAutoGeneratedPicks(PDO $pdo, string $league, array $teams, int $seasonId, array $targetYears, bool $reuseOutsideWindow = false): array
+{
+    $stats = ['created' => 0, 'renamed' => 0, 'deleted' => 0, 'kept' => 0];
+
+    if (empty($teams) || empty($targetYears)) {
+        return $stats;
+    }
+
+    $minTarget = min($targetYears);
+    $maxTarget = max($targetYears);
+
+    $stmtSelect = $pdo->prepare("
+        SELECT * FROM picks
+        WHERE original_team_id = ? AND round = ? AND team_id IN (SELECT id FROM teams WHERE league = ?)
+        ORDER BY season_year ASC, id ASC
+    ");
+    $stmtUpdate = $pdo->prepare("UPDATE picks SET season_year = ?, season_id = ?, auto_generated = 1 WHERE id = ?");
+    $stmtInsert = $pdo->prepare("
+        INSERT INTO picks (team_id, original_team_id, season_year, round, season_id, auto_generated, last_owner_team_id)
+        VALUES (?, ?, ?, ?, ?, 1, ?)
+    ");
+    $stmtDelete = $pdo->prepare("DELETE FROM picks WHERE id = ?");
+
+    foreach ($teams as $team) {
+        foreach (['1', '2'] as $round) {
+            $stmtSelect->execute([$team['id'], $round, $league]);
+            $allPicks = $stmtSelect->fetchAll(PDO::FETCH_ASSOC);
+
+            $occupiedYears = [];
+            foreach ($allPicks as $pick) {
+                $occupiedYears[(int)$pick['season_year']] = $pick;
+            }
+
+            $autoPicks = array_values(array_filter($allPicks, function ($p) use ($reuseOutsideWindow, $minTarget, $maxTarget) {
+                if ((int)($p['auto_generated'] ?? 0) !== 1) {
+                    return false;
+                }
+
+                if ($reuseOutsideWindow) {
+                    return true;
+                }
+
+                $year = (int)$p['season_year'];
+                return $year >= $minTarget && $year <= $maxTarget;
+            }));
+
+            $autoPicksOutside = [];
+            if (!$reuseOutsideWindow) {
+                foreach ($allPicks as $pick) {
+                    if ((int)($pick['auto_generated'] ?? 0) === 1) {
+                        $year = (int)$pick['season_year'];
+                        if ($year < $minTarget || $year > $maxTarget) {
+                            $autoPicksOutside[] = $pick;
+                        }
+                    }
+                }
+            }
+
+            $usedAutoIds = [];
+
+            foreach ($targetYears as $year) {
+                if (isset($occupiedYears[$year])) {
+                    if ((int)$occupiedYears[$year]['auto_generated'] === 1) {
+                        $usedAutoIds[] = (int)$occupiedYears[$year]['id'];
+                        $stats['kept']++;
+                    }
+                    continue;
+                }
+
+                $candidate = null;
+                foreach ($autoPicks as $pick) {
+                    if (!in_array((int)$pick['id'], $usedAutoIds, true)) {
+                        $candidate = $pick;
+                        break;
+                    }
+                }
+
+                if ($candidate) {
+                    $stmtUpdate->execute([$year, $seasonId, $candidate['id']]);
+                    $usedAutoIds[] = (int)$candidate['id'];
+                    $occupiedYears[$year] = $candidate;
+                    $stats['renamed']++;
+                } else {
+                    $stmtInsert->execute([$team['id'], $team['id'], $year, $round, $seasonId, $team['id']]);
+                    $stats['created']++;
+                }
+            }
+
+            foreach ($autoPicks as $pick) {
+                if (!in_array((int)$pick['id'], $usedAutoIds, true)) {
+                    $stmtDelete->execute([$pick['id']]);
+                    $stats['deleted']++;
+                }
+            }
+
+            foreach ($autoPicksOutside as $pick) {
+                $stmtDelete->execute([$pick['id']]);
+                $stats['deleted']++;
+            }
+        }
+    }
+
+    return $stats;
+}
+
+$pdo = db();
+$action = $_GET['action'] ?? '';
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Garante que a tabela de configuração esteja com os valores atualizados
+ensureLeagueSprintDefaults($pdo);
+
+// ==================== ADMIN ONLY ACTIONS ====================
+$adminActions = ['create_season', 'end_season', 'start_draft', 'end_draft', 'add_draft_player', 
+                 'update_draft_player', 'delete_draft_player', 'assign_draft_pick', 
+                 'set_standings', 'set_playoff_results', 'set_awards', 'reset_teams', 'reset_sprint',
+                 'adjust_picks'];
+
+if (in_array($action, $adminActions) && ($user['user_type'] ?? 'jogador') !== 'admin') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Apenas administradores']);
+    exit;
+}
+
+try {
+    switch ($action) {
+        // ========== DEFINIR CLASSIFICAÇÃO (STANDINGS) E PONTOS DA TEMPORADA REGULAR ==========
+        case 'set_standings':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+
+            // Somente admin
+            if (($user['user_type'] ?? 'jogador') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Apenas administradores']);
+                exit;
+            }
+
+            $input = json_decode(file_get_contents('php://input'), true);
+            $seasonId = isset($input['season_id']) ? (int)$input['season_id'] : null;
+            $standings = isset($input['standings']) && is_array($input['standings']) ? $input['standings'] : [];
+
+            if (!$seasonId) throw new Exception('season_id é obrigatório');
+            if (empty($standings)) throw new Exception('standings (array) é obrigatório');
+
+            // Buscar liga da temporada
+            $stmtSeason = $pdo->prepare("SELECT league FROM seasons WHERE id = ?");
+            $stmtSeason->execute([$seasonId]);
+            $seasonRow = $stmtSeason->fetch(PDO::FETCH_ASSOC);
+            if (!$seasonRow) throw new Exception('Temporada não encontrada');
+            $league = $seasonRow['league'];
+
+            // Garantir tabela season_standings
+            $pdo->exec("CREATE TABLE IF NOT EXISTS season_standings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                season_id INT NOT NULL,
+                team_id INT NOT NULL,
+                position INT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uniq_season_team (season_id, team_id),
+                INDEX idx_season_pos (season_id, position),
+                FOREIGN KEY (season_id) REFERENCES seasons(id) ON DELETE CASCADE,
+                FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+            $pdo->beginTransaction();
+            try {
+                // Limpar standings anteriores desta temporada
+                $pdo->prepare('DELETE FROM season_standings WHERE season_id = ?')->execute([$seasonId]);
+
+                // Mapa de pontos por posição
+                // 1º: 4, 2º-4º: 3, 5º-8º: 2
+                $pointsByPosition = function (int $pos): int {
+                    if ($pos === 1) return 4;
+                    if ($pos >= 2 && $pos <= 4) return 3;
+                    if ($pos >= 5 && $pos <= 8) return 2;
+                    return 0;
+                };
+
+                $stmtInsertStanding = $pdo->prepare('INSERT INTO season_standings (season_id, team_id, position) VALUES (?, ?, ?)');
+
+                // Inserir standings e atualizar pontos da temporada regular
+                $stmtUpsertPoints = $pdo->prepare("INSERT INTO team_ranking_points (
+                        team_id, season_id, league, regular_season_position, regular_season_points
+                    ) VALUES (?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                        league = VALUES(league),
+                        regular_season_position = VALUES(regular_season_position),
+                        regular_season_points = VALUES(regular_season_points)");
+
+                // Aceita array de IDs (ordenado) ou array de objetos {team_id, position}
+                $position = 1;
+                foreach ($standings as $item) {
+                    if (is_array($item)) {
+                        $teamId = (int)($item['team_id'] ?? 0);
+                        $pos = isset($item['position']) ? (int)$item['position'] : $position;
+                    } else {
+                        // item simples (id) indica ordem
+                        $teamId = (int)$item;
+                        $pos = $position;
+                    }
+                    if ($teamId <= 0) { $position++; continue; }
+
+                    $stmtInsertStanding->execute([$seasonId, $teamId, $pos]);
+                    $regularPoints = $pointsByPosition($pos);
+                    $stmtUpsertPoints->execute([$teamId, $seasonId, $league, $pos, $regularPoints]);
+                    $position++;
+                }
+
+                $pdo->commit();
+                echo json_encode(['success' => true, 'message' => 'Standings e pontos de temporada regular salvos']);
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+            break;
+        // ========== MOEDAS POR TEMPORADA ==========
+        case 'season_coins':
+            $seasonId = $_GET['season_id'] ?? null;
+            if (!$seasonId) throw new Exception('Season ID não especificado');
+
+            if ($method === 'GET') {
+                // Buscar times da temporada
+                $stmt = $pdo->prepare('SELECT league FROM seasons WHERE id = ?');
+                $stmt->execute([$seasonId]);
+                $season = $stmt->fetch();
+                if (!$season) throw new Exception('Temporada não encontrada');
+                $league = $season['league'];
+
+                $stmtTeams = $pdo->prepare('SELECT id, city, name, moedas FROM teams WHERE league = ? ORDER BY city, name');
+                $stmtTeams->execute([$league]);
+                $teams = $stmtTeams->fetchAll(PDO::FETCH_ASSOC);
+
+                echo json_encode(['success' => true, 'teams' => $teams, 'league' => $league]);
+                break;
+            }
+
+            if ($method === 'POST') {
+                if (($user['user_type'] ?? 'jogador') !== 'admin') {
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'error' => 'Apenas administradores']);
+                    exit;
+                }
+                $data = json_decode(file_get_contents('php://input'), true);
+                $updates = $data['updates'] ?? [];
+                if (!is_array($updates) || empty($updates)) throw new Exception('Nenhuma atualização enviada');
+
+                $pdo->beginTransaction();
+                try {
+                    foreach ($updates as $item) {
+                        $teamId = $item['team_id'] ?? null;
+                        $moedas = $item['moedas'] ?? null;
+                        if (!$teamId || $moedas === null) continue;
+                        $stmt = $pdo->prepare('UPDATE teams SET moedas = ? WHERE id = ?');
+                        $stmt->execute([(int)$moedas, $teamId]);
+                    }
+                    $pdo->commit();
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    throw $e;
+                }
+                echo json_encode(['success' => true, 'message' => 'Moedas atualizadas']);
+                break;
+            }
+            throw new Exception('Método não suportado');
+
+        // ========== BUSCAR TEMPORADA ATUAL ==========
+        case 'current_season':
+            $league = $_GET['league'] ?? null;
+            if (!$league) {
+                throw new Exception('Liga não especificada');
+            }
+            
+            $stmt = $pdo->prepare("
+                SELECT s.*, sp.sprint_number, sp.status as sprint_status,
+                       sp.start_year,
+                       lsc.max_seasons as sprint_max_seasons
+                FROM seasons s
+                INNER JOIN sprints sp ON s.sprint_id = sp.id
+                INNER JOIN league_sprint_config lsc ON s.league = lsc.league
+                WHERE s.league = ? AND s.status != 'completed'
+                ORDER BY s.id DESC LIMIT 1
+            ");
+
+            // Substituir por UPSERT para mesclar com pontos da temporada regular (se já existirem)
+            $stmtInsertRanking = $pdo->prepare("
+                INSERT INTO team_ranking_points 
+                (team_id, season_id, league, 
+                 playoff_champion, playoff_runner_up, playoff_conference_finals, 
+                 playoff_second_round, playoff_first_round, playoff_points,
+                 awards_count, awards_points)
+                VALUES 
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    league = VALUES(league),
+                    playoff_champion = VALUES(playoff_champion),
+                    playoff_runner_up = VALUES(playoff_runner_up),
+                    playoff_conference_finals = VALUES(playoff_conference_finals),
+                    playoff_second_round = VALUES(playoff_second_round),
+                    playoff_first_round = VALUES(playoff_first_round),
+                    playoff_points = VALUES(playoff_points),
+                    awards_count = VALUES(awards_count),
+                    awards_points = VALUES(awards_points)
+            ");
+            $stmt->execute([$league]);
+            $season = $stmt->fetch();
+            
+            echo json_encode(['success' => true, 'season' => $season]);
+            break;
+
+        // ========== LISTAR TODAS AS TEMPORADAS ==========
+        case 'list_seasons':
+            $league = $_GET['league'] ?? null;
+            $where = $league ? "WHERE s.league = ?" : "";
+            $params = $league ? [$league] : [];
+            
+            $stmt = $pdo->prepare("
+                SELECT s.*, sp.sprint_number,
+                       (SELECT COUNT(*) FROM draft_pool WHERE season_id = s.id) as draft_players_count
+                FROM seasons s
+                INNER JOIN sprints sp ON s.sprint_id = sp.id
+                $where
+                ORDER BY s.id DESC
+            ");
+            $stmt->execute($params);
+            $seasons = $stmt->fetchAll();
+            
+            echo json_encode(['success' => true, 'seasons' => $seasons]);
+            break;
+
+        // ========== CRIAR NOVA TEMPORADA (ADMIN) ==========
+        case 'create_season':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $data = json_decode(file_get_contents('php://input'), true);
+            $league = isset($data['league']) ? strtoupper($data['league']) : null;
+            
+            if (!$league || !in_array($league, ['ELITE', 'NEXT', 'RISE', 'ROOKIE'])) {
+                throw new Exception('Liga inválida');
+            }
+            
+            $pdo->beginTransaction();
+            
+            $requestedYear = isset($data['season_year']) ? (int)$data['season_year'] : 0;
+            $requestedStartYear = isset($data['start_year']) ? (int)$data['start_year'] : 0;
+            
+            // Buscar ou criar sprint atual
+            $stmtSprint = $pdo->prepare("
+                SELECT id, sprint_number, start_year FROM sprints 
+                WHERE league = ? AND status = 'active' 
+                ORDER BY id DESC LIMIT 1
+            ");
+            $stmtSprint->execute([$league]);
+            $sprint = $stmtSprint->fetch();
+            
+            if (!$sprint) {
+                $startYear = $requestedStartYear ?: $requestedYear;
+                if (!$startYear) {
+                    throw new Exception('Informe o ano inicial do sprint (ex: 2016).');
+                }
+
+                // Criar primeiro sprint
+                $stmtCreate = $pdo->prepare("
+                    INSERT INTO sprints (league, sprint_number, start_year, start_date) 
+                    VALUES (?, 1, ?, CURDATE())
+                ");
+                $stmtCreate->execute([$league, $startYear]);
+                $sprintId = $pdo->lastInsertId();
+                $sprintNumber = 1;
+                $sprint = ['id' => $sprintId, 'start_year' => $startYear, 'sprint_number' => 1];
+            } else {
+                $sprintId = $sprint['id'];
+                $sprintNumber = $sprint['sprint_number'];
+                $stmtLastSeason = $pdo->prepare("SELECT year, season_number FROM seasons WHERE sprint_id = ? ORDER BY id DESC LIMIT 1");
+                $stmtLastSeason->execute([$sprintId]);
+                $lastSeason = $stmtLastSeason->fetch(PDO::FETCH_ASSOC);
+                $startYear = ensureSprintStartYear(
+                    $pdo,
+                    $sprint,
+                    $requestedStartYear,
+                    $lastSeason['year'] ?? null,
+                    $lastSeason['season_number'] ?? null
+                );
+            }
+            
+            // Contar temporadas no sprint atual
+            $stmtCount = $pdo->prepare("
+                SELECT COUNT(*) as count FROM seasons WHERE sprint_id = ?
+            ");
+            $stmtCount->execute([$sprintId]);
+            $seasonCount = $stmtCount->fetch()['count'];
+            
+            // Buscar limite de temporadas
+            $stmtConfig = $pdo->prepare("SELECT max_seasons FROM league_sprint_config WHERE league = ?");
+            $stmtConfig->execute([$league]);
+            $maxSeasons = $stmtConfig->fetch()['max_seasons'];
+            
+            if ($seasonCount >= $maxSeasons) {
+                throw new Exception("Sprint já completou o máximo de {$maxSeasons} temporadas. Inicie um novo sprint.");
+            }
+            
+            // Criar nova temporada
+            $seasonNumber = $seasonCount + 1;
+            $year = calculateSeasonYear($startYear, $seasonNumber);
+
+            if ($requestedYear > 0 && $requestedYear !== $year) {
+                throw new Exception("O ano informado ({$requestedYear}) não bate com o ano esperado para esta sprint ({$year}). Ajuste o ano inicial do sprint se necessário.");
+            }
+
+            $stmtVerify = $pdo->prepare("SELECT COUNT(*) FROM seasons WHERE league = ? AND year = ?");
+            $stmtVerify->execute([$league, $year]);
+            if ((int)$stmtVerify->fetchColumn() > 0) {
+                throw new Exception("Já existe uma temporada registrada para o ano {$year} na liga {$league}.");
+            }
+            
+            $stmtSeason = $pdo->prepare("
+                INSERT INTO seasons (sprint_id, league, season_number, year, start_date, status, current_phase)
+                VALUES (?, ?, ?, ?, CURDATE(), 'draft', 'draft')
+            ");
+            $stmtSeason->execute([$sprintId, $league, $seasonNumber, $year]);
+            $seasonId = $pdo->lastInsertId();
+            
+            $teams = fetchLeagueTeams($pdo, $league);
+            $pickStats = !empty($teams)
+                ? syncAutoGeneratedPicks($pdo, $league, $teams, $seasonId, getPickWindowYears($startYear, $seasonNumber, (int)$maxSeasons))
+                : ['created' => 0, 'renamed' => 0, 'deleted' => 0, 'kept' => 0];
+
+            // Resetar moedas e contadores de FA (dispensas/contratações) da liga ao avançar temporada
+            $pdo->prepare("UPDATE teams SET moedas = 0 WHERE league = ?")->execute([$league]);
+            // Zera dispensas e contratações a cada temporada
+            try {
+                $pdo->prepare("UPDATE teams SET waivers_used = 0, fa_signings_used = 0 WHERE league = ?")->execute([$league]);
+            } catch (Exception $e) {
+                // Colunas podem não existir em instalações antigas; ignorar silenciosamente
+            }
+
+            // Zerar (resetar) o ciclo de trades a cada 2 temporadas
+            // Definimos current_cycle = ceil(season_number / 2) para todos os times da liga
+            // Assim, temporadas 1-2 usam ciclo 1, 3-4 ciclo 2, etc.
+            try {
+                $tradeCycle = (int)ceil($seasonNumber / 2);
+                $stmtCycle = $pdo->prepare("UPDATE teams SET current_cycle = ? WHERE league = ?");
+                $stmtCycle->execute([$tradeCycle, $league]);
+
+                // Sincronizar trades_cycle sem zerar quando ainda nao inicializado
+                $pdo->prepare("UPDATE teams SET trades_cycle = ? WHERE league = ? AND (trades_cycle IS NULL OR trades_cycle = 0)")
+                    ->execute([$tradeCycle, $league]);
+
+                // Resetar contador de trades somente quando o ciclo muda
+                $pdo->prepare("UPDATE teams SET trades_used = 0, trades_cycle = ? WHERE league = ? AND trades_cycle <> ?")
+                    ->execute([$tradeCycle, $league, $tradeCycle]);
+            } catch (Exception $e) {
+                // Se a coluna current_cycle/trades_* não existir, ignorar
+            }
+
+            $pdo->commit();
+            
+            echo json_encode([
+                'success' => true,
+                'season_id' => $seasonId,
+                'message' => "Temporada {$seasonNumber} criada! Picks: {$pickStats['created']} novas, {$pickStats['renamed']} ajustadas, {$pickStats['deleted']} removidas."
+            ]);
+            break;
+
+        // ========== AJUSTAR PICKS DO SPRINT (ADMIN) ==========
+        case 'adjust_picks':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+
+            $data = json_decode(file_get_contents('php://input'), true);
+            $league = isset($data['league']) ? strtoupper($data['league']) : null;
+            $seasonId = isset($data['season_id']) ? (int)$data['season_id'] : 0;
+            $requestedStartYear = isset($data['start_year']) ? (int)$data['start_year'] : 0;
+
+            if (!$league) {
+                throw new Exception('Liga não especificada');
+            }
+
+            $whereClause = $seasonId ? "s.id = ?" : "s.league = ? AND s.status != 'completed'";
+            $params = $seasonId ? [$seasonId] : [$league];
+
+            $stmtSeason = $pdo->prepare("
+                SELECT s.*, sp.start_year, sp.id as sprint_id, sp.sprint_number
+                FROM seasons s
+                INNER JOIN sprints sp ON s.sprint_id = sp.id
+                WHERE $whereClause
+                ORDER BY s.id DESC
+                LIMIT 1
+            ");
+            $stmtSeason->execute($params);
+            $season = $stmtSeason->fetch(PDO::FETCH_ASSOC);
+
+            if (!$season) {
+                throw new Exception('Temporada não encontrada para ajustar picks.');
+            }
+
+            if (!empty($season['league']) && strtoupper($season['league']) !== strtoupper($league)) {
+                throw new Exception('A temporada informada não pertence à liga selecionada.');
+            }
+
+            $startYear = ensureSprintStartYear(
+                $pdo,
+                ['id' => $season['sprint_id'], 'start_year' => $season['start_year']],
+                $requestedStartYear,
+                $season['year'] ?? null,
+                $season['season_number'] ?? null
+            );
+
+            $stmtConfig = $pdo->prepare("SELECT max_seasons FROM league_sprint_config WHERE league = ?");
+            $stmtConfig->execute([$league]);
+            $maxSeasons = (int)($stmtConfig->fetch()['max_seasons'] ?? 0);
+
+            $targetYears = getPickWindowYears($startYear, (int)$season['season_number'], $maxSeasons);
+            $teams = fetchLeagueTeams($pdo, $league);
+            $stats = syncAutoGeneratedPicks($pdo, $league, $teams, (int)$season['id'], $targetYears, true);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Picks do sprint ajustadas.',
+                'target_years' => $targetYears,
+                'stats' => $stats
+            ]);
+            break;
+
+        // ========== BUSCAR JOGADORES DO DRAFT ==========
+        case 'draft_players':
+            $seasonId = $_GET['season_id'] ?? null;
+            if (!$seasonId) throw new Exception('Season ID não especificado');
+            
+            $stmt = $pdo->prepare("
+                SELECT 
+                    dp.*,
+                    CONCAT(t.city, ' ', t.name) as team_name
+                FROM draft_pool dp
+                LEFT JOIN teams t ON dp.drafted_by_team_id = t.id
+                WHERE dp.season_id = ? 
+                ORDER BY dp.draft_status ASC, dp.draft_order ASC, dp.ovr DESC, dp.name ASC
+            ");
+            $stmt->execute([$seasonId]);
+            $players = $stmt->fetchAll();
+            
+            echo json_encode(['success' => true, 'players' => $players]);
+            break;
+
+        // ========== ADICIONAR JOGADOR NO DRAFT POOL (ADMIN) ==========
+        case 'add_draft_player':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO draft_pool (season_id, name, position, secondary_position, age, ovr, photo_url, bio, strengths, weaknesses)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+                $stmt->execute([
+                    $data['season_id'],
+                    $data['name'],
+                    $data['position'],
+                    $data['secondary_position'] ?? null,
+                    $data['age'],
+                    $data['ovr'],
+                    $data['photo_url'] ?? null,
+                    $data['bio'] ?? null,
+                    $data['strengths'] ?? null,
+            $data['weaknesses'] ?? null
+        ]);
+            
+                echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+                break;
+
+            // ========== ATRIBUIR JOGADOR DRAFTADO A UM TIME (ADMIN) ==========
+            case 'assign_draft_pick':
+                if ($method !== 'POST') throw new Exception('Método inválido');
+            
+                $data = json_decode(file_get_contents('php://input'), true);
+            
+                if (!isset($data['team_id']) || !isset($data['player_id'])) {
+                    throw new Exception('team_id e player_id são obrigatórios');
+                }
+            
+                $pdo->beginTransaction();
+            
+                // Buscar próximo draft_order
+                $stmtOrder = $pdo->prepare("SELECT COALESCE(MAX(draft_order), 0) + 1 as next_order FROM draft_pool WHERE draft_status = 'drafted'");
+                $stmtOrder->execute();
+                $nextOrder = $stmtOrder->fetch()['next_order'];
+            
+                // Atualizar draft_pool
+                $stmt = $pdo->prepare("
+                    UPDATE draft_pool 
+                    SET draft_status = 'drafted', drafted_by_team_id = ?, draft_order = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([$data['team_id'], $nextOrder, $data['player_id']]);
+            
+                // Adicionar jogador ao elenco do time
+                $stmtPlayer = $pdo->prepare("SELECT * FROM draft_pool WHERE id = ?");
+                $stmtPlayer->execute([$data['player_id']]);
+                $draftPlayer = $stmtPlayer->fetch();
+            
+                $stmtInsert = $pdo->prepare("
+                    INSERT INTO players (team_id, name, position, age, ovr, role, available_for_trade)
+                    VALUES (?, ?, ?, ?, ?, 'Reserva', 0)
+                ");
+                $stmtInsert->execute([
+                    $data['team_id'],
+                    $draftPlayer['name'],
+                    $draftPlayer['position'],
+                    $draftPlayer['age'],
+                    $draftPlayer['ovr']
+                ]);
+            
+                $pdo->commit();
+            
+                echo json_encode(['success' => true]);
+                break;
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            if (!isset($data['team_id']) || !isset($data['player_id'])) {
+                throw new Exception('team_id e player_id são obrigatórios');
+            }
+            
+            $pdo->beginTransaction();
+            
+            // Buscar próximo draft_order
+            $stmtOrder = $pdo->prepare("SELECT COALESCE(MAX(draft_order), 0) + 1 as next_order FROM draft_pool WHERE draft_status = 'drafted'");
+            $stmtOrder->execute();
+            $nextOrder = $stmtOrder->fetch()['next_order'];
+            
+            // Atualizar draft_pool
+            $stmt = $pdo->prepare("
+                UPDATE draft_pool 
+                SET draft_status = 'drafted', drafted_by_team_id = ?, draft_order = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$data['team_id'], $nextOrder, $data['player_id']]);
+            
+            // Adicionar jogador ao elenco do time
+            $stmtPlayer = $pdo->prepare("SELECT * FROM draft_pool WHERE id = ?");
+            $stmtPlayer->execute([$data['player_id']]);
+            $draftPlayer = $stmtPlayer->fetch();
+            
+            $stmtInsert = $pdo->prepare("
+                INSERT INTO players (team_id, name, position, age, ovr, role, available_for_trade)
+                VALUES (?, ?, ?, ?, ?, 'Reserva', 0)
+            ");
+            $stmtInsert->execute([
+                $data['team_id'],
+                $draftPlayer['name'],
+                $draftPlayer['position'],
+                $draftPlayer['age'],
+                $draftPlayer['ovr']
+            ]);
+            
+            $pdo->commit();
+            
+            echo json_encode(['success' => true]);
+            break;
+
+        // ========== REMOVER JOGADOR DO DRAFT (ADMIN) ==========
+        case 'delete_draft_player':
+            if ($method === 'DELETE') {
+                $playerId = (int)($_GET['id'] ?? 0);
+            } elseif ($method === 'POST') {
+                $payload = json_decode(file_get_contents('php://input'), true);
+                $playerId = isset($payload['player_id']) ? (int)$payload['player_id'] : 0;
+            } else {
+                throw new Exception('Método inválido');
+            }
+
+            if (!$playerId) {
+                throw new Exception('player_id é obrigatório');
+            }
+
+            $stmtDelete = $pdo->prepare('DELETE FROM draft_pool WHERE id = ?');
+            $stmtDelete->execute([$playerId]);
+
+            echo json_encode(['success' => true, 'message' => 'Jogador removido do draft']);
+            break;
+
+        // ========== BUSCAR RANKING GLOBAL ==========
+        case 'global_ranking':
+            $stmt = $pdo->query("SELECT * FROM vw_global_ranking LIMIT 100");
+            $ranking = $stmt->fetchAll();
+            
+            echo json_encode(['success' => true, 'ranking' => $ranking]);
+            break;
+
+        // ========== BUSCAR RANKING POR LIGA ==========
+        case 'league_ranking':
+            $league = $_GET['league'] ?? null;
+            if (!$league) throw new Exception('Liga não especificada');
+            
+            $stmt = $pdo->prepare("SELECT * FROM vw_league_ranking WHERE league = ?");
+            $stmt->execute([$league]);
+            $ranking = $stmt->fetchAll();
+            
+            echo json_encode(['success' => true, 'ranking' => $ranking]);
+            break;
+
+        // ========== HISTÓRICO DE CAMPEÕES ==========
+        case 'champions_history':
+            $league = $_GET['league'] ?? null;
+            $where = $league ? "WHERE league = ?" : "";
+            $params = $league ? [$league] : [];
+            
+            $stmt = $pdo->prepare("SELECT * FROM vw_champions_history $where");
+            $stmt->execute($params);
+            $history = $stmt->fetchAll();
+            
+            echo json_encode(['success' => true, 'history' => $history]);
+            break;
+
+        // ========== HISTÓRICO COMPLETO COM PRÊMIOS ==========
+        case 'full_history':
+            $league = $_GET['league'] ?? null;
+            
+            // Buscar temporadas completas
+            $whereClause = $league ? "WHERE s.league = ? AND s.status = 'completed'" : "WHERE s.status = 'completed'";
+            $params = $league ? [$league] : [];
+            
+            $stmt = $pdo->prepare("
+                SELECT s.id as season_id, s.season_number, s.year, s.league
+                FROM seasons s
+                $whereClause
+                ORDER BY s.id DESC
+            ");
+            $stmt->execute($params);
+            $seasons = $stmt->fetchAll();
+            
+            $result = [];
+            foreach ($seasons as $season) {
+                $seasonData = [
+                    'id' => $season['season_id'],
+                    'number' => $season['season_number'],
+                    'year' => $season['year'],
+                    'league' => $season['league'],
+                    'champion' => null,
+                    'runner_up' => null,
+                    'awards' => []
+                ];
+                
+                // Buscar campeão e vice
+                $stmtPlayoffs = $pdo->prepare("
+                    SELECT pr.position, t.id as team_id, t.city, t.name as team_name
+                    FROM playoff_results pr
+                    JOIN teams t ON pr.team_id = t.id
+                    WHERE pr.season_id = ?
+                ");
+                $stmtPlayoffs->execute([$season['season_id']]);
+                $playoffs = $stmtPlayoffs->fetchAll();
+                
+                foreach ($playoffs as $p) {
+                    if ($p['position'] === 'champion') {
+                        $seasonData['champion'] = ['team_id' => $p['team_id'], 'city' => $p['city'], 'name' => $p['team_name']];
+                    } else if ($p['position'] === 'runner_up') {
+                        $seasonData['runner_up'] = ['team_id' => $p['team_id'], 'city' => $p['city'], 'name' => $p['team_name']];
+                    }
+                }
+                
+                // Buscar prêmios individuais
+                $stmtAwards = $pdo->prepare("
+                    SELECT sa.award_type, sa.player_name, t.id as team_id, t.city, t.name as team_name
+                    FROM season_awards sa
+                    JOIN teams t ON sa.team_id = t.id
+                    WHERE sa.season_id = ?
+                ");
+                $stmtAwards->execute([$season['season_id']]);
+                $awards = $stmtAwards->fetchAll();
+                
+                foreach ($awards as $award) {
+                    $seasonData['awards'][] = [
+                        'type' => $award['award_type'],
+                        'player' => $award['player_name'],
+                        'team_id' => $award['team_id'],
+                        'team_city' => $award['city'],
+                        'team_name' => $award['team_name']
+                    ];
+                }
+                
+                $result[] = $seasonData;
+            }
+            
+            echo json_encode(['success' => true, 'history' => $result]);
+            break;
+
+        // ========== SALVAR HISTÓRICO DA TEMPORADA ==========
+            case 'save_history':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            $seasonId = isset($input['season_id']) ? (int)$input['season_id'] : null;
+            $champion = isset($input['champion']) ? (int)$input['champion'] : null;
+            $runnerUp = isset($input['runner_up']) ? (int)$input['runner_up'] : null;
+            
+            // Arrays de IDs dos times eliminados
+            $firstRound = isset($input['first_round_losses']) && is_array($input['first_round_losses']) ? array_map('intval', array_filter($input['first_round_losses'])) : [];
+            $secondRound = isset($input['second_round_losses']) && is_array($input['second_round_losses']) ? array_map('intval', array_filter($input['second_round_losses'])) : [];
+            $confFinal = isset($input['conference_final_losses']) && is_array($input['conference_final_losses']) ? array_map('intval', array_filter($input['conference_final_losses'])) : [];
+            
+            if (!$seasonId || !$champion || !$runnerUp) {
+                throw new Exception('Dados incompletos: season_id, champion e runner_up são obrigatórios');
+            }
+
+            // Validar duplicações lógicas
+            $allEliminated = array_merge($firstRound, $secondRound, $confFinal);
+            if (count(array_unique($allEliminated)) !== count($allEliminated)) {
+                throw new Exception('Um time não pode ser marcado em mais de uma fase eliminada');
+            }
+            if (in_array($champion, $allEliminated) || in_array($runnerUp, $allEliminated)) {
+                throw new Exception('Não inclua campeão ou vice nas fases de eliminados');
+            }
+            
+            $pdo->beginTransaction();
+            
+            // 1. Buscar informações da Liga (necessário para a tabela team_ranking_points)
+            $stmtSeason = $pdo->prepare("SELECT league FROM seasons WHERE id = ?");
+            $stmtSeason->execute([$seasonId]);
+            $seasonData = $stmtSeason->fetch();
+            
+            if (!$seasonData) throw new Exception('Temporada não encontrada');
+            $league = $seasonData['league'];
+
+            // 2. Salvar Tabelas Auxiliares (Playoff Results e Awards)
+            // (Mantemos essa parte pois ela alimenta a exibição visual do histórico)
+            $pdo->prepare("DELETE FROM playoff_results WHERE season_id = ?")->execute([$seasonId]);
+            $pdo->prepare("DELETE FROM season_awards WHERE season_id = ?")->execute([$seasonId]);
+            
+            $stmtPlayoff = $pdo->prepare("INSERT INTO playoff_results (season_id, team_id, position) VALUES (?, ?, ?)");
+            $stmtPlayoff->execute([$seasonId, $champion, 'champion']);
+            $stmtPlayoff->execute([$seasonId, $runnerUp, 'runner_up']);
+            foreach ($firstRound as $tid) $stmtPlayoff->execute([$seasonId, $tid, 'first_round']);
+            foreach ($secondRound as $tid) $stmtPlayoff->execute([$seasonId, $tid, 'second_round']);
+            foreach ($confFinal as $tid) $stmtPlayoff->execute([$seasonId, $tid, 'conference_final']);
+            
+            // Inserir prêmios na tabela auxiliar
+            $stmtAward = $pdo->prepare("INSERT INTO season_awards (season_id, team_id, award_type, player_name) VALUES (?, ?, ?, ?)");
+            $awardTypes = ['mvp', 'dpoy', 'mip', 'sixth_man', 'roy'];
+            $awardsMap = []; // Para usar no cálculo de pontos depois
+            
+            foreach ($awardTypes as $type) {
+                $teamKey = $type . '_team_id'; // ex: mvp_team_id
+                if (!empty($input[$type]) && !empty($input[$teamKey])) {
+                    $tId = (int)$input[$teamKey];
+                    $stmtAward->execute([$seasonId, $tId, ($type == 'sixth_man' ? '6th_man' : $type), $input[$type]]);
+                    
+                    // Contabilizar para o ranking
+                    if (!isset($awardsMap[$tId])) {
+                        $awardsMap[$tId] = 0;
+                    }
+                    $awardsMap[$tId]++; // +1 prêmio para este time
+                }
+            }
+
+            // 3. Pontuação do ranking: removida do fluxo automático.
+            //    Use o endpoint 'set_season_points' para registrar pontos manualmente.
+
+            // Função helper para iniciar o time no array se não existir
+            $initTeam = function($tId) use (&$teamStats) {
+                if (!isset($teamStats[$tId])) {
+                    $teamStats[$tId] = [
+                        'playoff_champion' => 0,
+                        'playoff_runner_up' => 0,
+                        'playoff_conference_finals' => 0,
+                        'playoff_second_round' => 0,
+                        'playoff_first_round' => 0,
+                        'playoff_points' => 0,
+                        'awards_count' => 0,
+                        'awards_points' => 0
+                    ];
+                }
+            };
+
+            // Processar Campeão (cumulativo conforme regra: 1ª(1) + 2ª(2) + F.Conf(3) + Vice(2) + Campeão(5) = 13)
+            $initTeam($champion);
+            $teamStats[$champion]['playoff_champion'] = 1;
+            $teamStats[$champion]['playoff_points'] = 13; 
+
+            // Processar Vice (8 pontos)
+            $initTeam($runnerUp);
+            $teamStats[$runnerUp]['playoff_runner_up'] = 1;
+            $teamStats[$runnerUp]['playoff_points'] = 8;
+
+            // Processar Finais de Conferência (6 pontos)
+            foreach ($confFinal as $tid) {
+                $initTeam($tid);
+                $teamStats[$tid]['playoff_conference_finals'] = 1;
+                $teamStats[$tid]['playoff_points'] = 6;
+            }
+
+            // Processar 2ª Rodada (3 pontos)
+            foreach ($secondRound as $tid) {
+                $initTeam($tid);
+                $teamStats[$tid]['playoff_second_round'] = 1;
+                $teamStats[$tid]['playoff_points'] = 3;
+            }
+
+            // Processar 1ª Rodada (1 ponto)
+            foreach ($firstRound as $tid) {
+                $initTeam($tid);
+                $teamStats[$tid]['playoff_first_round'] = 1;
+                $teamStats[$tid]['playoff_points'] = 1;
+            }
+
+            // Processar Prêmios (1 ponto cada)
+            foreach ($awardsMap as $tid => $count) {
+                $initTeam($tid);
+                $teamStats[$tid]['awards_count'] = $count;
+                $teamStats[$tid]['awards_points'] = $count * 1; // 1 ponto por prêmio
+            }
+
+            // Agora fazemos o INSERT final para cada time
+            $stmtInsertRanking = $pdo->prepare("
+                INSERT INTO team_ranking_points 
+                (team_id, season_id, league, 
+                 playoff_champion, playoff_runner_up, playoff_conference_finals, 
+                 playoff_second_round, playoff_first_round, playoff_points,
+                 awards_count, awards_points)
+                VALUES 
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+
+            foreach ($teamStats as $tid => $stats) {
+                $stmtInsertRanking->execute([
+                    $tid, 
+                    $seasonId, 
+                    $league,
+                    $stats['playoff_champion'],
+                    $stats['playoff_runner_up'],
+                    $stats['playoff_conference_finals'],
+                    $stats['playoff_second_round'],
+                    $stats['playoff_first_round'],
+                    $stats['playoff_points'],
+                    $stats['awards_count'],
+                    $stats['awards_points']
+                ]);
+            }
+            
+            // Marcar temporada como completa
+            $pdo->prepare("UPDATE seasons SET status = 'completed' WHERE id = ?")->execute([$seasonId]);
+            
+            $pdo->commit();
+            
+                echo json_encode(['success' => true, 'message' => 'Histórico salvo!']);
+            break;
+
+            // ========== DEFINIR PONTOS MANUAIS DA TEMPORADA (ADMIN) ==========
+            case 'set_season_points':
+                if ($method !== 'POST') throw new Exception('Método inválido');
+
+                // Somente admin pode ajustar
+                if (($user['user_type'] ?? 'jogador') !== 'admin') {
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'error' => 'Apenas administradores']);
+                    exit;
+                }
+
+                $input = json_decode(file_get_contents('php://input'), true);
+                $seasonId = isset($input['season_id']) ? (int)$input['season_id'] : null;
+                $items = isset($input['items']) && is_array($input['items']) ? $input['items'] : [];
+
+                if (!$seasonId) throw new Exception('season_id é obrigatório');
+
+                $pdo->beginTransaction();
+
+                // Limpar pontos desta temporada antes de gravar
+                $pdo->prepare("DELETE FROM team_ranking_points WHERE season_id = ?")->execute([$seasonId]);
+
+                $stmtInsert = $pdo->prepare("INSERT INTO team_ranking_points (team_id, season_id, points, reason) VALUES (?, ?, ?, ?)");
+
+                foreach ($items as $row) {
+                    $teamId = isset($row['team_id']) ? (int)$row['team_id'] : null;
+                    $pts = isset($row['points']) ? (int)$row['points'] : 0;
+                    $reason = isset($row['reason']) ? trim($row['reason']) : null;
+                    if (!$teamId) continue;
+                    $stmtInsert->execute([$teamId, $seasonId, $pts, $reason]);
+                }
+
+                $pdo->commit();
+                echo json_encode(['success' => true, 'message' => 'Pontos da temporada salvos e enviados ao ranking']);
+                break;
+
+        // ========== RESETAR SPRINT (NOVO CICLO) ==========
+        // ========== RESETAR TIMES (MANTER PONTOS DO RANKING) ==========
+        case 'reset_teams':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            $league = $input['league'] ?? null;
+            
+            if (!$league) {
+                throw new Exception('Liga não especificada');
+            }
+            
+            $pdo->beginTransaction();
+            
+            // ATENÇÃO: Isso limpa jogadores, picks, trades e histórico, mas MANTÉM os pontos do ranking!
+            
+            // 1. Deletar picks relacionadas aos times da liga
+            $pdo->exec("
+                DELETE p FROM picks p
+                INNER JOIN teams t ON p.team_id = t.id
+                WHERE t.league = '$league'
+            ");
+            
+            // 2. Deletar trades relacionados aos times da liga
+            $pdo->exec("
+                DELETE tr FROM trades tr
+                INNER JOIN teams t ON tr.from_team_id = t.id
+                WHERE t.league = '$league'
+            ");
+            
+            // 3. Deletar jogadores dos times da liga (tabela players)
+            $pdo->exec("
+                DELETE pl FROM players pl
+                INNER JOIN teams t ON pl.team_id = t.id
+                WHERE t.league = '$league'
+            ");
+            
+            // 4. Deletar prêmios das temporadas
+            $pdo->exec("
+                DELETE sa FROM season_awards sa
+                INNER JOIN seasons s ON sa.season_id = s.id
+                WHERE s.league = '$league'
+            ");
+            
+            // 5. Deletar resultados de playoffs
+            $pdo->exec("
+                DELETE pr FROM playoff_results pr
+                INNER JOIN seasons s ON pr.season_id = s.id
+                WHERE s.league = '$league'
+            ");
+            
+            // 6. Deletar standings
+            $pdo->exec("
+                DELETE ss FROM season_standings ss
+                INNER JOIN seasons s ON ss.season_id = s.id
+                WHERE s.league = '$league'
+            ");
+            
+            // 7. Deletar draft pool
+            $pdo->exec("
+                DELETE dp FROM draft_pool dp
+                INNER JOIN seasons s ON dp.season_id = s.id
+                WHERE s.league = '$league'
+            ");
+            
+            // 8. Deletar temporadas
+            $pdo->exec("DELETE FROM seasons WHERE league = '$league'");
+            
+            // 9. Deletar sprints
+            $pdo->exec("DELETE FROM sprints WHERE league = '$league'");
+            
+            // 10. Deletar propostas de Free Agency da liga
+            $pdo->exec("
+                DELETE fao FROM free_agent_offers fao
+                INNER JOIN free_agents fa ON fao.free_agent_id = fa.id
+                WHERE fa.league = '$league'
+            ");
+            
+            // 11. Deletar Free Agents da liga
+            $pdo->exec("DELETE FROM free_agents WHERE league = '$league'");
+            
+            // 12. Resetar contadores de waivers/signings dos times
+            $pdo->exec("UPDATE teams SET waivers_used = 0, fa_signings_used = 0 WHERE league = '$league'");
+            
+            // IMPORTANTE: NÃO deletar team_ranking_points - os pontos são mantidos!
+            
+            $pdo->commit();
+            
+            echo json_encode(['success' => true, 'message' => 'Times resetados com sucesso! Pontos do ranking mantidos.']);
+            break;
+
+        // ========== RESETAR SPRINT COMPLETO (DELETA TUDO) ==========
+        case 'reset_sprint':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            $league = $input['league'] ?? null;
+            
+            if (!$league) {
+                throw new Exception('Liga não especificada');
+            }
+            
+            $pdo->beginTransaction();
+            
+            // ATENÇÃO: Isso limpa dados operacionais da liga e também zera pontos/títulos de ranking.
+            
+            // 1. Deletar picks relacionadas aos times da liga
+            $pdo->exec("
+                DELETE p FROM picks p
+                INNER JOIN teams t ON p.team_id = t.id
+                WHERE t.league = '$league'
+            ");
+            
+            // 2. Deletar trades relacionados aos times da liga
+            $pdo->exec("
+                DELETE tr FROM trades tr
+                INNER JOIN teams t ON tr.from_team_id = t.id
+                WHERE t.league = '$league'
+            ");
+            
+            // 3. Deletar jogadores dos times da liga
+            $pdo->exec("
+                DELETE tp FROM team_players tp
+                INNER JOIN teams t ON tp.team_id = t.id
+                WHERE t.league = '$league'
+            ");
+            
+            // 4. Deletar standings
+            $pdo->exec("
+                DELETE ss FROM season_standings ss
+                INNER JOIN seasons s ON ss.season_id = s.id
+                WHERE s.league = '$league'
+            ");
+
+            // 5. Deletar draft pool
+            $pdo->exec("
+                DELETE dp FROM draft_pool dp
+                INNER JOIN seasons s ON dp.season_id = s.id
+                WHERE s.league = '$league'
+            ");
+
+            // 6. Deletar propostas de Free Agency da liga
+            $pdo->exec("
+                DELETE fao FROM free_agent_offers fao
+                INNER JOIN free_agents fa ON fao.free_agent_id = fa.id
+                WHERE fa.league = '$league'
+            ");
+
+            // 7. Deletar Free Agents da liga
+            $pdo->exec("DELETE FROM free_agents WHERE league = '$league'");
+
+            // 8. Resetar tapas dos times
+            $pdo->exec("UPDATE teams SET tapas = 0 WHERE league = '$league'");
+
+            // 9. Zerar ranking (pontos e tÃ­tulos) e limpar histÃ³rico detalhado da liga
+            if (columnExists($pdo, 'teams', 'ranking_points')) {
+                $stmtResetPoints = $pdo->prepare("UPDATE teams SET ranking_points = 0 WHERE league = ?");
+                $stmtResetPoints->execute([$league]);
+            }
+            if (columnExists($pdo, 'teams', 'ranking_titles')) {
+                $stmtResetTitles = $pdo->prepare("UPDATE teams SET ranking_titles = 0 WHERE league = ?");
+                $stmtResetTitles->execute([$league]);
+            }
+            $stmtTable = $pdo->query("SHOW TABLES LIKE 'team_ranking_points'");
+            if ($stmtTable && $stmtTable->rowCount() > 0) {
+                $stmtDel = $pdo->prepare("DELETE FROM team_ranking_points WHERE league = ?");
+                $stmtDel->execute([$league]);
+            }
+            
+            $pdo->commit();
+            
+            echo json_encode(['success' => true, 'message' => 'Sprint resetado com sucesso']);
+            break;
+
+        // ========== AVANÇAR CICLO DE TRADES (ADMIN) ==========
+        case 'advance_cycle':
+            if ($method !== 'POST') throw new Exception('Método inválido');
+            
+            $data = json_decode(file_get_contents('php://input'), true);
+            $league = $data['league'] ?? null;
+            
+            if (!$league) throw new Exception('Liga não especificada');
+            
+            // Incrementar ciclo de todos os times da liga
+            $stmt = $pdo->prepare('UPDATE teams SET current_cycle = current_cycle + 1 WHERE league = ?');
+            $stmt->execute([$league]);
+            
+            echo json_encode(['success' => true, 'message' => 'Ciclo de trades avançado para todos os times da liga']);
+            break;
+
+        default:
+            throw new Exception('Ação inválida');
+    }
+} catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
