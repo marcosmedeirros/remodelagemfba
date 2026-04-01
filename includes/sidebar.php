@@ -87,9 +87,6 @@ $sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
     <div class="sidebar-footer">
         <img src="<?= htmlspecialchars($user['photo_url'] ?? '/img/default-avatar.png') ?>" alt="<?= htmlspecialchars($user['name'] ?? 'Usuário') ?>" class="sidebar-user-avatar">
         <span class="sidebar-user-name"><?= htmlspecialchars($user['name'] ?? 'Usuário') ?></span>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema">
-            <i class="bi bi-moon-stars-fill"></i>
-        </button>
         <a href="<?= $sidebarBaseUrl ?>/logout.php" class="sidebar-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
     </div>
 </aside>

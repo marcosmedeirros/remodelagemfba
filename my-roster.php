@@ -83,32 +83,32 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         /* ── Sidebar ─────────────────────────────── */
         .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 300; overflow-y: auto; scrollbar-width: none; transition: transform var(--t) var(--ease); }
         .sidebar::-webkit-scrollbar { display: none; }
-        .sb-brand { padding: 22px 18px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-        .sb-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
-        .sb-brand-text { font-size: 15px; font-weight: 700; line-height: 1.1; }
-        .sb-brand-text span { display: block; font-size: 11px; font-weight: 400; color: var(--text-2); }
-        .sb-team { margin: 14px 14px 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .sb-team img { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
-        .sb-team-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
-        .sb-team-league { font-size: 11px; color: var(--red); font-weight: 600; }
-        .sb-nav { flex: 1; padding: 12px 10px 8px; }
-        .sb-section { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3); padding: 12px 10px 5px; }
-        .sb-nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-sm); color: var(--text-2); font-size: 13px; font-weight: 500; margin-bottom: 2px; transition: all var(--t) var(--ease); }
-        .sb-nav a i { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
-        .sb-nav a:hover { background: var(--panel-2); color: var(--text); }
-        .sb-nav a.active { background: var(--red-soft); color: var(--red); font-weight: 600; }
-        .sb-nav a.active i { color: var(--red); }
-        .sb-footer { border-top: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .sb-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
-        .sb-username { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sb-logout { width: 26px; height: 26px; border-radius: 7px; background: transparent; border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all var(--t) var(--ease); flex-shrink: 0; }
-        .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+        .sidebar-brand { padding: 22px 18px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .sidebar-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+        .sidebar-brand-text { font-size: 15px; font-weight: 700; line-height: 1.1; }
+        .sidebar-brand-text span { display: block; font-size: 11px; font-weight: 400; color: var(--text-2); }
+        .sidebar-myteam { margin: 14px 14px 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .sidebar-myteam img { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
+        .sidebar-myteam-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+        .sidebar-myteam-sub { font-size: 11px; color: var(--red); font-weight: 600; }
+        .sidebar-nav { flex: 1; padding: 12px 10px 8px; }
+        .sidebar-nav-label { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3); padding: 12px 10px 5px; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-sm); color: var(--text-2); font-size: 13px; font-weight: 500; margin-bottom: 2px; transition: all var(--t) var(--ease); }
+        .sidebar-nav a i { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
+        .sidebar-nav a:hover { background: var(--panel-2); color: var(--text); }
+        .sidebar-nav a.active { background: var(--red-soft); color: var(--red); font-weight: 600; }
+        .sidebar-nav a.active i { color: var(--red); }
+        .sidebar-footer { border-top: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .sidebar-user-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
+        .sidebar-user-name { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-logout { width: 26px; height: 26px; border-radius: 7px; background: transparent; border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all var(--t) var(--ease); flex-shrink: 0; }
+        .sidebar-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
         /* ── Topbar mobile ───────────────────────── */
         .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 199; }
-        .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
-        .topbar-title em { color: var(--red); font-style: normal; }
-        .menu-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; }
+        .topbar-brand { font-weight: 700; font-size: 15px; flex: 1; }
+        .topbar-brand em { color: var(--red); font-style: normal; }
+        .topbar-menu-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; }
         .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 199; }
         .sb-overlay.show { display: block; }
 
@@ -356,7 +356,6 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .btn-icon.edit:hover { background: var(--red-soft); color: var(--red); border-color: var(--border-red); }
         .btn-icon.waive:hover { background: rgba(245,158,11,.12); color: var(--amber); border-color: rgba(245,158,11,.25); }
         .btn-icon.retire:hover { background: rgba(239,68,68,.12); color: #ef4444; border-color: rgba(239,68,68,.25); }
-        .btn-icon.trade-toggle { }
         .btn-icon.trade-on:hover { background: rgba(34,197,94,.12); color: var(--green); border-color: rgba(34,197,94,.25); }
         .btn-icon.trade-off:hover { background: var(--red-soft); color: var(--red); border-color: var(--border-red); }
 
@@ -413,59 +412,18 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 <body>
 <div class="app">
 
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
     <!-- ══════════ SIDEBAR ══════════ -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sb-brand">
-            <div class="sb-logo">FBA</div>
-            <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($league) ?></span></div>
-        </div>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
-        <div class="sb-team">
-            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="" onerror="this.src='/img/default-team.png'">
-            <div>
-                <div class="sb-team-name"><?= htmlspecialchars($team ? (($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) : 'Sem time') ?></div>
-                <div class="sb-team-league"><?= htmlspecialchars($league) ?></div>
-            </div>
-        </div>
-
-        <nav class="sb-nav">
-            <div class="sb-section">Principal</div>
-            <a href="/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
-            <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
-            <a href="/my-roster.php" class="active"><i class="bi bi-person-fill"></i> Meu Elenco</a>
-            <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
-            <a href="/trades.php"><i class="bi bi-arrow-left-right"></i> Trades</a>
-            <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
-            <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
-
-            <div class="sb-section">Liga</div>
-            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
-            <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
-
-            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-            <div class="sb-section">Admin</div>
-            <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
-            <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
-            <?php endif; ?>
-
-            <div class="sb-section">Conta</div>
-            <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
-        </nav>
-
-        <div class="sb-footer">
-            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
-                 alt="<?= htmlspecialchars($user['name']) ?>" class="sb-avatar"
-                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
-            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
-            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
-        </div>
-    </aside>
-
-    <div class="sb-overlay" id="sbOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <header class="topbar">
-        <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
-        <div class="topbar-title">FBA <em>Elenco</em></div>
+        <button class="topbar-menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
+        <div class="topbar-brand">FBA <em>Elenco</em></div>
     </header>
 
     <!-- ══════════ MAIN ══════════ -->
@@ -825,16 +783,15 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 <!-- ══════════ SCRIPTS ══════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="/js/sidebar.js"></script>
 <script>
     window.__TEAM_ID__ = <?= $teamId ? (int)$teamId : 'null' ?>;
     window.__CAP_MIN__ = <?= (int)$capMin ?>;
     window.__CAP_MAX__ = <?= (int)$capMax ?>;
 
-    /* ── Sidebar ─────────────────────────────────── */
-    const sidebar   = document.getElementById('sidebar');
-    const sbOverlay = document.getElementById('sbOverlay');
-    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarToggle')?.click();
+    });
 
     /* ── View switch ─────────────────────────────── */
     const btnCourt  = document.getElementById('btn-view-court');
