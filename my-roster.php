@@ -420,10 +420,13 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 <body>
 <div class="app">
 
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ---------- SIDEBAR ---------- -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-    <div class="sb-overlay" id="sbOverlay"></div>
 
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
@@ -786,18 +789,16 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 
 <!-- ---------- SCRIPTS ---------- -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/sidebar.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="/js/sidebar.js"></script>
 <script>
     window.__TEAM_ID__ = <?= $teamId ? (int)$teamId : 'null' ?>;
     window.__CAP_MIN__ = <?= (int)$capMin ?>;
     window.__CAP_MAX__ = <?= (int)$capMax ?>;
 
-    /* -- Sidebar ----------------------------------- */
-    const sidebar   = document.getElementById('sidebar');
-    const sbOverlay = document.getElementById('sbOverlay');
-    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarToggle')?.click();
+    });
 
     /* -- View switch ------------------------------- */
     const btnCourt  = document.getElementById('btn-view-court');

@@ -134,3 +134,61 @@ CSS;
 
 echo $novoSidebarThemeCss;
 ?>
+
+<!-- BOTÃO MOBILE -->
+<button class="sidebar-toggle" onclick="toggleSidebar()">
+  ☰
+</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  
+  <div style="padding: 20px; text-align:center;">
+    <img src="logo.png" class="team-avatar" alt="Logo">
+    <h5>Painel</h5>
+  </div>
+
+  <ul class="sidebar-menu">
+
+    <li>
+      <a href="dashboard.php">
+        <i>🏠</i> Dashboard
+      </a>
+    </li>
+
+    <li>
+      <a href="elenco.php">
+        <i>👥</i> Elenco
+      </a>
+    </li>
+
+    <li>
+      <a href="jogos.php">
+        <i>🏀</i> Jogos
+      </a>
+    </li>
+
+    <li>
+      <a href="financas.php">
+        <i>💰</i> Finanças
+      </a>
+    </li>
+
+    <li>
+      <a href="configuracoes.php">
+        <i>⚙️</i> Configurações
+      </a>
+    </li>
+
+  </ul>
+
+</aside>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('show');
+}
+</script>

@@ -255,10 +255,13 @@ $tradedAway   = count($picksAway);
 <body>
 <div class="app">
 
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ══════════ SIDEBAR ══════════ -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-    <div class="sb-overlay" id="sbOverlay"></div>
 
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
@@ -474,10 +477,9 @@ $tradedAway   = count($picksAway);
 <script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
-    const sidebar   = document.getElementById('sidebar');
-    const sbOverlay = document.getElementById('sbOverlay');
-    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarToggle')?.click();
+    });
 
     document.querySelectorAll('.round-panel, .away-panel').forEach((el, i) => {
         el.style.animationDelay = (i * 0.06 + 0.05) + 's';

@@ -80,32 +80,6 @@ $team = $stmtTeam->fetch();
   <script src="/js/sidebar.js?v=<?= time() ?>"></script>
   <script src="/js/admin.js?v=<?= time() ?>"></script>
   <script src="/js/seasons.js?v=<?= time() ?>"></script>
-  <script>
-    // Toggle Sidebar Mobile (código legado - sidebar.js já gerencia isso)
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-      overlay.classList.toggle('active');
-    });
-    
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-      overlay.classList.remove('active');
-    });
-    
-    // Fechar sidebar ao clicar em um link no mobile
-    if (window.innerWidth <= 768) {
-      document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-          sidebar.classList.remove('active');
-          overlay.classList.remove('active');
-        });
-      });
-    }
-  </script>
   <script src="/js/pwa.js"></script>
 </body>
 </html>

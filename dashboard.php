@@ -682,13 +682,15 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
 <body>
 <div class="app">
 
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ══════════════════════════════════════════════
          SIDEBAR
     ══════════════════════════════════════════════ -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-    <!-- Overlay mobile -->
-    <div class="sb-overlay" id="sbOverlay"></div>
 
     <!-- Topbar mobile -->
     <header class="topbar">
@@ -1185,12 +1187,9 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
 <script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
-    /* ── Sidebar mobile ──────────────────────────── */
-    const sidebar  = document.getElementById('sidebar');
-    const sbOverlay = document.getElementById('sbOverlay');
-    const menuBtn  = document.getElementById('menuBtn');
-    menuBtn?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarToggle')?.click();
+    });
 
     /* ── Stagger animation delays ────────────────── */
     document.querySelectorAll('.stat-c').forEach((el, i) => el.style.animationDelay = (i * 0.05 + 0.05) + 's');

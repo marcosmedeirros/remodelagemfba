@@ -368,10 +368,13 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
 <body>
 <div class="app">
 
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="bi bi-list fs-4"></i>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- ══════════════ SIDEBAR ══════════════ -->
   <?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-  <div class="sb-overlay" id="sbOverlay"></div>
 
   <!-- Topbar mobile -->
   <header class="topbar">
@@ -779,17 +782,15 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
   window.__TEAM_NAME__         = '<?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')), ENT_QUOTES) ?>';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/sidebar.js"></script>
 <script src="/js/trades.js?v=20260309"></script>
 <script src="/js/trade-list.js?v=20260130"></script>
 <script src="/js/rumors.js?v=20260130"></script>
+<script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js?v=20260130"></script>
 <script>
-  /* ── Sidebar mobile ──────────────────────────── */
-  const sidebar   = document.getElementById('sidebar');
-  const sbOverlay = document.getElementById('sbOverlay');
-  document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-  sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
+  document.getElementById('menuBtn')?.addEventListener('click', () => {
+    document.getElementById('sidebarToggle')?.click();
+  });
 
   /* ── Tab switcher ────────────────────────────── */
   function switchTab(id, btn) {

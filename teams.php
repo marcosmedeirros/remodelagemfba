@@ -969,11 +969,13 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 <body>
 <div class="app-shell">
 
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-    <!-- Overlay mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- ═══ TOPBAR (mobile) ═══════════════════════════════════ -->
     <header class="topbar">
@@ -1296,17 +1298,8 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
     const leagueMaxTrades = <?= (int)$maxTrades ?>;
     const currentSeasonYear = <?= $currentSeasonYear ? (int)$currentSeasonYear : 'null' ?>;
 
-    /* ── Sidebar mobile ─────────────────────────────── */
-    const sidebar  = document.getElementById('sidebar');
-    const overlay  = document.getElementById('sidebarOverlay');
-    const menuBtn  = document.getElementById('menuBtn');
-    menuBtn?.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-    });
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarToggle')?.click();
     });
 
     /* ── View toggle ────────────────────────────────── */

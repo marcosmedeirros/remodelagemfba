@@ -267,10 +267,13 @@ $currentTeamId = (int)($team['id'] ?? 0);
 <body>
 <div class="app">
 
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ══════════ SIDEBAR ══════════ -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-    <div class="sb-overlay" id="sbOverlay"></div>
 
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
@@ -375,11 +378,9 @@ $currentTeamId = (int)($team['id'] ?? 0);
 <script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
-    /* ── Sidebar mobile ──────────────────────────── */
-    const sidebar   = document.getElementById('sidebar');
-    const sbOverlay = document.getElementById('sbOverlay');
-    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarToggle')?.click();
+    });
 
     /* ── State ───────────────────────────────────── */
     const USER_LEAGUE    = '<?= htmlspecialchars($userLeague) ?>';
