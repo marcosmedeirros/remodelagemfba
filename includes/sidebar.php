@@ -39,7 +39,7 @@ if (!isset($user) || !isset($team)) {
 $currentPage = basename($_SERVER['PHP_SELF']);
 $sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
 ?>
-<div class="dashboard-sidebar">
+<div class="dashboard-sidebar sidebar" id="sidebar">
     <div class="text-center mb-4">
         <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" 
              alt="<?= htmlspecialchars($team['name'] ?? 'Time') ?>" class="team-avatar">

@@ -369,55 +369,7 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
 <div class="app">
 
   <!-- ══════════════ SIDEBAR ══════════════ -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sb-brand">
-      <div class="sb-logo">FBA</div>
-      <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($user['league']) ?></span></div>
-    </div>
-
-    <?php if ($team): ?>
-    <div class="sb-team">
-      <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="" onerror="this.src='/img/default-team.png'">
-      <div>
-        <div class="sb-team-name"><?= htmlspecialchars($team['city'] . ' ' . $team['name']) ?></div>
-        <div class="sb-team-league"><?= htmlspecialchars($team['league']) ?></div>
-      </div>
-    </div>
-    <?php endif; ?>
-
-    <nav class="sb-nav">
-      <div class="sb-section">Principal</div>
-      <a href="/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
-      <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
-      <a href="/my-roster.php"><i class="bi bi-person-fill"></i> Meu Elenco</a>
-      <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
-      <a href="/trades.php" class="active"><i class="bi bi-arrow-left-right"></i> Trades</a>
-      <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
-      <a href="/leilao.php"><i class="bi bi-hammer"></i> Leilão</a>
-      <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
-
-      <div class="sb-section">Liga</div>
-      <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
-      <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
-
-      <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-      <div class="sb-section">Admin</div>
-      <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
-      <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
-      <?php endif; ?>
-
-      <div class="sb-section">Conta</div>
-      <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
-    </nav>
-
-    <div class="sb-footer">
-      <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
-           alt="<?= htmlspecialchars($user['name']) ?>" class="sb-avatar"
-           onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
-      <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
-      <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
-    </div>
-  </aside>
+  <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
   <div class="sb-overlay" id="sbOverlay"></div>
 
@@ -827,6 +779,7 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
   window.__TEAM_NAME__         = '<?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')), ENT_QUOTES) ?>';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/sidebar.js"></script>
 <script src="/js/trades.js?v=20260309"></script>
 <script src="/js/trade-list.js?v=20260130"></script>
 <script src="/js/rumors.js?v=20260130"></script>

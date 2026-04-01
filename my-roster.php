@@ -421,53 +421,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 <div class="app">
 
     <!-- ---------- SIDEBAR ---------- -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sb-brand">
-            <div class="sb-logo">FBA</div>
-            <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($league) ?></span></div>
-        </div>
-
-        <div class="sb-team">
-            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="" onerror="this.src='/img/default-team.png'">
-            <div>
-                <div class="sb-team-name"><?= htmlspecialchars($team ? (($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) : 'Sem time') ?></div>
-                <div class="sb-team-league"><?= htmlspecialchars($league) ?></div>
-            </div>
-        </div>
-
-        <nav class="sb-nav">
-            <div class="sb-section">Principal</div>
-            <a href="https://blue-turkey-597782.hostingersite.com/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/teams.php"><i class="bi bi-people-fill"></i> Times</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/players.php"><i class="bi bi-person-lines-fill"></i> Jogadores</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/my-roster.php" class="active"><i class="bi bi-person-fill"></i> Meu Elenco</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/trades.php"><i class="bi bi-arrow-left-right"></i> Trades</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
-
-            <div class="sb-section">Liga</div>
-            <a href="https://blue-turkey-597782.hostingersite.com/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
-
-            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-            <div class="sb-section">Admin</div>
-            <a href="https://blue-turkey-597782.hostingersite.com/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
-            <a href="https://blue-turkey-597782.hostingersite.com/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
-            <?php endif; ?>
-
-            <div class="sb-section">Conta</div>
-            <a href="https://blue-turkey-597782.hostingersite.com/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
-        </nav>
-
-        <div class="sb-footer">
-            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
-                 alt="<?= htmlspecialchars($user['name']) ?>" class="sb-avatar"
-                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
-            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
-            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
-        </div>
-    </aside>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
     <div class="sb-overlay" id="sbOverlay"></div>
 
@@ -482,7 +436,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         <!-- Hero -->
         <div class="dash-hero">
             <div>
-                <div class="dash-eyebrow">Gestão do elenco · <?= htmlspecialchars($league) ?></div>
+                <div class="dash-eyebrow">Gestï¿½o do elenco ï¿½ <?= htmlspecialchars($league) ?></div>
                 <h1 class="dash-title">Meu Elenco</h1>
                 <p class="dash-sub">Monte seu quinteto, gerencie banco e acompanhe o CAP em tempo real</p>
             </div>
@@ -490,19 +444,19 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <div class="kpis">
                 <div class="kpi">
                     <div class="kpi-label">Jogadores</div>
-                    <div class="kpi-value" id="total-players">—</div>
+                    <div class="kpi-value" id="total-players">ï¿½</div>
                 </div>
                 <div class="kpi">
                     <div class="kpi-label">CAP Top 8</div>
-                    <div class="kpi-value" id="cap-top8">—</div>
+                    <div class="kpi-value" id="cap-top8">ï¿½</div>
                 </div>
                 <div class="kpi">
                     <div class="kpi-label">Dispensas</div>
-                    <div class="kpi-value" id="waivers-count">—</div>
+                    <div class="kpi-value" id="waivers-count">ï¿½</div>
                 </div>
                 <div class="kpi">
-                    <div class="kpi-label">Contratações</div>
-                    <div class="kpi-value" id="signings-count">—</div>
+                    <div class="kpi-label">Contrataï¿½ï¿½es</div>
+                    <div class="kpi-value" id="signings-count">ï¿½</div>
                 </div>
             </div>
         </div>
@@ -512,7 +466,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <?php if (!$teamId): ?>
             <div class="panel">
                 <div class="panel-body">
-                    <div class="empty-r"><i class="bi bi-exclamation-circle"></i><p>Você ainda não possui um time. Crie um no onboarding.</p></div>
+                    <div class="empty-r"><i class="bi bi-exclamation-circle"></i><p>Vocï¿½ ainda nï¿½o possui um time. Crie um no onboarding.</p></div>
                 </div>
             </div>
             <?php else: ?>
@@ -543,21 +497,21 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                                     <input type="number" class="form-control" name="ovr" min="40" max="99" required>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Posição</label>
+                                    <label class="form-label">Posiï¿½ï¿½o</label>
                                     <select class="form-select" name="position" required>
-                                        <option value="">—</option>
+                                        <option value="">ï¿½</option>
                                         <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Pos. 2ª</label>
+                                    <label class="form-label">Pos. 2ï¿½</label>
                                     <select class="form-select" name="secondary_position">
-                                        <option value="">—</option>
+                                        <option value="">ï¿½</option>
                                         <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Função</label>
+                                    <label class="form-label">Funï¿½ï¿½o</label>
                                     <select class="form-select" name="role" required>
                                         <option value="Titular">Titular</option>
                                         <option value="Banco">Banco</option>
@@ -568,7 +522,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                                 <div class="col-md-5 d-flex align-items-end gap-3">
                                     <div class="form-check mt-1">
                                         <input class="form-check-input" type="checkbox" id="available_for_trade" name="available_for_trade" checked>
-                                        <label class="form-check-label" for="available_for_trade">Disponível para troca</label>
+                                        <label class="form-check-label" for="available_for_trade">Disponï¿½vel para troca</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4 d-flex align-items-end">
@@ -609,19 +563,19 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                             </button>
                         </div>
                         <select id="sort-select" class="f-select" style="width:auto;min-width:160px">
-                            <option value="role">Ordenar: Função</option>
+                            <option value="role">Ordenar: Funï¿½ï¿½o</option>
                             <option value="name">Ordenar: Nome</option>
                             <option value="ovr">Ordenar: OVR</option>
-                            <option value="position">Ordenar: Posição</option>
+                            <option value="position">Ordenar: Posiï¿½ï¿½o</option>
                             <option value="age">Ordenar: Idade</option>
                         </select>
                     </div>
 
                     <!-- Filters -->
                     <div class="filters">
-                        <input type="text" id="players-search" class="f-input" placeholder="Buscar por nome ou posição...">
+                        <input type="text" id="players-search" class="f-input" placeholder="Buscar por nome ou posiï¿½ï¿½o...">
                         <select id="players-role-filter" class="f-select" style="min-width:160px">
-                            <option value="">Todas as funções</option>
+                            <option value="">Todas as funï¿½ï¿½es</option>
                             <option value="Titular">Titular</option>
                             <option value="Banco">Banco</option>
                             <option value="G-League">G-League</option>
@@ -681,9 +635,9 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                                         <th data-sort="position">Pos <i class="bi bi-chevron-expand"></i></th>
                                         <th data-sort="ovr">OVR <i class="bi bi-chevron-expand"></i></th>
                                         <th data-sort="age">Idade <i class="bi bi-chevron-expand"></i></th>
-                                        <th data-sort="role">Função <i class="bi bi-chevron-expand"></i></th>
+                                        <th data-sort="role">Funï¿½ï¿½o <i class="bi bi-chevron-expand"></i></th>
                                         <th>Troca</th>
-                                        <th style="text-align:right">Ações</th>
+                                        <th style="text-align:right">Aï¿½ï¿½es</th>
                                     </tr>
                                 </thead>
                                 <tbody id="players-table-body"></tbody>
@@ -732,20 +686,20 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                         <input type="number" id="edit-ovr" class="form-control" min="40" max="99" required>
                     </div>
                     <div class="col-6 col-md-2">
-                        <label class="form-label">Posição</label>
+                        <label class="form-label">Posiï¿½ï¿½o</label>
                         <select id="edit-position" class="form-select" required>
                             <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-2">
-                        <label class="form-label">Pos. 2ª</label>
+                        <label class="form-label">Pos. 2ï¿½</label>
                         <select id="edit-secondary-position" class="form-select">
-                            <option value="">—</option>
+                            <option value="">ï¿½</option>
                             <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Função</label>
+                        <label class="form-label">Funï¿½ï¿½o</label>
                         <select id="edit-role" class="form-select" required>
                             <option value="Titular">Titular</option>
                             <option value="Banco">Banco</option>
@@ -756,7 +710,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                     <div class="col-12 d-flex align-items-center gap-3 mt-1">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="edit-available">
-                            <label class="form-check-label" for="edit-available">Disponível para troca</label>
+                            <label class="form-check-label" for="edit-available">Disponï¿½vel para troca</label>
                         </div>
                     </div>
                 </div>
@@ -780,9 +734,9 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <div class="modal-body">
                 <p style="font-size:14px;color:var(--text-2);margin-bottom:12px">
                     Dispensar <strong style="color:var(--text)" id="waive-player-name">jogador</strong>?<br>
-                    Seu CAP Top 8 passará para <strong style="color:var(--amber)" id="waive-player-cap">0</strong>.
+                    Seu CAP Top 8 passarï¿½ para <strong style="color:var(--amber)" id="waive-player-cap">0</strong>.
                 </p>
-                <p style="font-size:13px;color:var(--text-2)" id="waive-cap-status">Você vai ficar dentro do CAP.</p>
+                <p style="font-size:13px;color:var(--text-2)" id="waive-cap-status">Vocï¿½ vai ficar dentro do CAP.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn-r ghost" data-bs-dismiss="modal">Cancelar</button>
@@ -800,13 +754,13 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-robot"></i> Relatório do Assistente Técnico</h5>
+                <h5 class="modal-title"><i class="bi bi-robot"></i> Relatï¿½rio do Assistente Tï¿½cnico</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="ai-loading" style="text-align:center;padding:40px 0">
                     <div class="spinner-r" style="width:36px;height:36px;border-width:3px"></div>
-                    <div style="font-size:14px;color:var(--text-2);margin-top:14px">A IA está analisando seu elenco...</div>
+                    <div style="font-size:14px;color:var(--text-2);margin-top:14px">A IA estï¿½ analisando seu elenco...</div>
                 </div>
                 <div id="ai-results" style="display:none">
                     <div style="margin-bottom:20px">
@@ -817,7 +771,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                     </div>
                     <div>
                         <div style="font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#ef4444;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-                            <i class="bi bi-arrow-down-circle-fill"></i> Pontos de atenção
+                            <i class="bi bi-arrow-down-circle-fill"></i> Pontos de atenï¿½ï¿½o
                         </div>
                         <ul id="ai-weaknesses" style="padding-left:18px;color:var(--text);font-size:13px;display:flex;flex-direction:column;gap:6px"></ul>
                     </div>
@@ -832,6 +786,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 
 <!-- ---------- SCRIPTS ---------- -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/sidebar.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
     window.__TEAM_ID__ = <?= $teamId ? (int)$teamId : 'null' ?>;
@@ -935,9 +890,9 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     }
 
     function capStatusText(cap) {
-        if (+window.__CAP_MIN__ > 0 && cap < +window.__CAP_MIN__) return 'Ficará abaixo do CAP mínimo.';
-        if (+window.__CAP_MAX__ < 999 && cap > +window.__CAP_MAX__) return 'Ficará acima do CAP máximo.';
-        return 'Ficará dentro do CAP.';
+        if (+window.__CAP_MIN__ > 0 && cap < +window.__CAP_MIN__) return 'Ficarï¿½ abaixo do CAP mï¿½nimo.';
+        if (+window.__CAP_MAX__ < 999 && cap > +window.__CAP_MAX__) return 'Ficarï¿½ acima do CAP mï¿½ximo.';
+        return 'Ficarï¿½ dentro do CAP.';
     }
 
     function buildLocalAIAnalysis(list) {
@@ -947,7 +902,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         if (!Array.isArray(list) || list.length === 0) {
             return {
                 strengths,
-                weaknesses: ['Sem jogadores no elenco para análise.']
+                weaknesses: ['Sem jogadores no elenco para anï¿½lise.']
             };
         }
 
@@ -963,17 +918,17 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             .filter(([, count]) => count < 2)
             .map(([pos]) => pos);
 
-        if (avg >= 78) strengths.push(`OVR médio sólido (${avg.toFixed(1)}), elenco competitivo.`);
-        else weaknesses.push(`OVR médio em ${avg.toFixed(1)}; vale buscar mais talento no mercado.`);
+        if (avg >= 78) strengths.push(`OVR mï¿½dio sï¿½lido (${avg.toFixed(1)}), elenco competitivo.`);
+        else weaknesses.push(`OVR mï¿½dio em ${avg.toFixed(1)}; vale buscar mais talento no mercado.`);
 
-        if (top && (+top.ovr || 0) >= 89) strengths.push(`${top.name} (${top.ovr} OVR) é uma estrela para liderar o time.`);
+        if (top && (+top.ovr || 0) >= 89) strengths.push(`${top.name} (${top.ovr} OVR) ï¿½ uma estrela para liderar o time.`);
         else if (top) weaknesses.push(`Falta um franchise player (89+). Melhor jogador atual: ${top.name} (${top.ovr} OVR).`);
 
-        if (missingPositions.length === 0) strengths.push('Boa cobertura de posições no elenco (PG/SG/SF/PF/C).');
-        else weaknesses.push(`Pouca profundidade nas posições: ${missingPositions.join(', ')}.`);
+        if (missingPositions.length === 0) strengths.push('Boa cobertura de posiï¿½ï¿½es no elenco (PG/SG/SF/PF/C).');
+        else weaknesses.push(`Pouca profundidade nas posiï¿½ï¿½es: ${missingPositions.join(', ')}.`);
 
-        if (strengths.length === 0) strengths.push('Base do elenco montada; ajustes pontuais podem elevar o nível.');
-        if (weaknesses.length === 0) weaknesses.push('Sem pontos críticos detectados no momento.');
+        if (strengths.length === 0) strengths.push('Base do elenco montada; ajustes pontuais podem elevar o nï¿½vel.');
+        if (weaknesses.length === 0) weaknesses.push('Sem pontos crï¿½ticos detectados no momento.');
 
         return { strengths, weaknesses };
     }
@@ -1083,7 +1038,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                 <td><span class="ovr-val ${ovrClass}">${p.ovr}</span></td>
                 <td style="color:var(--text-2)">${p.age}</td>
                 <td><span class="role-pill" style="background:${rc.bg};color:${rc.color};border:1px solid ${rc.border}">${role}</span></td>
-                <td>${p.available_for_trade ? '<span class="tag green">Sim</span>' : '<span class="tag gray">Não</span>'}</td>
+                <td>${p.available_for_trade ? '<span class="tag green">Sim</span>' : '<span class="tag gray">Nï¿½o</span>'}</td>
                 <td>
                     <div class="tbl-actions">
                         <button class="btn-icon edit btn-edit-player" data-id="${p.id}" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -1146,7 +1101,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     function openWaiveModal(player) {
         if (!player) return;
         pendingWaivePlayerId = player.id;
-        document.getElementById('waive-player-name').textContent = player.name || '—';
+        document.getElementById('waive-player-name').textContent = player.name || 'ï¿½';
         const nc = capAfterRemove(player.id);
         document.getElementById('waive-player-cap').textContent = nc;
         document.getElementById('waive-cap-status').textContent  = capStatusText(nc);
@@ -1277,7 +1232,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             ovr: +fd.get('ovr'),
             available_for_trade: fd.get('available_for_trade') ? 1 : 0,
         };
-        if (!payload.name || !payload.age || !payload.position || !payload.ovr) { alert('Preencha nome, idade, posição e OVR.'); return; }
+        if (!payload.name || !payload.age || !payload.position || !payload.ovr) { alert('Preencha nome, idade, posiï¿½ï¿½o e OVR.'); return; }
         const btn = document.getElementById('btn-add-player');
         btn.disabled = true; btn.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px"></span> Enviando...';
         try {

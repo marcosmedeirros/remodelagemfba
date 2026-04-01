@@ -50,35 +50,7 @@ if (!$team) {
   
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <div class="dashboard-sidebar" id="sidebar">
-    <div class="text-center mb-4">
-      <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="<?= htmlspecialchars($team['name']) ?>" class="team-avatar">
-      <h5 class="text-white mb-1"><?= htmlspecialchars($team['city']) ?></h5>
-      <h6 class="text-white mb-1"><?= htmlspecialchars($team['name']) ?></h6>
-      <span class="badge bg-gradient-orange"><?= htmlspecialchars($team['league']) ?></span>
-    </div>
-    <hr style="border-color: var(--fba-border);">
-    <ul class="sidebar-menu">
-      <li><a href="https://blue-turkey-597782.hostingersite.com/dashboard.php"><i class="bi bi-house-door-fill"></i>Dashboard</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/teams.php"><i class="bi bi-people-fill"></i>Times</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/my-roster.php"><i class="bi bi-person-fill"></i>Meu Elenco</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/picks.php"><i class="bi bi-calendar-check-fill"></i>Picks</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/trades.php"><i class="bi bi-arrow-left-right"></i>Trades</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/free-agency.php"><i class="bi bi-coin"></i>Free Agency</a></li>
-  <li><a href="https://blue-turkey-597782.hostingersite.com/leilao.php"><i class="bi bi-hammer"></i>Leilão</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/drafts.php"><i class="bi bi-trophy"></i>Draft</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/rankings.php"><i class="bi bi-bar-chart-fill"></i>Rankings</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/history.php"><i class="bi bi-clock-history"></i>Histórico</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/admin.php"><i class="bi bi-shield-lock-fill"></i>Admin</a></li>
-  <li><a href="/punicoes.php"><i class="bi bi-exclamation-triangle-fill"></i>Punições</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/temporadas.php" class="active"><i class="bi bi-calendar3"></i>Temporadas</a></li>
-      <li><a href="https://blue-turkey-597782.hostingersite.com/settings.php"><i class="bi bi-gear-fill"></i>Configurações</a></li>
-    </ul>
-    <hr style="border-color: var(--fba-border);">
-    <div class="text-center">
-      <a href="/logout.php" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-box-arrow-right me-2"></i>Sair</a>
-    </div>
-  </div>
+  <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
   <div class="dashboard-content">
     <div class="page-header mb-4">

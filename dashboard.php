@@ -685,76 +685,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
     <!-- ══════════════════════════════════════════════
          SIDEBAR
     ══════════════════════════════════════════════ -->
-    <aside class="sidebar" id="sidebar">
-
-        <div class="sb-brand">
-            <div class="sb-logo">FBA</div>
-            <div class="sb-brand-text">
-                FBA Manager
-                <span>Painel do GM</span>
-            </div>
-        </div>
-
-        <div class="sb-team">
-            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>"
-                 alt="<?= htmlspecialchars($team['name']) ?>"
-                 onerror="this.src='/img/default-team.png'">
-            <div>
-                <div class="sb-team-name"><?= htmlspecialchars($team['city'] . ' ' . $team['name']) ?></div>
-                <div class="sb-team-league"><?= htmlspecialchars($user['league']) ?></div>
-            </div>
-        </div>
-
-        <?php if ($currentSeason): ?>
-        <div class="sb-season">
-            <div>
-                <div class="sb-season-label">Temporada</div>
-                <div class="sb-season-val"><?= $seasonDisplayYear ?></div>
-            </div>
-            <div style="text-align:right">
-                <div class="sb-season-label">Sprint</div>
-                <div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <nav class="sb-nav">
-            <div class="sb-section">Principal</div>
-            <a href="/dashboard.php" class="active"><i class="bi bi-house-door-fill"></i> Dashboard</a>
-            <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
-            <a href="/my-roster.php"><i class="bi bi-person-fill"></i> Meu Elenco</a>
-            <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
-            <a href="/trades.php"><i class="bi bi-arrow-left-right"></i> Trades</a>
-            <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
-            <a href="/leilao.php"><i class="bi bi-hammer"></i> Leilão</a>
-            <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
-
-            <div class="sb-section">Liga</div>
-            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
-            <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
-            <a href="/diretrizes.php"><i class="bi bi-clipboard-data"></i> Diretrizes</a>
-            <a href="/ouvidoria.php"><i class="bi bi-chat-dots"></i> Ouvidoria</a>
-            <a href="https://games.fbabrasil.com.br/auth/login.php" target="_blank" rel="noopener"><i class="bi bi-controller"></i> FBA Games</a>
-
-            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-            <div class="sb-section">Admin</div>
-            <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
-            <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
-            <?php endif; ?>
-
-            <div class="sb-section">Conta</div>
-            <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
-        </nav>
-
-        <div class="sb-footer">
-            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
-                 alt="<?= htmlspecialchars($user['name']) ?>"
-                 class="sb-avatar"
-                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
-            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
-            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
-        </div>
-    </aside>
+    <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
     <!-- Overlay mobile -->
     <div class="sb-overlay" id="sbOverlay"></div>
@@ -1251,6 +1182,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
     /* ── Sidebar mobile ──────────────────────────── */
