@@ -39,117 +39,57 @@ if (!isset($user) || !isset($team)) {
 $currentPage = basename($_SERVER['PHP_SELF']);
 $sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
 ?>
-<div class="dashboard-sidebar">
-    <div class="text-center mb-4">
-        <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" 
-             alt="<?= htmlspecialchars($team['name'] ?? 'Time') ?>" class="team-avatar">
-        <h5 class="text-white mb-1"><?= htmlspecialchars(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) ?></h5>
-        <span class="badge bg-gradient-orange"><?= htmlspecialchars($user['league'] ?? 'ELITE') ?></span>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-logo">FBA</div>
+        <div class="sidebar-brand-text">
+            FBA Manager
+            <span>Liga <?= htmlspecialchars($user['league'] ?? 'ELITE') ?></span>
+        </div>
     </div>
 
-    <hr style="border-color: var(--fba-border);">
+    <?php if (!empty($team)): ?>
+    <div class="sidebar-myteam">
+        <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="Meu Time">
+        <div class="sidebar-myteam-info">
+            <div class="sidebar-myteam-name"><?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? ''))) ?></div>
+            <div class="sidebar-myteam-sub">Franquia ativa</div>
+        </div>
+    </div>
+    <?php endif; ?>
 
-    <ul class="sidebar-menu">
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/dashboard.php" class="<?= $currentPage === 'dashboard.php' ? 'active' : '' ?>">
-                <i class="bi bi-house-door-fill"></i>
-                Dashboard
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/teams.php" class="<?= $currentPage === 'teams.php' ? 'active' : '' ?>">
-                <i class="bi bi-people-fill"></i>
-                Times
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/players.php" class="<?= $currentPage === 'players.php' ? 'active' : '' ?>">
-                <i class="bi bi-person-lines-fill"></i>
-                Jogadores
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/my-roster.php" class="<?= $currentPage === 'my-roster.php' ? 'active' : '' ?>">
-                <i class="bi bi-person-fill"></i>
-                Meu Elenco
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/picks.php" class="<?= $currentPage === 'picks.php' ? 'active' : '' ?>">
-                <i class="bi bi-calendar-check-fill"></i>
-                Picks
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/trades.php" class="<?= $currentPage === 'trades.php' ? 'active' : '' ?>">
-                <i class="bi bi-arrow-left-right"></i>
-                Trades
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/free-agency.php" class="<?= $currentPage === 'free-agency.php' ? 'active' : '' ?>">
-                <i class="bi bi-coin"></i>
-                Free Agency
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/leilao.php" class="<?= $currentPage === 'leilao.php' ? 'active' : '' ?>">
-                <i class="bi bi-hammer"></i>
-                Leilão
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/drafts.php" class="<?= $currentPage === 'drafts.php' ? 'active' : '' ?>">
-                <i class="bi bi-trophy"></i>
-                Draft
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/rankings.php" class="<?= $currentPage === 'rankings.php' ? 'active' : '' ?>">
-                <i class="bi bi-bar-chart-fill"></i>
-                Rankings
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/history.php" class="<?= $currentPage === 'history.php' ? 'active' : '' ?>">
-                <i class="bi bi-clock-history"></i>
-                Histórico
-            </a>
-        </li>
+    <nav class="sidebar-nav">
+        <div class="sidebar-nav-label">Principal</div>
+        <a href="<?= $sidebarBaseUrl ?>/dashboard.php" class="<?= $currentPage === 'dashboard.php' ? 'active' : '' ?>"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+        <a href="<?= $sidebarBaseUrl ?>/teams.php" class="<?= $currentPage === 'teams.php' ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> Times</a>
+        <a href="<?= $sidebarBaseUrl ?>/players.php" class="<?= $currentPage === 'players.php' ? 'active' : '' ?>"><i class="bi bi-person-lines-fill"></i> Jogadores</a>
+        <a href="<?= $sidebarBaseUrl ?>/my-roster.php" class="<?= $currentPage === 'my-roster.php' ? 'active' : '' ?>"><i class="bi bi-person-fill"></i> Meu Elenco</a>
+        <a href="<?= $sidebarBaseUrl ?>/picks.php" class="<?= $currentPage === 'picks.php' ? 'active' : '' ?>"><i class="bi bi-calendar-check-fill"></i> Picks</a>
+        <a href="<?= $sidebarBaseUrl ?>/trades.php" class="<?= $currentPage === 'trades.php' ? 'active' : '' ?>"><i class="bi bi-arrow-left-right"></i> Trades</a>
+
+        <div class="sidebar-nav-label">Liga</div>
+        <a href="<?= $sidebarBaseUrl ?>/free-agency.php" class="<?= $currentPage === 'free-agency.php' ? 'active' : '' ?>"><i class="bi bi-coin"></i> Free Agency</a>
+        <a href="<?= $sidebarBaseUrl ?>/leilao.php" class="<?= $currentPage === 'leilao.php' ? 'active' : '' ?>"><i class="bi bi-hammer"></i> Leilão</a>
+        <a href="<?= $sidebarBaseUrl ?>/drafts.php" class="<?= $currentPage === 'drafts.php' ? 'active' : '' ?>"><i class="bi bi-trophy"></i> Draft</a>
+        <a href="<?= $sidebarBaseUrl ?>/rankings.php" class="<?= $currentPage === 'rankings.php' ? 'active' : '' ?>"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
+        <a href="<?= $sidebarBaseUrl ?>/history.php" class="<?= $currentPage === 'history.php' ? 'active' : '' ?>"><i class="bi bi-clock-history"></i> Histórico</a>
+
         <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/admin.php" class="<?= $currentPage === 'admin.php' ? 'active' : '' ?>">
-                <i class="bi bi-shield-lock-fill"></i>
-                Admin
-            </a>
-        </li>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/temporadas.php" class="<?= $currentPage === 'temporadas.php' ? 'active' : '' ?>">
-                <i class="bi bi-calendar3"></i>
-                Temporadas
-            </a>
-        </li>
+        <div class="sidebar-nav-label">Admin</div>
+        <a href="<?= $sidebarBaseUrl ?>/admin.php" class="<?= $currentPage === 'admin.php' ? 'active' : '' ?>"><i class="bi bi-shield-lock-fill"></i> Admin</a>
+        <a href="<?= $sidebarBaseUrl ?>/temporadas.php" class="<?= $currentPage === 'temporadas.php' ? 'active' : '' ?>"><i class="bi bi-calendar3"></i> Temporadas</a>
         <?php endif; ?>
-        <li>
-            <a href="<?= $sidebarBaseUrl ?>/settings.php" class="<?= $currentPage === 'settings.php' ? 'active' : '' ?>">
-                <i class="bi bi-gear-fill"></i>
-                Configurações
-            </a>
-        </li>
-    </ul>
 
-    <hr style="border-color: var(--fba-border);">
+        <div class="sidebar-nav-label">Conta</div>
+        <a href="<?= $sidebarBaseUrl ?>/settings.php" class="<?= $currentPage === 'settings.php' ? 'active' : '' ?>"><i class="bi bi-gear-fill"></i> Configurações</a>
+    </nav>
 
-    <div class="text-center mb-3">
-        <button class="theme-toggle w-100" id="themeToggle" type="button">
+    <div class="sidebar-footer">
+        <img src="<?= htmlspecialchars($user['photo_url'] ?? '/img/default-avatar.png') ?>" alt="<?= htmlspecialchars($user['name'] ?? 'Usuário') ?>" class="sidebar-user-avatar">
+        <span class="sidebar-user-name"><?= htmlspecialchars($user['name'] ?? 'Usuário') ?></span>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar tema">
             <i class="bi bi-moon-stars-fill"></i>
-            <span>Tema claro</span>
         </button>
+        <a href="<?= $sidebarBaseUrl ?>/logout.php" class="sidebar-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
     </div>
-
-    <div class="text-center">
-        <a href="/logout.php" class="btn btn-outline-danger btn-sm w-100">
-            <i class="bi bi-box-arrow-right me-2"></i>Sair
-        </a>
-    </div>
-</div>
+</aside>

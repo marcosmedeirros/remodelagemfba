@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    const sidebar = document.querySelector('.dashboard-sidebar');
+    const sidebar = document.querySelector('.sidebar, .dashboard-sidebar');
     if (!sidebar) {
         handleBrokenImages();
         return;
@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         sidebar.classList.add('active');
+        sidebar.classList.add('open');
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
     });
@@ -67,45 +68,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fechar sidebar ao clicar no overlay
     overlay.addEventListener('click', function() {
         sidebar.classList.remove('active');
+        sidebar.classList.remove('open');
         overlay.classList.remove('active');
         document.body.style.overflow = '';
     });
     
     // Fechar sidebar ao clicar em um link (apenas no mobile)
-    const sidebarLinks = sidebar.querySelectorAll('.sidebar-menu a');
+    const sidebarLinks = sidebar.querySelectorAll('.sidebar-menu a, .sidebar-nav a');
     sidebarLinks.forEach(link => {
         link.addEventListener('click', function() {
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('active');
+                sidebar.classList.remove('open');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
         });
     });
     
-    // Garantir que o menu tenha o link para Jogadores
-    const sidebarMenu = sidebar.querySelector('.sidebar-menu');
-    if (sidebarMenu && !sidebarMenu.querySelector('a[href="/players.php"]')) {
-        const playersItem = document.createElement('li');
-        const currentPath = window.location.pathname.replace(/\/$/, '');
-        const isActive = currentPath === '/players.php';
-        playersItem.innerHTML = `
-            <a href="/players.php" class="${isActive ? 'active' : ''}">
-                <i class="bi bi-person-lines-fill"></i>
-                Jogadores
-            </a>`;
-        const picksLink = sidebarMenu.querySelector('a[href="/picks.php"]');
-        if (picksLink && picksLink.parentElement) {
-            picksLink.parentElement.insertAdjacentElement('afterend', playersItem);
-        } else {
-            sidebarMenu.appendChild(playersItem);
-        }
-    }
-    
     // Fechar ao pressionar ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && sidebar.classList.contains('active')) {
             sidebar.classList.remove('active');
+            sidebar.classList.remove('open');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
         }
