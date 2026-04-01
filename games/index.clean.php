@@ -1214,7 +1214,7 @@ try {
 
             <?php if(!empty($ultimos_eventos_abertos)): ?>
                 <h6 class="section-title"><i class="bi bi-lightning-fill"></i>Apostas Gerais</h6>
-                <p class="text-secondary">Selecione o vencedor. Se acertar, você ganha <strong>150 FBA Points</strong>.</p>
+                <p class="text-secondary">Selecione o vencedor. Se acertar, você ganha <strong>50 FBA Points</strong>.</p>
                 <div class="accordion" id="accordion-apostas">
                     <?php foreach($ultimos_eventos_abertos as $evento): ?>
                         <?php $evento_id = (int)$evento['id']; ?>
@@ -1348,7 +1348,7 @@ try {
                                                 </span>
                                             </div>
                                             <span class="ranking-value">
-                                                <?= number_format($jogador['fba_points'] ?? ((int)$jogador['acertos'] * 150), 0, ',', '.') ?> FBA Points · <?= (int)$jogador['acertos'] ?> acertos
+                                                <?= number_format($jogador['fba_points'] ?? ((int)$jogador['acertos'] * 50), 0, ',', '.') ?> FBA Points · <?= (int)$jogador['acertos'] ?> acertos
                                             </span>
                                         </div>
                                     <?php endforeach; ?>
@@ -1377,7 +1377,7 @@ try {
                                                 </span>
                                             </div>
                                             <span class="ranking-value">
-                                                <?= number_format(((int)$jogador['acertos']) * 150, 0, ',', '.') ?> FBA Points · <?= (int)$jogador['acertos'] ?> acertos
+                                                <?= number_format(((int)$jogador['acertos']) * 50, 0, ',', '.') ?> FBA Points · <?= (int)$jogador['acertos'] ?> acertos
                                             </span>
                                         </div>
                                     <?php endforeach; ?>
