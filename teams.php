@@ -969,12 +969,51 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 <body>
 <div class="app-shell">
 
-    <button class="sidebar-toggle" id="sidebarToggle">
-        <i class="bi bi-list fs-4"></i>
-    </button>
-
     <!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
-    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo">FBA</div>
+            <div class="sidebar-brand-text">
+                FBA Manager
+                <span>Liga <?= htmlspecialchars($user['league'] ?? '') ?></span>
+            </div>
+        </div>
+
+        <?php if ($team): ?>
+        <div class="sidebar-myteam">
+            <img src="<?= htmlspecialchars(getTeamPhoto($team['photo_url'] ?? null)) ?>" alt="Meu Time">
+            <div class="sidebar-myteam-info">
+                <div class="sidebar-myteam-name"><?= htmlspecialchars($team['city'] . ' ' . $team['name']) ?></div>
+                <div class="sidebar-myteam-sub"><?= (int)$team['player_count'] ?> jogadores</div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-label">Principal</div>
+            <a href="/dashboard"><i class="bi bi-house"></i> Home</a>
+            <a href="/teams" class="active"><i class="bi bi-people-fill"></i> Times</a>
+            <a href="/players"><i class="bi bi-person-badge"></i> Jogadores</a>
+            <a href="/trades"><i class="bi bi-arrow-left-right"></i> Trocas</a>
+            <a href="/picks"><i class="bi bi-calendar2-event"></i> Picks</a>
+
+            <div class="sidebar-nav-label">Liga</div>
+            <a href="/standings"><i class="bi bi-trophy"></i> Classificação</a>
+            <a href="/free-agency"><i class="bi bi-person-plus"></i> Mercado Livre</a>
+            <a href="/auction"><i class="bi bi-hammer"></i> Leilão</a>
+            <a href="/rumors"><i class="bi bi-chat-dots"></i> Rumores</a>
+
+            <div class="sidebar-nav-label">Admin</div>
+            <a href="/admin"><i class="bi bi-gear"></i> Administração</a>
+            <a href="/punishments"><i class="bi bi-exclamation-triangle"></i> Punições</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>" alt="<?= htmlspecialchars($user['name']) ?>" class="sidebar-user-avatar">
+            <span class="sidebar-user-name"><?= htmlspecialchars($user['name']) ?></span>
+            <a href="/logout" class="sidebar-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </aside>
 
     <!-- Overlay mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -1292,7 +1331,6 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 
 <!-- ═══ SCRIPTS ══════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
     const leagueCapMin    = <?= (int)$capMin ?>;
@@ -1300,8 +1338,17 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
     const leagueMaxTrades = <?= (int)$maxTrades ?>;
     const currentSeasonYear = <?= $currentSeasonYear ? (int)$currentSeasonYear : 'null' ?>;
 
-    document.getElementById('menuBtn')?.addEventListener('click', () => {
-        document.getElementById('sidebarToggle')?.click();
+    /* ── Sidebar mobile ─────────────────────────────── */
+    const sidebar  = document.getElementById('sidebar');
+    const overlay  = document.getElementById('sidebarOverlay');
+    const menuBtn  = document.getElementById('menuBtn');
+    menuBtn?.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
     });
 
     /* ── View toggle ────────────────────────────────── */

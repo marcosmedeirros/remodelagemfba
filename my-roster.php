@@ -413,14 +413,55 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 <body>
 <div class="app">
 
-    <button class="sidebar-toggle" id="sidebarToggle">
-        <i class="bi bi-list fs-4"></i>
-    </button>
-
     <!-- ══════════ SIDEBAR ══════════ -->
-    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+    <aside class="sidebar" id="sidebar">
+        <div class="sb-brand">
+            <div class="sb-logo">FBA</div>
+            <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($league) ?></span></div>
+        </div>
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sb-team">
+            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="" onerror="this.src='/img/default-team.png'">
+            <div>
+                <div class="sb-team-name"><?= htmlspecialchars($team ? (($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) : 'Sem time') ?></div>
+                <div class="sb-team-league"><?= htmlspecialchars($league) ?></div>
+            </div>
+        </div>
+
+        <nav class="sb-nav">
+            <div class="sb-section">Principal</div>
+            <a href="/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+            <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
+            <a href="/my-roster.php" class="active"><i class="bi bi-person-fill"></i> Meu Elenco</a>
+            <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
+            <a href="/trades.php"><i class="bi bi-arrow-left-right"></i> Trades</a>
+            <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
+            <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
+
+            <div class="sb-section">Liga</div>
+            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
+            <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
+
+            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
+            <div class="sb-section">Admin</div>
+            <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
+            <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
+            <?php endif; ?>
+
+            <div class="sb-section">Conta</div>
+            <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
+        </nav>
+
+        <div class="sb-footer">
+            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
+                 alt="<?= htmlspecialchars($user['name']) ?>" class="sb-avatar"
+                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
+            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
+            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </aside>
+
+    <div class="sb-overlay" id="sbOverlay"></div>
 
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
@@ -784,15 +825,16 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 <!-- ══════════ SCRIPTS ══════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="/js/sidebar.js"></script>
 <script>
     window.__TEAM_ID__ = <?= $teamId ? (int)$teamId : 'null' ?>;
     window.__CAP_MIN__ = <?= (int)$capMin ?>;
     window.__CAP_MAX__ = <?= (int)$capMax ?>;
 
-    document.getElementById('menuBtn')?.addEventListener('click', () => {
-        document.getElementById('sidebarToggle')?.click();
-    });
+    /* ── Sidebar ─────────────────────────────────── */
+    const sidebar   = document.getElementById('sidebar');
+    const sbOverlay = document.getElementById('sbOverlay');
+    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
+    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
 
     /* ── View switch ─────────────────────────────── */
     const btnCourt  = document.getElementById('btn-view-court');
