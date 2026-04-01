@@ -40,26 +40,26 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 $sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
 ?>
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <div class="sidebar-logo">FBA</div>
-        <div class="sidebar-brand-text">
+    <div class="sidebar-brand sb-brand">
+        <div class="sidebar-logo sb-logo">FBA</div>
+        <div class="sidebar-brand-text sb-brand-text">
             FBA Manager
             <span>Liga <?= htmlspecialchars($user['league'] ?? 'ELITE') ?></span>
         </div>
     </div>
 
     <?php if (!empty($team)): ?>
-    <div class="sidebar-myteam">
+    <div class="sidebar-myteam sb-team">
         <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="Meu Time">
         <div class="sidebar-myteam-info">
-            <div class="sidebar-myteam-name"><?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? ''))) ?></div>
-            <div class="sidebar-myteam-sub">Franquia ativa</div>
+            <div class="sidebar-myteam-name sb-team-name"><?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? ''))) ?></div>
+            <div class="sidebar-myteam-sub sb-team-league">Franquia ativa</div>
         </div>
     </div>
     <?php endif; ?>
 
-    <nav class="sidebar-nav">
-        <div class="sidebar-nav-label">Principal</div>
+    <nav class="sidebar-nav sb-nav">
+        <div class="sidebar-nav-label sb-section">Principal</div>
         <a href="<?= $sidebarBaseUrl ?>/dashboard.php" class="<?= $currentPage === 'dashboard.php' ? 'active' : '' ?>"><i class="bi bi-house-door-fill"></i> Dashboard</a>
         <a href="<?= $sidebarBaseUrl ?>/teams.php" class="<?= $currentPage === 'teams.php' ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> Times</a>
         <a href="<?= $sidebarBaseUrl ?>/players.php" class="<?= $currentPage === 'players.php' ? 'active' : '' ?>"><i class="bi bi-person-lines-fill"></i> Jogadores</a>
@@ -67,7 +67,7 @@ $sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
         <a href="<?= $sidebarBaseUrl ?>/picks.php" class="<?= $currentPage === 'picks.php' ? 'active' : '' ?>"><i class="bi bi-calendar-check-fill"></i> Picks</a>
         <a href="<?= $sidebarBaseUrl ?>/trades.php" class="<?= $currentPage === 'trades.php' ? 'active' : '' ?>"><i class="bi bi-arrow-left-right"></i> Trades</a>
 
-        <div class="sidebar-nav-label">Liga</div>
+        <div class="sidebar-nav-label sb-section">Liga</div>
         <a href="<?= $sidebarBaseUrl ?>/free-agency.php" class="<?= $currentPage === 'free-agency.php' ? 'active' : '' ?>"><i class="bi bi-coin"></i> Free Agency</a>
         <a href="<?= $sidebarBaseUrl ?>/leilao.php" class="<?= $currentPage === 'leilao.php' ? 'active' : '' ?>"><i class="bi bi-hammer"></i> Leilão</a>
         <a href="<?= $sidebarBaseUrl ?>/drafts.php" class="<?= $currentPage === 'drafts.php' ? 'active' : '' ?>"><i class="bi bi-trophy"></i> Draft</a>
@@ -75,18 +75,18 @@ $sidebarBaseUrl = 'https://blue-turkey-597782.hostingersite.com';
         <a href="<?= $sidebarBaseUrl ?>/history.php" class="<?= $currentPage === 'history.php' ? 'active' : '' ?>"><i class="bi bi-clock-history"></i> Histórico</a>
 
         <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-        <div class="sidebar-nav-label">Admin</div>
+        <div class="sidebar-nav-label sb-section">Admin</div>
         <a href="<?= $sidebarBaseUrl ?>/admin.php" class="<?= $currentPage === 'admin.php' ? 'active' : '' ?>"><i class="bi bi-shield-lock-fill"></i> Admin</a>
         <a href="<?= $sidebarBaseUrl ?>/temporadas.php" class="<?= $currentPage === 'temporadas.php' ? 'active' : '' ?>"><i class="bi bi-calendar3"></i> Temporadas</a>
         <?php endif; ?>
 
-        <div class="sidebar-nav-label">Conta</div>
+        <div class="sidebar-nav-label sb-section">Conta</div>
         <a href="<?= $sidebarBaseUrl ?>/settings.php" class="<?= $currentPage === 'settings.php' ? 'active' : '' ?>"><i class="bi bi-gear-fill"></i> Configurações</a>
     </nav>
 
-    <div class="sidebar-footer">
-        <img src="<?= htmlspecialchars($user['photo_url'] ?? '/img/default-avatar.png') ?>" alt="<?= htmlspecialchars($user['name'] ?? 'Usuário') ?>" class="sidebar-user-avatar">
-        <span class="sidebar-user-name"><?= htmlspecialchars($user['name'] ?? 'Usuário') ?></span>
-        <a href="<?= $sidebarBaseUrl ?>/logout.php" class="sidebar-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+    <div class="sidebar-footer sb-footer">
+        <img src="<?= htmlspecialchars($user['photo_url'] ?? '/img/default-avatar.png') ?>" alt="<?= htmlspecialchars($user['name'] ?? 'Usuário') ?>" class="sidebar-user-avatar sb-avatar">
+        <span class="sidebar-user-name sb-username"><?= htmlspecialchars($user['name'] ?? 'Usuário') ?></span>
+        <a href="<?= $sidebarBaseUrl ?>/logout.php" class="sidebar-logout sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
     </div>
 </aside>

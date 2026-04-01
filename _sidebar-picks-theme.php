@@ -144,6 +144,60 @@ $novoSidebarThemeCss = <<<'CSS'
     font-weight: 600;
   }
 
+  /* Compatibilidade com sidebar legado (sidebar-menu / team-avatar) */
+  .team-avatar {
+    width: 74px;
+    height: 74px;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+    margin: 0 auto;
+    display: block;
+  }
+
+  .sidebar-menu {
+    list-style: none;
+    padding: 8px 10px;
+    margin: 0;
+  }
+
+  .sidebar-menu li {
+    margin: 0;
+  }
+
+  .sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    color: var(--text-2, #9ca3af);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 2px;
+    transition: all var(--t, 220ms) var(--ease, ease);
+  }
+
+  .sidebar-menu li a i {
+    width: 20px;
+    text-align: center;
+    font-style: normal;
+    flex-shrink: 0;
+  }
+
+  .sidebar-menu li a:hover {
+    background: var(--panel-2, rgba(255, 255, 255, 0.03));
+    color: var(--text, #e5e7eb);
+  }
+
+  .sidebar-menu li a.active {
+    background: var(--red-soft, rgba(252, 0, 37, 0.12));
+    color: var(--red, #fc0025);
+    font-weight: 600;
+  }
+
   .sidebar-footer {
     padding: 14px;
     border-top: 1px solid var(--border, rgba(255, 255, 255, 0.12));
