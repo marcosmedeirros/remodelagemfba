@@ -972,10 +972,12 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
     <button class="sidebar-toggle" id="sidebarToggle">
         <i class="bi bi-list fs-4"></i>
     </button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <!-- Overlay mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- ═══ TOPBAR (mobile) ═══════════════════════════════════ -->
     <header class="topbar">

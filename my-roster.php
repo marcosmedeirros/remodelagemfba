@@ -43,7 +43,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        /* -- Tokens -------------------------------- */
+        /* ── Tokens ──────────────────────────────── */
         :root {
             --red:        #fc0025;
             --red-2:      #ff2a44;
@@ -80,7 +80,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 
         .app { display: flex; min-height: 100vh; }
 
-        /* -- Sidebar ------------------------------- */
+        /* ── Sidebar ─────────────────────────────── */
         .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 300; overflow-y: auto; scrollbar-width: none; transition: transform var(--t) var(--ease); }
         .sidebar::-webkit-scrollbar { display: none; }
         .sb-brand { padding: 22px 18px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
@@ -104,7 +104,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .sb-logout { width: 26px; height: 26px; border-radius: 7px; background: transparent; border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all var(--t) var(--ease); flex-shrink: 0; }
         .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
-        /* -- Topbar mobile ------------------------- */
+        /* ── Topbar mobile ───────────────────────── */
         .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 199; }
         .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
         .topbar-title em { color: var(--red); font-style: normal; }
@@ -112,16 +112,16 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 199; }
         .sb-overlay.show { display: block; }
 
-        /* -- Main ---------------------------------- */
+        /* ── Main ────────────────────────────────── */
         .main { margin-left: var(--sidebar-w); min-height: 100vh; width: calc(100% - var(--sidebar-w)); display: flex; flex-direction: column; }
 
-        /* -- Hero ---------------------------------- */
+        /* ── Hero ────────────────────────────────── */
         .dash-hero { padding: 30px 32px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .dash-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
         .dash-title { font-size: 26px; font-weight: 800; line-height: 1.08; }
         .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
 
-        /* -- KPIs ---------------------------------- */
+        /* ── KPIs ────────────────────────────────── */
         .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; min-width: 360px; max-width: 520px; width: 100%; }
         .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
         .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-2); font-weight: 700; }
@@ -130,23 +130,23 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .kpi-value.warn { color: #ef4444; }
         .kpi-value.amber { color: var(--amber); }
 
-        /* -- Content ------------------------------- */
+        /* ── Content ─────────────────────────────── */
         .content { padding: 18px 32px 40px; flex: 1; }
 
-        /* -- Panel --------------------------------- */
+        /* ── Panel ───────────────────────────────── */
         .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
         .panel-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--panel-2); }
         .panel-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .panel-title i { color: var(--red); }
         .panel-body { padding: 18px; }
 
-        /* -- Toolbar ------------------------------- */
+        /* ── Toolbar ─────────────────────────────── */
         .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
         .view-switch { display: flex; background: var(--panel-3); padding: 3px; border-radius: 9px; border: 1px solid var(--border); gap: 2px; }
         .view-btn { border: none; background: transparent; color: var(--text-2); padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; font-family: var(--font); cursor: pointer; transition: all var(--t) var(--ease); display: flex; align-items: center; gap: 5px; }
         .view-btn.active { background: var(--panel-2); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,.25); }
 
-        /* -- Filters ------------------------------- */
+        /* ── Filters ─────────────────────────────── */
         .filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .f-input { background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; color: var(--text); font-family: var(--font); font-size: 13px; outline: none; flex: 1; min-width: 160px; transition: border-color var(--t) var(--ease); }
         .f-input:focus { border-color: var(--red); }
@@ -155,7 +155,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .f-select:focus { border-color: var(--red); }
         .f-select option { background: var(--panel-2); }
 
-        /* -- Buttons ------------------------------- */
+        /* ── Buttons ─────────────────────────────── */
         .btn-r { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all var(--t) var(--ease); white-space: nowrap; }
         .btn-r.primary { background: var(--red); color: #fff; border-color: var(--red); }
         .btn-r.primary:hover { filter: brightness(1.1); color: #fff; }
@@ -166,7 +166,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .btn-r.sm { padding: 5px 10px; font-size: 11px; }
         .btn-r.icon-sm { width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 8px; font-size: 13px; }
 
-        /* -- Tags ---------------------------------- */
+        /* ── Tags ────────────────────────────────── */
         .tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; }
         .tag.green  { background: rgba(34,197,94,.12);  color: var(--green); border: 1px solid rgba(34,197,94,.2); }
         .tag.red    { background: var(--red-soft);      color: var(--red);   border: 1px solid var(--border-red); }
@@ -174,7 +174,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .tag.gray   { background: var(--panel-3);       color: var(--text-2); border: 1px solid var(--border); }
         .tag.blue   { background: rgba(59,130,246,.12); color: var(--blue);  border: 1px solid rgba(59,130,246,.2); }
 
-        /* -- Add player form ----------------------- */
+        /* ── Add player form ─────────────────────── */
         .form-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-2); font-weight: 700; display: block; margin-bottom: 5px; }
         .form-control, .form-select { background: var(--panel-3) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-sm) !important; color: var(--text) !important; min-height: 40px; font-family: var(--font); font-size: 13px; }
         .form-control:focus, .form-select:focus { border-color: var(--red) !important; box-shadow: 0 0 0 .18rem rgba(252,0,37,.15) !important; outline: none !important; }
@@ -184,7 +184,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .form-check-input:checked { background-color: var(--red) !important; border-color: var(--red) !important; }
         .form-check-label { font-size: 13px; color: var(--text-2); }
 
-        /* -- Court --------------------------------- */
+        /* ── Court ───────────────────────────────── */
         .court-container {
             position: relative;
             width: 100%;
@@ -299,11 +299,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 
         .player-img-wrap { position: relative; width: 52px; height: 52px; margin: 0 auto 5px; }
         .player-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-red); background: var(--panel-3); }
-        .player-ovr-badge { position: absolute; bottom: -2px; right: -3px; color: #fff; font-size: 9px; font-weight: 800; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(20,20,26,.92); }
-        .player-ovr-badge.ovr-low { background: #ef4444; }
-        .player-ovr-badge.ovr-mid { background: #f59e0b; }
-        .player-ovr-badge.ovr-good { background: #3b82f6; }
-        .player-ovr-badge.ovr-high { background: #22c55e; }
+        .player-ovr-badge { position: absolute; bottom: -2px; right: -3px; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(20,20,26,.92); }
         .player-name { font-size: 10px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; margin-bottom: 1px; }
         .player-pos-label { font-size: 9px; font-weight: 600; color: var(--text-2); text-transform: uppercase; }
 
@@ -318,7 +314,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .drop-zone { border: 2px dashed transparent; border-radius: 14px; transition: all var(--t) var(--ease); }
         .drop-zone.drag-over { border-color: var(--red); background: var(--red-soft); transform: scale(1.04); }
 
-        /* -- Bench --------------------------------- */
+        /* ── Bench ───────────────────────────────── */
         .bench-section { margin-top: 20px; }
         .bench-header { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .bench-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
@@ -335,7 +331,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         }
         .bench-grid.drag-over { background: var(--red-soft); border-color: var(--red); }
 
-        /* -- Roster table -------------------------- */
+        /* ── Roster table ────────────────────────── */
         .roster-table { width: 100%; border-collapse: collapse; }
         .roster-table th { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; cursor: pointer; user-select: none; white-space: nowrap; }
         .roster-table th:hover { color: var(--text-2); }
@@ -350,11 +346,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .player-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-red); background: var(--panel-3); flex-shrink: 0; }
         .player-cell-name { font-size: 13px; font-weight: 600; color: var(--text); }
         .pos-badge { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 22px; border-radius: 5px; background: var(--red-soft); color: var(--red); font-size: 10px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; }
-        .ovr-val { font-size: 15px; font-weight: 800; }
-        .ovr-val.ovr-low { color: #ef4444; }
-        .ovr-val.ovr-mid { color: #f59e0b; }
-        .ovr-val.ovr-good { color: #3b82f6; }
-        .ovr-val.ovr-high { color: #22c55e; }
+        .ovr-val { font-size: 15px; font-weight: 800; color: var(--amber); }
         .role-pill { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
 
         /* Action buttons in table */
@@ -364,21 +356,22 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .btn-icon.edit:hover { background: var(--red-soft); color: var(--red); border-color: var(--border-red); }
         .btn-icon.waive:hover { background: rgba(245,158,11,.12); color: var(--amber); border-color: rgba(245,158,11,.25); }
         .btn-icon.retire:hover { background: rgba(239,68,68,.12); color: #ef4444; border-color: rgba(239,68,68,.25); }
+        .btn-icon.trade-toggle { }
         .btn-icon.trade-on:hover { background: rgba(34,197,94,.12); color: var(--green); border-color: rgba(34,197,94,.25); }
         .btn-icon.trade-off:hover { background: var(--red-soft); color: var(--red); border-color: var(--border-red); }
 
-        /* -- Empty / loading ----------------------- */
+        /* ── Empty / loading ─────────────────────── */
         .empty-r { padding: 40px 20px; text-align: center; color: var(--text-3); }
         .empty-r i { font-size: 28px; display: block; margin-bottom: 10px; }
         .empty-r p { font-size: 13px; }
         .spinner-r { display: inline-block; width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin .6s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* -- Drag ghost ---------------------------- */
+        /* ── Drag ghost ──────────────────────────── */
         .sortable-ghost { opacity: 0.25; transform: scale(0.9); }
         .sortable-chosen { box-shadow: 0 8px 24px rgba(0,0,0,.5); }
 
-        /* -- Modals -------------------------------- */
+        /* ── Modals ──────────────────────────────── */
         .modal-content { background: var(--panel) !important; border: 1px solid var(--border-md) !important; border-radius: var(--radius) !important; font-family: var(--font); color: var(--text); }
         .modal-header { background: var(--panel-2) !important; border-color: var(--border) !important; padding: 16px 20px; border-radius: var(--radius) var(--radius) 0 0 !important; }
         .modal-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -387,18 +380,18 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         .modal-footer { background: var(--panel-2) !important; border-color: var(--border) !important; padding: 14px 20px; border-radius: 0 0 var(--radius) var(--radius) !important; }
         .btn-close-white { filter: invert(1); }
 
-        /* -- Hint text ----------------------------- */
+        /* ── Hint text ───────────────────────────── */
         .hint { font-size: 11px; color: var(--text-3); display: flex; align-items: center; gap: 5px; margin-bottom: 14px; }
 
-        /* -- AI modal ------------------------------ */
+        /* ── AI modal ────────────────────────────── */
         #aiAnalysisModal .modal-header { background: rgba(6,182,212,.15) !important; border-color: rgba(6,182,212,.25) !important; }
         #aiAnalysisModal .modal-title i { color: #22d3ee; }
 
-        /* -- Animations ---------------------------- */
+        /* ── Animations ──────────────────────────── */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .panel { animation: fadeUp .35s var(--ease) both; }
 
-        /* -- Responsive ---------------------------- */
+        /* ── Responsive ──────────────────────────── */
         @media (max-width: 860px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
@@ -423,23 +416,24 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     <button class="sidebar-toggle" id="sidebarToggle">
         <i class="bi bi-list fs-4"></i>
     </button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ---------- SIDEBAR ---------- -->
+    <!-- ══════════ SIDEBAR ══════════ -->
     <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
         <div class="topbar-title">FBA <em>Elenco</em></div>
     </header>
 
-    <!-- ---------- MAIN ---------- -->
+    <!-- ══════════ MAIN ══════════ -->
     <main class="main">
 
         <!-- Hero -->
         <div class="dash-hero">
             <div>
-                <div class="dash-eyebrow">Gest�o do elenco � <?= htmlspecialchars($league) ?></div>
+                <div class="dash-eyebrow">Gestão do elenco · <?= htmlspecialchars($league) ?></div>
                 <h1 class="dash-title">Meu Elenco</h1>
                 <p class="dash-sub">Monte seu quinteto, gerencie banco e acompanhe o CAP em tempo real</p>
             </div>
@@ -447,19 +441,19 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <div class="kpis">
                 <div class="kpi">
                     <div class="kpi-label">Jogadores</div>
-                    <div class="kpi-value" id="total-players">�</div>
+                    <div class="kpi-value" id="total-players">—</div>
                 </div>
                 <div class="kpi">
                     <div class="kpi-label">CAP Top 8</div>
-                    <div class="kpi-value" id="cap-top8">�</div>
+                    <div class="kpi-value" id="cap-top8">—</div>
                 </div>
                 <div class="kpi">
                     <div class="kpi-label">Dispensas</div>
-                    <div class="kpi-value" id="waivers-count">�</div>
+                    <div class="kpi-value" id="waivers-count">—</div>
                 </div>
                 <div class="kpi">
-                    <div class="kpi-label">Contrata��es</div>
-                    <div class="kpi-value" id="signings-count">�</div>
+                    <div class="kpi-label">Contratações</div>
+                    <div class="kpi-value" id="signings-count">—</div>
                 </div>
             </div>
         </div>
@@ -469,7 +463,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <?php if (!$teamId): ?>
             <div class="panel">
                 <div class="panel-body">
-                    <div class="empty-r"><i class="bi bi-exclamation-circle"></i><p>Voc� ainda n�o possui um time. Crie um no onboarding.</p></div>
+                    <div class="empty-r"><i class="bi bi-exclamation-circle"></i><p>Você ainda não possui um time. Crie um no onboarding.</p></div>
                 </div>
             </div>
             <?php else: ?>
@@ -479,11 +473,11 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <div class="panel" style="animation-delay:.04s">
                 <div class="panel-head">
                     <div class="panel-title"><i class="bi bi-plus-circle-fill"></i> Adicionar Jogador</div>
-                    <button class="btn-r ghost sm" type="button" data-bs-toggle="collapse" data-bs-target="#addCollapse" aria-expanded="false" aria-controls="addCollapse">
+                    <button class="btn-r ghost sm" type="button" data-bs-toggle="collapse" data-bs-target="#addCollapse">
                         <i class="bi bi-chevron-down"></i>
                     </button>
                 </div>
-                <div id="addCollapse" class="collapse">
+                <div id="addCollapse" class="collapse show">
                     <div class="panel-body">
                         <form id="form-player">
                             <div class="row g-3">
@@ -500,21 +494,21 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                                     <input type="number" class="form-control" name="ovr" min="40" max="99" required>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Posi��o</label>
+                                    <label class="form-label">Posição</label>
                                     <select class="form-select" name="position" required>
-                                        <option value="">�</option>
+                                        <option value="">—</option>
                                         <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Pos. 2�</label>
+                                    <label class="form-label">Pos. 2ª</label>
                                     <select class="form-select" name="secondary_position">
-                                        <option value="">�</option>
+                                        <option value="">—</option>
                                         <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Fun��o</label>
+                                    <label class="form-label">Função</label>
                                     <select class="form-select" name="role" required>
                                         <option value="Titular">Titular</option>
                                         <option value="Banco">Banco</option>
@@ -525,7 +519,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                                 <div class="col-md-5 d-flex align-items-end gap-3">
                                     <div class="form-check mt-1">
                                         <input class="form-check-input" type="checkbox" id="available_for_trade" name="available_for_trade" checked>
-                                        <label class="form-check-label" for="available_for_trade">Dispon�vel para troca</label>
+                                        <label class="form-check-label" for="available_for_trade">Disponível para troca</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4 d-flex align-items-end">
@@ -566,19 +560,19 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                             </button>
                         </div>
                         <select id="sort-select" class="f-select" style="width:auto;min-width:160px">
-                            <option value="role">Ordenar: Fun��o</option>
+                            <option value="role">Ordenar: Função</option>
                             <option value="name">Ordenar: Nome</option>
                             <option value="ovr">Ordenar: OVR</option>
-                            <option value="position">Ordenar: Posi��o</option>
+                            <option value="position">Ordenar: Posição</option>
                             <option value="age">Ordenar: Idade</option>
                         </select>
                     </div>
 
                     <!-- Filters -->
                     <div class="filters">
-                        <input type="text" id="players-search" class="f-input" placeholder="Buscar por nome ou posi��o...">
+                        <input type="text" id="players-search" class="f-input" placeholder="Buscar por nome ou posição...">
                         <select id="players-role-filter" class="f-select" style="min-width:160px">
-                            <option value="">Todas as fun��es</option>
+                            <option value="">Todas as funções</option>
                             <option value="Titular">Titular</option>
                             <option value="Banco">Banco</option>
                             <option value="G-League">G-League</option>
@@ -594,7 +588,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                         <div style="font-size:13px;color:var(--text-2);margin-top:10px">Carregando jogadores...</div>
                     </div>
 
-                    <!-- -- COURT VIEW -- -->
+                    <!-- ── COURT VIEW ── -->
                     <div id="players-grid">
                         <div class="court-container">
                             <div class="court-lines"></div>
@@ -628,7 +622,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                         </div>
                     </div>
 
-                    <!-- -- LIST VIEW -- -->
+                    <!-- ── LIST VIEW ── -->
                     <div id="players-table-wrapper" style="display:none">
                         <div style="overflow-x:auto">
                             <table class="roster-table">
@@ -638,9 +632,9 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                                         <th data-sort="position">Pos <i class="bi bi-chevron-expand"></i></th>
                                         <th data-sort="ovr">OVR <i class="bi bi-chevron-expand"></i></th>
                                         <th data-sort="age">Idade <i class="bi bi-chevron-expand"></i></th>
-                                        <th data-sort="role">Fun��o <i class="bi bi-chevron-expand"></i></th>
+                                        <th data-sort="role">Função <i class="bi bi-chevron-expand"></i></th>
                                         <th>Troca</th>
-                                        <th style="text-align:right">A��es</th>
+                                        <th style="text-align:right">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody id="players-table-body"></tbody>
@@ -655,7 +649,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     </main>
 </div>
 
-<!-- ---------- MODALS ---------- -->
+<!-- ══════════ MODALS ══════════ -->
 
 <!-- Edit player -->
 <div class="modal fade" id="editPlayerModal" tabindex="-1">
@@ -689,20 +683,20 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                         <input type="number" id="edit-ovr" class="form-control" min="40" max="99" required>
                     </div>
                     <div class="col-6 col-md-2">
-                        <label class="form-label">Posi��o</label>
+                        <label class="form-label">Posição</label>
                         <select id="edit-position" class="form-select" required>
                             <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                         </select>
                     </div>
                     <div class="col-6 col-md-2">
-                        <label class="form-label">Pos. 2�</label>
+                        <label class="form-label">Pos. 2ª</label>
                         <select id="edit-secondary-position" class="form-select">
-                            <option value="">�</option>
+                            <option value="">—</option>
                             <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Fun��o</label>
+                        <label class="form-label">Função</label>
                         <select id="edit-role" class="form-select" required>
                             <option value="Titular">Titular</option>
                             <option value="Banco">Banco</option>
@@ -713,7 +707,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                     <div class="col-12 d-flex align-items-center gap-3 mt-1">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="edit-available">
-                            <label class="form-check-label" for="edit-available">Dispon�vel para troca</label>
+                            <label class="form-check-label" for="edit-available">Disponível para troca</label>
                         </div>
                     </div>
                 </div>
@@ -737,9 +731,9 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             <div class="modal-body">
                 <p style="font-size:14px;color:var(--text-2);margin-bottom:12px">
                     Dispensar <strong style="color:var(--text)" id="waive-player-name">jogador</strong>?<br>
-                    Seu CAP Top 8 passar� para <strong style="color:var(--amber)" id="waive-player-cap">0</strong>.
+                    Seu CAP Top 8 passará para <strong style="color:var(--amber)" id="waive-player-cap">0</strong>.
                 </p>
-                <p style="font-size:13px;color:var(--text-2)" id="waive-cap-status">Voc� vai ficar dentro do CAP.</p>
+                <p style="font-size:13px;color:var(--text-2)" id="waive-cap-status">Você vai ficar dentro do CAP.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn-r ghost" data-bs-dismiss="modal">Cancelar</button>
@@ -757,13 +751,13 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-robot"></i> Relat�rio do Assistente T�cnico</h5>
+                <h5 class="modal-title"><i class="bi bi-robot"></i> Relatório do Assistente Técnico</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="ai-loading" style="text-align:center;padding:40px 0">
                     <div class="spinner-r" style="width:36px;height:36px;border-width:3px"></div>
-                    <div style="font-size:14px;color:var(--text-2);margin-top:14px">A IA est� analisando seu elenco...</div>
+                    <div style="font-size:14px;color:var(--text-2);margin-top:14px">A IA está analisando seu elenco...</div>
                 </div>
                 <div id="ai-results" style="display:none">
                     <div style="margin-bottom:20px">
@@ -774,7 +768,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                     </div>
                     <div>
                         <div style="font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#ef4444;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-                            <i class="bi bi-arrow-down-circle-fill"></i> Pontos de aten��o
+                            <i class="bi bi-arrow-down-circle-fill"></i> Pontos de atenção
                         </div>
                         <ul id="ai-weaknesses" style="padding-left:18px;color:var(--text);font-size:13px;display:flex;flex-direction:column;gap:6px"></ul>
                     </div>
@@ -787,7 +781,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     </div>
 </div>
 
-<!-- ---------- SCRIPTS ---------- -->
+<!-- ══════════ SCRIPTS ══════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="/js/sidebar.js"></script>
@@ -800,7 +794,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         document.getElementById('sidebarToggle')?.click();
     });
 
-    /* -- View switch ------------------------------- */
+    /* ── View switch ─────────────────────────────── */
     const btnCourt  = document.getElementById('btn-view-court');
     const btnList   = document.getElementById('btn-view-list');
     const courtView = document.getElementById('players-grid');
@@ -816,7 +810,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     btnCourt?.addEventListener('click', () => setRosterView('court'));
     btnList?.addEventListener('click',  () => setRosterView('list'));
 
-    /* -- State ------------------------------------- */
+    /* ── State ───────────────────────────────────── */
     let players = [];
     let sortables = [];
     let currentSort = { field: 'role', ascending: true };
@@ -891,47 +885,9 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
     }
 
     function capStatusText(cap) {
-        if (+window.__CAP_MIN__ > 0 && cap < +window.__CAP_MIN__) return 'Ficar� abaixo do CAP m�nimo.';
-        if (+window.__CAP_MAX__ < 999 && cap > +window.__CAP_MAX__) return 'Ficar� acima do CAP m�ximo.';
-        return 'Ficar� dentro do CAP.';
-    }
-
-    function buildLocalAIAnalysis(list) {
-        const strengths = [];
-        const weaknesses = [];
-
-        if (!Array.isArray(list) || list.length === 0) {
-            return {
-                strengths,
-                weaknesses: ['Sem jogadores no elenco para an�lise.']
-            };
-        }
-
-        const avg = list.reduce((s, p) => s + (+p.ovr || 0), 0) / list.length;
-        const top = [...list].sort((a, b) => (+b.ovr || 0) - (+a.ovr || 0))[0] || null;
-        const positionCounts = { PG: 0, SG: 0, SF: 0, PF: 0, C: 0 };
-        list.forEach((p) => {
-            const pos = (p.position || '').toUpperCase();
-            if (positionCounts[pos] !== undefined) positionCounts[pos] += 1;
-        });
-
-        const missingPositions = Object.entries(positionCounts)
-            .filter(([, count]) => count < 2)
-            .map(([pos]) => pos);
-
-        if (avg >= 78) strengths.push(`OVR m�dio s�lido (${avg.toFixed(1)}), elenco competitivo.`);
-        else weaknesses.push(`OVR m�dio em ${avg.toFixed(1)}; vale buscar mais talento no mercado.`);
-
-        if (top && (+top.ovr || 0) >= 89) strengths.push(`${top.name} (${top.ovr} OVR) � uma estrela para liderar o time.`);
-        else if (top) weaknesses.push(`Falta um franchise player (89+). Melhor jogador atual: ${top.name} (${top.ovr} OVR).`);
-
-        if (missingPositions.length === 0) strengths.push('Boa cobertura de posi��es no elenco (PG/SG/SF/PF/C).');
-        else weaknesses.push(`Pouca profundidade nas posi��es: ${missingPositions.join(', ')}.`);
-
-        if (strengths.length === 0) strengths.push('Base do elenco montada; ajustes pontuais podem elevar o n�vel.');
-        if (weaknesses.length === 0) weaknesses.push('Sem pontos cr�ticos detectados no momento.');
-
-        return { strengths, weaknesses };
+        if (+window.__CAP_MIN__ > 0 && cap < +window.__CAP_MIN__) return 'Ficará abaixo do CAP mínimo.';
+        if (+window.__CAP_MAX__ < 999 && cap > +window.__CAP_MAX__) return 'Ficará acima do CAP máximo.';
+        return 'Ficará dentro do CAP.';
     }
 
     function updateKPIs() {
@@ -973,26 +929,17 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
 
     function createCard(p) {
         const photo = playerPhoto(p);
-        const ovrClass = getOvrClass(p.ovr);
         const div = document.createElement('div');
         div.className = 'player-card';
         div.dataset.id = p.id;
         div.innerHTML = `
             <div class="player-img-wrap">
                 <img class="player-img" src="${photo}" onerror="this.src='/img/default-avatar.png'">
-                <div class="player-ovr-badge ${ovrClass}">${p.ovr}</div>
+                <div class="player-ovr-badge">${p.ovr}</div>
             </div>
             <div class="player-name">${p.name}</div>
             <div class="player-pos-label">${p.position}</div>`;
         return div;
-    }
-
-    function getOvrClass(ovr) {
-        const value = +ovr || 0;
-        if (value >= 90) return 'ovr-high';
-        if (value >= 82) return 'ovr-good';
-        if (value >= 74) return 'ovr-mid';
-        return 'ovr-low';
     }
 
     function renderRoster() {
@@ -1027,7 +974,6 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             const rc = ROLE_COLORS[role] || ROLE_COLORS.Outro;
             const canRetire = +p.age >= 33;
             const tr = document.createElement('tr');
-            const ovrClass = getOvrClass(p.ovr);
             tr.innerHTML = `
                 <td>
                     <div class="player-cell">
@@ -1036,10 +982,10 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
                     </div>
                 </td>
                 <td><span class="pos-badge">${p.position}</span></td>
-                <td><span class="ovr-val ${ovrClass}">${p.ovr}</span></td>
+                <td><span class="ovr-val">${p.ovr}</span></td>
                 <td style="color:var(--text-2)">${p.age}</td>
                 <td><span class="role-pill" style="background:${rc.bg};color:${rc.color};border:1px solid ${rc.border}">${role}</span></td>
-                <td>${p.available_for_trade ? '<span class="tag green">Sim</span>' : '<span class="tag gray">N�o</span>'}</td>
+                <td>${p.available_for_trade ? '<span class="tag green">Sim</span>' : '<span class="tag gray">Não</span>'}</td>
                 <td>
                     <div class="tbl-actions">
                         <button class="btn-icon edit btn-edit-player" data-id="${p.id}" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -1098,11 +1044,11 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         updateKPIs();
     }
 
-    /* -- Waive modal ------------------------------- */
+    /* ── Waive modal ─────────────────────────────── */
     function openWaiveModal(player) {
         if (!player) return;
         pendingWaivePlayerId = player.id;
-        document.getElementById('waive-player-name').textContent = player.name || '�';
+        document.getElementById('waive-player-name').textContent = player.name || '—';
         const nc = capAfterRemove(player.id);
         document.getElementById('waive-player-cap').textContent = nc;
         document.getElementById('waive-cap-status').textContent  = capStatusText(nc);
@@ -1117,7 +1063,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         } catch(e) { alert('Erro: ' + (e?.error || 'Desconhecido')); }
     }
 
-    /* -- Edit modal -------------------------------- */
+    /* ── Edit modal ──────────────────────────────── */
     async function openEditModal(id) {
         const p = players.find(x => String(x.id) === String(id));
         if (!p) return;
@@ -1153,7 +1099,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         } catch(e) { alert('Erro: ' + (e?.error||'')); }
     }
 
-    /* -- Event delegation -------------------------- */
+    /* ── Event delegation ────────────────────────── */
     document.getElementById('players-table-body')?.addEventListener('click', async (e) => {
         const btn = e.target.closest('button');
         if (!btn) return;
@@ -1164,7 +1110,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         if (btn.classList.contains('btn-retire-player')) { await retire(id, btn.dataset.name); return; }
     });
 
-    /* -- Sort click on thead ----------------------- */
+    /* ── Sort click on thead ─────────────────────── */
     document.querySelector('.roster-table thead')?.addEventListener('click', (e) => {
         const th = e.target.closest('th[data-sort]');
         if (!th) return;
@@ -1174,7 +1120,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         renderRoster();
     });
 
-    /* -- Search / filter --------------------------- */
+    /* ── Search / filter ─────────────────────────── */
     document.getElementById('players-search')?.addEventListener('input', e => { currentSearch = e.target.value; renderRoster(); });
     document.getElementById('players-role-filter')?.addEventListener('change', e => { currentRoleFilter = e.target.value; renderRoster(); });
     document.getElementById('sort-select')?.addEventListener('change', e => {
@@ -1182,7 +1128,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         renderRoster();
     });
 
-    /* -- Photo preview ----------------------------- */
+    /* ── Photo preview ───────────────────────────── */
     document.getElementById('edit-foto-adicional')?.addEventListener('change', (e) => {
         const file = e.target.files?.[0]; if (!file) return;
         editPhotoFile = file;
@@ -1192,7 +1138,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         prev.src = url; prev.dataset.objUrl = url;
     });
 
-    /* -- Save edit --------------------------------- */
+    /* ── Save edit ───────────────────────────────── */
     document.getElementById('btn-save-edit')?.addEventListener('click', async () => {
         const payload = {
             id: +document.getElementById('edit-player-id').value,
@@ -1212,14 +1158,14 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         } catch(e) { alert('Erro: ' + (e?.error||'')); }
     });
 
-    /* -- Confirm waive ----------------------------- */
+    /* ── Confirm waive ───────────────────────────── */
     document.getElementById('btn-confirm-waive')?.addEventListener('click', async () => {
         const id = pendingWaivePlayerId; pendingWaivePlayerId = null;
         bootstrap.Modal.getInstance(document.getElementById('waivePlayerModal'))?.hide();
         await doWaive(id);
     });
 
-    /* -- Add player form --------------------------- */
+    /* ── Add player form ─────────────────────────── */
     document.getElementById('form-player')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
@@ -1233,7 +1179,7 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             ovr: +fd.get('ovr'),
             available_for_trade: fd.get('available_for_trade') ? 1 : 0,
         };
-        if (!payload.name || !payload.age || !payload.position || !payload.ovr) { alert('Preencha nome, idade, posi��o e OVR.'); return; }
+        if (!payload.name || !payload.age || !payload.position || !payload.ovr) { alert('Preencha nome, idade, posição e OVR.'); return; }
         const btn = document.getElementById('btn-add-player');
         btn.disabled = true; btn.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px"></span> Enviando...';
         try {
@@ -1246,25 +1192,15 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
         finally { btn.disabled = false; btn.innerHTML = '<i class="bi bi-cloud-upload"></i> Cadastrar'; }
     });
 
-    /* -- Refresh ----------------------------------- */
+    /* ── Refresh ─────────────────────────────────── */
     document.getElementById('btn-refresh-players')?.addEventListener('click', fetchPlayers);
 
-    /* -- AI Analysis ------------------------------- */
+    /* ── AI Analysis ─────────────────────────────── */
     document.getElementById('btn-ai-analysis')?.addEventListener('click', async () => {
         const modal = new bootstrap.Modal(document.getElementById('aiAnalysisModal'));
         modal.show();
         document.getElementById('ai-loading').style.display = 'block';
         document.getElementById('ai-results').style.display = 'none';
-
-        const fill = (elId, items) => {
-            const ul = document.getElementById(elId);
-            ul.innerHTML = '';
-            (items || []).forEach(txt => {
-                const li = document.createElement('li');
-                li.textContent = txt;
-                ul.appendChild(li);
-            });
-        };
 
         try {
             const res = await fetch('/api/ai-analysis.php', {
@@ -1274,23 +1210,22 @@ $canAddPlayers = in_array($league, ['ELITE', 'NEXT'], true);
             });
             const d = await res.json();
             if (!d.success) throw d;
+            const fill = (elId, items) => {
+                const ul = document.getElementById(elId);
+                ul.innerHTML = '';
+                (items || []).forEach(txt => { const li = document.createElement('li'); li.textContent = txt; ul.appendChild(li); });
+            };
             fill('ai-strengths',  d.strengths  || []);
             fill('ai-weaknesses', d.weaknesses || []);
             document.getElementById('ai-loading').style.display = 'none';
             document.getElementById('ai-results').style.display = 'block';
         } catch(e) {
-            const local = buildLocalAIAnalysis(players);
-            fill('ai-strengths', local.strengths);
-            fill('ai-weaknesses', local.weaknesses);
-            document.getElementById('ai-loading').style.display = 'none';
-            document.getElementById('ai-results').style.display = 'block';
+            document.getElementById('ai-loading').innerHTML = '<div style="color:#ef4444;font-size:14px">Erro ao buscar análise da IA.</div>';
         }
     });
 
-    /* -- Init -------------------------------------- */
+    /* ── Init ────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', async () => {
-        const addCollapseEl = document.getElementById('addCollapse');
-        if (addCollapseEl) addCollapseEl.classList.remove('show');
         setRosterView('list');
         await Promise.all([fetchPlayers(), loadFALimits()]);
     });
