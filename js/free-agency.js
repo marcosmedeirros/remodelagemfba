@@ -154,62 +154,52 @@ function initNewFreeAgency() {
         renderAdminRequests(inlineEl);
     }
 
+        carregarLimitesNovaFA();
+    carregarMinhasPropostasNovaFA();
+    carregarHistoricoNovaFA();
+
+    const historyTab = document.getElementById('fa-history-tab');
+    if (historyTab) {
+        historyTab.addEventListener('shown.bs.tab', () => {
             carregarHistoricoNovaFA();
+            carregarDispensados();
+        });
+    }
+
+    if (isAdmin) {
+        const newLeagueSelect = document.getElementById('faNewAdminLeague');
         if (newLeagueSelect) {
-            const response = await fetch('api/free-agency.php?action=my_fa_requests');
-            const data = await response.json();
-            if (!data.success || !Array.isArray(data.requests)) {
-                container.innerHTML = '<p class="text-light-gray">Nenhuma proposta registrada.</p>';
-                if (countBadge) countBadge.textContent = '0';
-                return;
-            }
-async function renderAdminRequests(targetEl) {
-            const requests = data.requests;
-            if (countBadge) countBadge.textContent = String(requests.length);
-            if (requests.length === 0) {
-                container.innerHTML = '<p class="text-light-gray">Nenhuma proposta registrada.</p>';
-                return;
-            }
-    if (!targetEl) return;
-            let html = '<div class="fa-request-grid">';
-            requests.forEach(item => {
-                const statusLabel = formatNewFaStatus(item.status);
-                const season = item.season_year ? `Temp ${item.season_year}` : '-';
-                const remaining = typeof window.__faRemainingSignings === 'number' ? window.__faRemainingSignings : null;
-                const isBlocked = remaining !== null && remaining <= 0;
-                const isPending = item.status === 'pending' && !isBlocked;
-                const positionText = `${item.position || '-'}${item.secondary_position ? '/' + item.secondary_position : ''}`;
-
-                html += `
-                    <article class="fa-request-card">
-                        <header class="fa-request-head">
-                            <div>
-                                <h3 class="fa-request-player">${item.player_name}</h3>
-                                <p class="fa-request-meta">${positionText} • OVR ${item.ovr ?? '-'}</p>
-                            </div>
-                            <div>${statusLabel}</div>
-                        </header>
-
-                        <div class="fa-request-body">
-                            <div class="fa-request-pills">
-                                <span class="fa-data-pill">Temporada: ${season}</span>
-                                <span class="fa-data-pill fa-data-pill-money">Oferta: ${item.amount ?? 0} moedas</span>
-                            </div>
-                        </div>
-
-                        <footer class="fa-request-actions">
-                            ${isPending ? `
-                                <button class="btn btn-sm btn-outline-light" onclick="editarPropostaNovaFA(${item.offer_id}, ${item.amount})">
-                                    <i class="bi bi-pencil me-1"></i>Editar
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="excluirPropostaNovaFA(${item.offer_id})">
-                                    <i class="bi bi-trash me-1"></i>Excluir
-                                </button>
-                            ` : '<span class="fa-request-static">Sem ações disponíveis</span>'}
-                        </footer>
-                    </article>`;
+            newLeagueSelect.addEventListener('change', () => {
+                carregarSolicitacoesNovaFA();
             });
-            html += '</div>';
+        }
+        carregarSolicitacoesNovaFA();
+        const faAdminTab = document.getElementById('fa-admin-tab');
+        if (faAdminTab) {
+            faAdminTab.addEventListener('shown.bs.tab', () => {
+                carregarSolicitacoesNovaFA();
+            });
+        }
+    }
+}
+
+async function openFaApprovedModal() {
+    const listEl = document.getElementById('faApprovedList');
+    if (listEl) {
+        listEl.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-orange"></div></div>';
+    }
+
+    const modalEl = document.getElementById('faApprovedModal');
+    if (modalEl) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    await renderAdminRequests(listEl);
+}
+
+async function renderAdminRequests(targetEl) {
+    if (!targetEl) return;
     try {
         if (!isAdmin) {
             targetEl.innerHTML = '<div class="text-light-gray">Somente administradores podem ver essas solicitações.</div>';
@@ -703,60 +693,48 @@ async function carregarDispensados() {
             teams.forEach(team => {
                 const option = document.createElement('option');
                 option.value = team;
-
-    const teamFilter = document.getElementById('faWaiversTeamFilter');
-        if (teamValue && item.original_team_name !== teamValue) return false;
-            const response = await fetch(`api/free-agency.php?${query.toString()}`);
-            const data = await response.json();
-            if (!data.success || !Array.isArray(data.history) || data.history.length === 0) {
-                container.innerHTML = '<p class="text-light-gray">Nenhuma contratacao registrada.</p>';
-                return;
-            }
-    let html = '<div class="table-responsive"><table class="table table-dark table-hover mb-0">';
-            if (seasonFilter && !seasonFilter.dataset.loaded) {
-                const seasons = [...new Set(data.history.map(item => item.season_year).filter(Boolean))].sort((a, b) => b - a);
-                seasons.forEach(season => {
-                    const option = document.createElement('option');
-                    option.value = season;
-                    option.textContent = `Temp ${season}`;
-                    seasonFilter.appendChild(option);
-                });
-                seasonFilter.dataset.loaded = '1';
-                seasonFilter.addEventListener('change', () => carregarHistoricoNovaFA());
-            }
-    html += '<thead><tr><th>Jogador</th><th>Temporada</th><th><button type="button" class="btn btn-link p-0 text-white" onclick="toggleFaWaiversTeamSort()">Time' + sortIndicator(faWaiversTeamSort) + '</button></th></tr></thead><tbody>';
-            const sortedHistory = sortByTeamName(
-                data.history,
-                (item) => item.team_name ? `${item.team_city} ${item.team_name}` : '',
-                faHistoryTeamSort
-            );
-    sorted.forEach(item => {
-            let html = `<div class="fa-history-toolbar">
-                <button type="button" class="btn btn-sm btn-outline-light" onclick="toggleFaHistoryTeamSort()">
-                    <i class="bi bi-arrow-down-up me-1"></i>Ordenar por time${sortIndicator(faHistoryTeamSort)}
-                </button>
-            </div><div class="fa-history-grid">`;
-            sortedHistory.forEach(item => {
-                const teamName = item.team_name ? `${item.team_city} ${item.team_name}` : '-';
-                const seasonLabel = item.season_year ? `Temp ${item.season_year}` : '-';
-                html += `
-                    <article class="fa-history-card">
-                        <div class="fa-history-player-wrap">
-                            <h3 class="fa-history-player">${item.player_name}</h3>
-                            <span class="fa-history-ovr">OVR ${item.ovr ?? '-'}</span>
-                        </div>
-                        <div class="fa-history-row">
-                            <span class="fa-history-label">Time</span>
-                            <strong class="fa-history-value">${teamName}</strong>
-                        </div>
-                        <div class="fa-history-row">
-                            <span class="fa-history-label">Temporada</span>
-                            <span class="fa-history-value">${seasonLabel}</span>
-                        </div>
-                    </article>`;
+                option.textContent = team;
+                teamFilter.appendChild(option);
             });
-            html += '</div>';
-            container.innerHTML = html;
+            teamFilter.dataset.loaded = '1';
+            teamFilter.addEventListener('change', () => renderWaiversList(waivers));
+        }
+
+        window.__faWaiversCache = waivers;
+        renderWaiversList(waivers);
+    } catch (error) {
+        container.innerHTML = '<p class="text-danger">Erro ao carregar dispensas.</p>';
+    }
+}
+
+function renderWaiversList(waivers) {
+    const container = document.getElementById('faWaiversContainer');
+    if (!container) return;
+    const seasonFilter = document.getElementById('faWaiversSeasonFilter');
+    const teamFilter = document.getElementById('faWaiversTeamFilter');
+    const seasonValue = seasonFilter?.value || '';
+    const teamValue = teamFilter?.value || '';
+
+    const filtered = waivers.filter(item => {
+        if (seasonValue && String(item.season_year) !== seasonValue) return false;
+        if (teamValue && item.original_team_name !== teamValue) return false;
+        return true;
+    });
+
+    if (!filtered.length) {
+        container.innerHTML = '<p class="text-light-gray">Nenhum jogador dispensado encontrado.</p>';
+        return;
+    }
+
+    const sorted = sortByTeamName(
+        filtered,
+        (item) => item.original_team_name || '',
+        faWaiversTeamSort
+    );
+
+    let html = '<div class="table-responsive"><table class="table table-dark table-hover mb-0">';
+    html += '<thead><tr><th>Jogador</th><th>Temporada</th><th><button type="button" class="btn btn-link p-0 text-white" onclick="toggleFaWaiversTeamSort()">Time' + sortIndicator(faWaiversTeamSort) + '</button></th></tr></thead><tbody>';
+    sorted.forEach(item => {
         const teamName = item.original_team_name || '-';
         let seasonLabel = '-';
         if (item.season_number) {
