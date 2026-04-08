@@ -198,6 +198,43 @@ $novoSidebarThemeCss = <<<'CSS'
     font-weight: 600;
   }
 
+  .sidebar-theme-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    color: var(--text-2, #9ca3af);
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 2px;
+    transition: all var(--t, 220ms) var(--ease, ease);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sidebar-theme-toggle i {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-theme-toggle:hover {
+    background: var(--panel-2, rgba(255, 255, 255, 0.03));
+    color: var(--text, #e5e7eb);
+  }
+
+  .sidebar-theme-toggle[aria-pressed="true"] {
+    background: var(--red-soft, rgba(252, 0, 37, 0.12));
+    border-color: var(--red, #fc0025);
+    color: var(--red, #fc0025);
+    font-weight: 600;
+  }
+
   .sidebar-footer {
     padding: 14px;
     border-top: 1px solid var(--border, rgba(255, 255, 255, 0.12));

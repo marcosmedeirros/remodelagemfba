@@ -3,7 +3,26 @@ declare(strict_types=1);
 require __DIR__ . '/_sidebar-picks-theme.php';
 
 ob_start();
-require __DIR__ . '/../leilao.php';
+$sourceCandidates = [
+  __DIR__ . '/../leilao.php',
+  __DIR__ . '/pages/leilao.php',
+  __DIR__ . '/public/leilao.php',
+];
+
+$sourceFile = null;
+foreach ($sourceCandidates as $candidate) {
+  if (is_file($candidate) && realpath($candidate) !== __FILE__) {
+    $sourceFile = $candidate;
+    break;
+  }
+}
+
+if ($sourceFile !== null) {
+  require $sourceFile;
+} else {
+  http_response_code(500);
+  echo '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Leilao indisponivel</title></head><body><p>Nao foi possivel carregar a pagina de Leilao. Verifique se o arquivo de origem existe.</p></body></html>';
+}
 $html = ob_get_clean();
 
 if ($html === false) {

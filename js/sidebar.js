@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const initialTheme = savedTheme || (prefersLight ? 'light' : 'dark');
     root.dataset.theme = initialTheme;
 
-    const themeButtons = Array.from(document.querySelectorAll('#themeToggle'));
+    const themeButtons = Array.from(document.querySelectorAll('#themeToggle, [data-theme-toggle]'));
     const setThemeButton = (button, theme) => {
         if (!button) return;
         const isLight = theme === 'light';
