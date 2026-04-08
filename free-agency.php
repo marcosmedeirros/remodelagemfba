@@ -289,6 +289,73 @@ $useNewFreeAgency = true;
             gap: .8rem;
         }
 
+        .fa-admin-offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: .85rem;
+        }
+
+        .fa-offer-card {
+            background: linear-gradient(160deg, rgba(23,28,39,.92), rgba(17,21,29,.92));
+            border: 1px solid var(--fa-border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, .25);
+        }
+
+        .fa-offer-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: .6rem;
+            padding: .85rem 1rem;
+            border-bottom: 1px solid var(--fa-border);
+            background: linear-gradient(120deg, rgba(252,0,37,.10), rgba(6,182,212,.08));
+        }
+
+        .fa-offer-player {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .fa-offer-meta {
+            margin: .2rem 0 0;
+            color: var(--fa-text-2);
+            font-size: 12px;
+        }
+
+        .fa-offer-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8be9fd;
+            background: rgba(6,182,212,.14);
+            border: 1px solid rgba(6,182,212,.26);
+            border-radius: 999px;
+            padding: .2rem .55rem;
+            white-space: nowrap;
+        }
+
+        .fa-offer-body {
+            padding: .95rem 1rem .75rem;
+        }
+
+        .fa-offer-actions {
+            padding: .8rem 1rem 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .55rem;
+        }
+
+        .fa-offer-actions .btn {
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            padding: .48rem .6rem;
+        }
+
         .fa-empty {
             padding: 1.4rem;
             text-align: center;
@@ -347,6 +414,9 @@ $useNewFreeAgency = true;
             .fa-hero { padding: 1rem; }
             .fa-title { font-size: 23px; }
             .fa-kpis { width: 100%; min-width: 0; }
+            .fa-admin-offers-grid { grid-template-columns: 1fr; }
+            .fa-offer-actions { grid-template-columns: 1fr; }
+            .fa-offer-actions .btn { width: 100%; }
         }
     </style>
 </head>
