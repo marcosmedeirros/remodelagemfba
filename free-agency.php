@@ -433,26 +433,9 @@ $useNewFreeAgency = true;
             </div>
         </article>
 
-        <article class="fa-panel">
-            <header class="fa-panel-head">
-                <h2 class="fa-panel-title"><i class="bi bi-person-badge-fill"></i> Agentes Disponíveis</h2>
-            </header>
-            <div class="fa-panel-body">
-                <div class="row g-2 mb-3">
-                    <div class="col-md-8 position-relative">
-                        <i class="bi bi-search" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--fa-text-2)"></i>
-                        <input type="text" id="faSearchInput" class="f-input w-100" style="padding-left:2rem" placeholder="Buscar por nome">
-                    </div>
-                    <div class="col-md-4">
-                        <select id="faPositionFilter" class="f-select w-100">
-                            <option value="">Todas as posições</option>
-                            <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="freeAgentsContainer"><div class="fa-empty">Carregando jogadores...</div></div>
-            </div>
-        </article>
+        <div id="faSearchInput" style="display:none" aria-hidden="true"></div>
+        <div id="faPositionFilter" style="display:none" aria-hidden="true"></div>
+        <div id="freeAgentsContainer" style="display:none" aria-hidden="true"></div>
     </section>
 
     <section class="tab-pane-r" id="tab-fa-my">
@@ -496,86 +479,36 @@ $useNewFreeAgency = true;
     <section class="tab-pane-r" id="tab-fa-admin">
         <article class="fa-panel">
             <header class="fa-panel-head">
-                <h2 class="fa-panel-title"><i class="bi bi-shield-lock-fill"></i> Painel Administrativo</h2>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h2 class="fa-panel-title"><i class="bi bi-shield-lock-fill"></i> Propostas Pendentes</h2>
+                <div class="d-flex align-items-center gap-2 flex-wrap" style="width:100%;justify-content:space-between">
+                    <div class="small" style="color:var(--fa-text-2)">Aprove ou recuse diretamente pelos cards abaixo.</div>
                     <select id="adminLeagueSelect" class="f-select" onchange="onAdminLeagueChange()" style="min-width:120px">
                         <?php foreach ($leagues as $lg): ?>
                             <option value="<?= $lg ?>" <?= $lg === $userLeague ? 'selected' : '' ?>><?= $lg ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <label class="d-flex align-items-center gap-2 mb-0" for="faStatusToggle">
-                        <input type="checkbox" id="faStatusToggle" checked>
-                        <span id="faStatusBadge" class="tag green">Ativo</span>
-                    </label>
-                    <button class="btn-r ghost" id="faViewApprovedBtn" type="button"><i class="bi bi-eye"></i> Aprovadas</button>
                 </div>
             </header>
             <div class="fa-panel-body">
-                <div id="faApprovedInline" class="mb-3"></div>
                 <div id="faNewAdminRequests"><div class="fa-empty">Carregando solicitações...</div></div>
             </div>
         </article>
 
-        <article class="fa-panel">
-            <header class="fa-panel-head">
-                <h2 class="fa-panel-title"><i class="bi bi-plus-circle-fill"></i> Adicionar Agente Livre</h2>
-                <select id="faNewAdminLeague" class="f-select" style="min-width:120px">
-                    <?php foreach ($leagues as $lg): ?>
-                        <option value="<?= $lg ?>" <?= $lg === $userLeague ? 'selected' : '' ?>><?= $lg ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </header>
-            <div class="fa-panel-body">
-                <div class="row g-3">
-                    <div class="col-md-2">
-                        <label class="form-label" for="faLeague">Liga</label>
-                        <select id="faLeague" class="form-select">
-                            <?php foreach ($leagues as $lg): ?>
-                                <option value="<?= $lg ?>" <?= $lg === $userLeague ? 'selected' : '' ?>><?= $lg ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label" for="faPlayerName">Nome</label>
-                        <input type="text" id="faPlayerName" class="form-control" placeholder="Nome do jogador">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label" for="faPosition">Posição</label>
-                        <select id="faPosition" class="form-select"><option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option></select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label" for="faSecondaryPosition">Pos. 2ª</label>
-                        <input type="text" id="faSecondaryPosition" class="form-control" placeholder="SG">
-                    </div>
-                    <div class="col-6 col-md-1">
-                        <label class="form-label" for="faAge">Idade</label>
-                        <input type="number" id="faAge" class="form-control" value="25" min="16" max="45">
-                    </div>
-                    <div class="col-6 col-md-1">
-                        <label class="form-label" for="faOvr">OVR</label>
-                        <input type="number" id="faOvr" class="form-control" value="70" min="40" max="99">
-                    </div>
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button class="btn-r primary w-100 justify-content-center" id="btnAddFreeAgent"><i class="bi bi-plus-lg"></i></button>
-                    </div>
-                </div>
-            </div>
-        </article>
-
-        <article class="fa-panel">
-            <header class="fa-panel-head"><h2 class="fa-panel-title"><i class="bi bi-list-ul"></i> Agentes Cadastrados</h2></header>
-            <div class="fa-panel-body" style="padding:0"><div id="adminFreeAgentsContainer"><div class="fa-empty m-3">Carregando...</div></div></div>
-        </article>
-
-        <article class="fa-panel">
-            <header class="fa-panel-head"><h2 class="fa-panel-title"><i class="bi bi-hourglass-split"></i> Propostas Pendentes</h2></header>
-            <div class="fa-panel-body"><div id="adminOffersContainer"><div class="fa-empty">Carregando...</div></div></div>
-        </article>
-
-        <article class="fa-panel">
-            <header class="fa-panel-head"><h2 class="fa-panel-title"><i class="bi bi-clock-history"></i> Histórico de Contratações</h2></header>
-            <div class="fa-panel-body" style="padding:0"><div id="faContractsHistoryContainer"><div class="fa-empty m-3">Carregando...</div></div></div>
-        </article>
+        <div id="faNewAdminLeague" style="display:none" aria-hidden="true"></div>
+        <div id="faLeague" style="display:none" aria-hidden="true"></div>
+        <div id="faPlayerName" style="display:none" aria-hidden="true"></div>
+        <div id="faPosition" style="display:none" aria-hidden="true"></div>
+        <div id="faSecondaryPosition" style="display:none" aria-hidden="true"></div>
+        <div id="faAge" style="display:none" aria-hidden="true"></div>
+        <div id="faOvr" style="display:none" aria-hidden="true"></div>
+        <div id="btnAddFreeAgent" style="display:none" aria-hidden="true"></div>
+        <div id="adminFreeAgentsContainer" style="display:none" aria-hidden="true"></div>
+        <div id="adminOffersContainer" style="display:none" aria-hidden="true"></div>
+        <div id="faContractsHistoryContainer" style="display:none" aria-hidden="true"></div>
+        <div id="faApprovedInline" style="display:none" aria-hidden="true"></div>
+        <div id="faStatusToggle" style="display:none" aria-hidden="true"></div>
+        <div id="faStatusBadge" style="display:none" aria-hidden="true"></div>
+        <div id="faViewApprovedBtn" style="display:none" aria-hidden="true"></div>
     </section>
     <?php endif; ?>
 
