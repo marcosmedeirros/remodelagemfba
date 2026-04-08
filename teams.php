@@ -992,27 +992,27 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 
         <nav class="sidebar-nav">
             <div class="sidebar-nav-label">Principal</div>
-            <a href="/dashboard"><i class="bi bi-house"></i> Home</a>
-            <a href="/teams" class="active"><i class="bi bi-people-fill"></i> Times</a>
-            <a href="/players"><i class="bi bi-person-badge"></i> Jogadores</a>
-            <a href="/trades"><i class="bi bi-arrow-left-right"></i> Trocas</a>
-            <a href="/picks"><i class="bi bi-calendar2-event"></i> Picks</a>
+            <a href="/dashboard.php"><i class="bi bi-house"></i> Home</a>
+            <a href="/teams.php" class="active"><i class="bi bi-people-fill"></i> Times</a>
+            <a href="/players.php"><i class="bi bi-person-badge"></i> Jogadores</a>
+            <a href="/trades.php"><i class="bi bi-arrow-left-right"></i> Trocas</a>
+            <a href="/picks.php"><i class="bi bi-calendar2-event"></i> Picks</a>
 
             <div class="sidebar-nav-label">Liga</div>
-            <a href="/standings"><i class="bi bi-trophy"></i> Classificação</a>
-            <a href="/free-agency"><i class="bi bi-person-plus"></i> Mercado Livre</a>
-            <a href="/auction"><i class="bi bi-hammer"></i> Leilão</a>
-            <a href="/rumors"><i class="bi bi-chat-dots"></i> Rumores</a>
+            <a href="/rankings.php"><i class="bi bi-trophy"></i> Classificação</a>
+            <a href="/free-agency.php"><i class="bi bi-person-plus"></i> Mercado Livre</a>
+            <a href="/leilao.php"><i class="bi bi-hammer"></i> Leilão</a>
+            <a href="/history.php"><i class="bi bi-chat-dots"></i> Histórico</a>
 
             <div class="sidebar-nav-label">Admin</div>
-            <a href="/admin"><i class="bi bi-gear"></i> Administração</a>
-            <a href="/punishments"><i class="bi bi-exclamation-triangle"></i> Punições</a>
+            <a href="/admin.php"><i class="bi bi-gear"></i> Administração</a>
+            <a href="/punicoes.php"><i class="bi bi-exclamation-triangle"></i> Punições</a>
         </nav>
 
         <div class="sidebar-footer">
             <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>" alt="<?= htmlspecialchars($user['name']) ?>" class="sidebar-user-avatar">
             <span class="sidebar-user-name"><?= htmlspecialchars($user['name']) ?></span>
-            <a href="/logout" class="sidebar-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+            <a href="/logout.php" class="sidebar-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
         </div>
     </aside>
 
