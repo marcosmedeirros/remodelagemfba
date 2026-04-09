@@ -496,45 +496,43 @@ async function carregarSolicitacoesNovaFA() {
             return;
         }
 
-        let html = '';
+        let html = '<div class="fa-admin-offers-grid">';
         data.requests.forEach(group => {
             const request = group.request;
             const offers = group.offers || [];
-            html += '<div class="card bg-dark border border-secondary mb-3 text-white">';
-            html += '<div class="card-header bg-dark border-bottom border-secondary">';
-            html += `<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <div>
-                    <strong class="text-orange">${request.player_name}</strong>
-                    <span class="text-light-gray ms-2">${request.position}${request.secondary_position ? '/' + request.secondary_position : ''} • OVR ${request.ovr}</span>
-                </div>
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="badge bg-info">${offers.length} propostas</span>
-                    <button class="btn btn-sm btn-outline-danger" onclick="recusarSolicitacaoNovaFA(${request.id})">
-                        <i class="bi bi-x-circle me-1"></i>Recusar todas
-                    </button>
-                </div>
-            </div>`;
-            html += '</div>';
-            html += '<div class="card-body">';
-            html += `<div class="row g-2 align-items-end">
-                <div class="col-md-8">
-                    <label for="faNewOfferSelect-${request.id}" class="form-label">Selecionar time vencedor</label>
-                    <select id="faNewOfferSelect-${request.id}" class="form-select form-select-sm">
-                        <option value="">Selecione...</option>
-                        ${offers.map(offer => {
-                            const remaining = offer.remaining_signings != null ? ` | restam ${offer.remaining_signings}` : '';
-                            return `<option value="${offer.id}">${offer.team_name} - ${offer.amount} moedas${remaining}</option>`;
-                        }).join('')}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-success w-100" onclick="aprovarSolicitacaoNovaFA(${request.id})">
-                        <i class="bi bi-check-lg me-1"></i>Aprovar
-                    </button>
-                </div>
-            </div>`;
-            html += '</div></div>';
+            const playerMeta = `${request.position}${request.secondary_position ? '/' + request.secondary_position : ''} • OVR ${request.ovr}`;
+            html += `
+                <article class="fa-offer-card">
+                    <header class="fa-offer-head">
+                        <div>
+                            <h3 class="fa-offer-player">${request.player_name}</h3>
+                            <p class="fa-offer-meta">${playerMeta}</p>
+                        </div>
+                        <span class="fa-offer-count">${offers.length} propostas</span>
+                    </header>
+
+                    <div class="fa-offer-body">
+                        <label for="faNewOfferSelect-${request.id}" class="form-label">Selecionar time vencedor</label>
+                        <select id="faNewOfferSelect-${request.id}" class="form-select">
+                            <option value="">Selecione...</option>
+                            ${offers.map(offer => {
+                                const remaining = offer.remaining_signings != null ? ` • restam ${offer.remaining_signings}` : '';
+                                return `<option value="${offer.id}">${offer.team_name} • ${offer.amount} moedas${remaining}</option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+
+                    <footer class="fa-offer-actions">
+                        <button class="btn btn-outline-danger" onclick="recusarSolicitacaoNovaFA(${request.id})">
+                            <i class="bi bi-x-circle me-1"></i>Recusar todas
+                        </button>
+                        <button class="btn btn-success" onclick="aprovarSolicitacaoNovaFA(${request.id})">
+                            <i class="bi bi-check-lg me-1"></i>Aprovar
+                        </button>
+                    </footer>
+                </article>`;
         });
+        html += '</div>';
         container.innerHTML = html;
     } catch (error) {
         container.innerHTML = '<p class="text-danger">Erro ao carregar solicitacoes.</p>';
