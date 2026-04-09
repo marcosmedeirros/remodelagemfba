@@ -256,6 +256,19 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
             --t:          200ms;
         }
 
+        :root[data-theme="light"] {
+            --bg: #f6f7fb;
+            --panel: #ffffff;
+            --panel-2: #f2f4f8;
+            --panel-3: #e9edf4;
+            --border: #e3e6ee;
+            --border-md: #d7dbe6;
+            --border-red: rgba(252,0,37,.18);
+            --text: #111217;
+            --text-2: #5b6270;
+            --text-3: #8b93a5;
+        }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; }
         body {
@@ -340,6 +353,20 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
         .sb-nav a.active { background: var(--red-soft); color: var(--red); font-weight: 600; }
         .sb-nav a.active i { color: var(--red); }
 
+        .sb-theme-toggle {
+            margin: 0 14px 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--panel-2);
+            color: var(--text);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 12px; font-weight: 600;
+            cursor: pointer;
+            transition: all var(--t) var(--ease);
+        }
+        .sb-theme-toggle:hover { border-color: var(--border-red); color: var(--red); }
+
         /* Footer */
         .sb-footer {
             padding: 12px 14px;
@@ -363,7 +390,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
             display: none; position: fixed; top: 0; left: 0; right: 0;
             height: 54px; background: var(--panel);
             border-bottom: 1px solid var(--border);
-            align-items: center; padding: 0 16px; gap: 12px; z-index: 199;
+            align-items: center; padding: 0 16px; gap: 12px; z-index: 240;
         }
         .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
         .topbar-title em { color: var(--red); font-style: normal; }
@@ -373,7 +400,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
             color: var(--text); display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 17px;
         }
-        .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 199; }
+        .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 250; }
         .sb-overlay.show { display: block; }
 
         /* ── Main ────────────────────────────────────── */
@@ -682,15 +709,87 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
 <body>
 <div class="app">
 
-    <button class="sidebar-toggle" id="sidebarToggle">
-        <i class="bi bi-list fs-4"></i>
-    </button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
     <!-- ══════════════════════════════════════════════
          SIDEBAR
     ══════════════════════════════════════════════ -->
-    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sb-brand">
+            <div class="sb-logo">FBA</div>
+            <div class="sb-brand-text">
+                FBA Manager
+                <span>Painel do GM</span>
+            </div>
+        </div>
+
+        <div class="sb-team">
+            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>"
+                 alt="<?= htmlspecialchars($team['name']) ?>"
+                 onerror="this.src='/img/default-team.png'">
+            <div>
+                <div class="sb-team-name"><?= htmlspecialchars($team['city'] . ' ' . $team['name']) ?></div>
+                <div class="sb-team-league"><?= htmlspecialchars($user['league']) ?></div>
+            </div>
+        </div>
+
+        <?php if ($currentSeason): ?>
+        <div class="sb-season">
+            <div>
+                <div class="sb-season-label">Temporada</div>
+                <div class="sb-season-val"><?= $seasonDisplayYear ?></div>
+            </div>
+            <div style="text-align:right">
+                <div class="sb-season-label">Sprint</div>
+                <div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <nav class="sb-nav">
+            <div class="sb-section">Principal</div>
+            <a href="/dashboard.php" class="active"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+            <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
+            <a href="/my-roster.php"><i class="bi bi-person-fill"></i> Meu Elenco</a>
+            <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
+            <a href="/trades.php"><i class="bi bi-arrow-left-right"></i> Trades</a>
+            <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
+            <a href="/leilao.php"><i class="bi bi-hammer"></i> Leilão</a>
+            <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
+
+            <div class="sb-section">Liga</div>
+            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
+            <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
+            <a href="/diretrizes.php"><i class="bi bi-clipboard-data"></i> Diretrizes</a>
+            <a href="/ouvidoria.php"><i class="bi bi-chat-dots"></i> Ouvidoria</a>
+            <a href="https://games.fbabrasil.com.br/auth/login.php" target="_blank" rel="noopener"><i class="bi bi-controller"></i> FBA Games</a>
+
+            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
+            <div class="sb-section">Admin</div>
+            <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
+            <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
+            <?php endif; ?>
+
+            <div class="sb-section">Conta</div>
+            <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
+        </nav>
+
+            <button class="sb-theme-toggle" type="button" id="themeToggle">
+                <i class="bi bi-moon"></i>
+                <span>Modo escuro</span>
+            </button>
+
+        <div class="sb-footer">
+            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
+                 alt="<?= htmlspecialchars($user['name']) ?>"
+                 class="sb-avatar"
+                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
+            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
+            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </aside>
+
+    <!-- Overlay mobile -->
+    <div class="sb-overlay" id="sbOverlay"></div>
 
     <!-- Topbar mobile -->
     <header class="topbar">
@@ -1184,12 +1283,56 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
 <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
-    document.getElementById('menuBtn')?.addEventListener('click', () => {
-        document.getElementById('sidebarToggle')?.click();
+    /* ── Sidebar mobile ──────────────────────────── */
+        const themeToggle = document.getElementById('themeToggle');
+        const themeKey = 'fba-theme';
+
+        const applyTheme = (theme) => {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (themeToggle) {
+                    themeToggle.innerHTML = '<i class="bi bi-sun"></i><span>Modo claro</span>';
+                }
+                return;
+            }
+            document.documentElement.removeAttribute('data-theme');
+            if (themeToggle) {
+                themeToggle.innerHTML = '<i class="bi bi-moon"></i><span>Modo escuro</span>';
+            }
+        };
+
+        const savedTheme = localStorage.getItem(themeKey);
+        applyTheme(savedTheme || 'dark');
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+                const next = current === 'light' ? 'dark' : 'light';
+                localStorage.setItem(themeKey, next);
+                applyTheme(next);
+            });
+        }
+
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+        const sbOverlay = document.getElementById('sbOverlay');
+    const closeSidebar = () => {
+        sidebar.classList.remove('open');
+        sbOverlay.classList.remove('show');
+    };
+    menuBtn?.addEventListener('click', () => {
+        const willOpen = !sidebar.classList.contains('open');
+        sidebar.classList.toggle('open');
+        sbOverlay.classList.toggle('show', willOpen);
     });
+    sbOverlay?.addEventListener('click', closeSidebar);
+    if (window.innerWidth <= 860) {
+        document.querySelectorAll('.sb-nav a').forEach((link) => {
+            link.addEventListener('click', closeSidebar);
+        });
+    }
 
     /* ── Stagger animation delays ────────────────── */
     document.querySelectorAll('.stat-c').forEach((el, i) => el.style.animationDelay = (i * 0.05 + 0.05) + 's');
