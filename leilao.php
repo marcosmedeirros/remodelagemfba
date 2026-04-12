@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-
 require_once __DIR__ . '/backend/auth.php';
 require_once __DIR__ . '/backend/db.php';
 require_once __DIR__ . '/backend/helpers.php';
@@ -8,60 +6,87 @@ requireAuth();
 
 $user    = getUserSession();
 $pdo     = db();
-$isAdmin = ($user['user_type'] ?? 'jogador') === 'admin';
+$is_admin = ($user['user_type'] ?? 'jogador') === 'admin';
 
-$stmtTeam = $pdo->prepare('SELECT * FROM teams WHERE user_id = ? LIMIT 1');
+// ── Time do usuário ──────────────────────────────────
+$stmtTeam = $pdo->prepare('
+    SELECT t.*, t.photo_url, t.city
+    FROM teams t
+    WHERE t.user_id = ?
+    ORDER BY t.id DESC LIMIT 1
+');
 $stmtTeam->execute([$user['id']]);
-$team   = $stmtTeam->fetch(PDO::FETCH_ASSOC) ?: null;
-$teamId = (int)($team['id'] ?? 0);
+$team    = $stmtTeam->fetch(PDO::FETCH_ASSOC) ?: null;
+$team_id = $team ? (int)$team['id'] : null;
 
-$defaultLeagueId = null;
-if (!empty($team['league_id'])) {
-    $defaultLeagueId = (int)$team['league_id'];
+// ── League ID (para o JS) ────────────────────────────
+$league_id = null;
+if ($team && !empty($team['league'])) {
+    try {
+        $stmtLg = $pdo->prepare('SELECT id FROM leagues WHERE name = ? LIMIT 1');
+        $stmtLg->execute([$team['league']]);
+        $lgRow = $stmtLg->fetch(PDO::FETCH_ASSOC);
+        if ($lgRow) $league_id = (int)$lgRow['id'];
+    } catch (Exception $e) {}
 }
 
-$leagues = [];
+// ── Temporada ────────────────────────────────────────
+$seasonDisplayYear = date('Y');
 try {
-    $stmtLeagues = $pdo->query('SELECT id, name FROM leagues ORDER BY id ASC');
-    $leagues = $stmtLeagues ? $stmtLeagues->fetchAll(PDO::FETCH_ASSOC) : [];
-} catch (Throwable $e) { $leagues = []; }
-
-if ($defaultLeagueId === null && !empty($team['league']) && $leagues) {
-    foreach ($leagues as $league) {
-        if (strcasecmp((string)$league['name'], (string)$team['league']) === 0) {
-            $defaultLeagueId = (int)$league['id'];
-            break;
-        }
+    $league = $team['league'] ?? $user['league'] ?? 'ELITE';
+    $stmtSeason = $pdo->prepare('
+        SELECT s.season_number, s.year, sp.start_year, sp.sprint_number
+        FROM seasons s
+        INNER JOIN sprints sp ON s.sprint_id = sp.id
+        WHERE s.league = ? AND (s.status IS NULL OR s.status NOT IN (\'completed\'))
+        ORDER BY s.created_at DESC LIMIT 1
+    ');
+    $stmtSeason->execute([$league]);
+    $currentSeason = $stmtSeason->fetch(PDO::FETCH_ASSOC);
+    if ($currentSeason) {
+        $y = isset($currentSeason['start_year'], $currentSeason['season_number'])
+            ? (int)$currentSeason['start_year'] + (int)$currentSeason['season_number'] - 1
+            : (int)($currentSeason['year'] ?? date('Y'));
+        $seasonDisplayYear = (string)$y;
     }
-}
-if ($defaultLeagueId === null && $leagues) {
-    $defaultLeagueId = (int)$leagues[0]['id'];
+} catch (Exception $e) {}
+
+// ── Ligas (para select do admin) ─────────────────────
+$leagues = [];
+if ($is_admin) {
+    try {
+        $leagues = $pdo->query('SELECT id, name FROM leagues ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {}
 }
 
-$userLeague = strtoupper((string)($team['league'] ?? $user['league'] ?? ''));
+$userPhoto = getUserPhoto($user);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="theme-color" content="#fc0025">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include __DIR__ . '/includes/head-pwa.php'; ?>
     <title>Leilão - FBA Manager</title>
 
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0a0c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FBA Manager">
+    <link rel="apple-touch-icon" href="/img/icon-192.png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css?v=20260411">
 
     <style>
-        /* ── Tokens ──────────────────────────────────────── */
+        /* ── Design Tokens ───────────────────��─────────── */
         :root {
             --red:        #fc0025;
-            --red-2:      #ff2a44;
             --red-soft:   rgba(252,0,37,.10);
+            --red-glow:   rgba(252,0,37,.18);
             --bg:         #07070a;
             --panel:      #101013;
             --panel-2:    #16161a;
@@ -72,9 +97,6 @@ $userLeague = strtoupper((string)($team['league'] ?? $user['league'] ?? ''));
             --text:       #f0f0f3;
             --text-2:     #868690;
             --text-3:     #48484f;
-            --green:      #22c55e;
-            --amber:      #f59e0b;
-            --blue:       #3b82f6;
             --sidebar-w:  260px;
             --font:       'Poppins', sans-serif;
             --radius:     14px;
@@ -82,171 +104,358 @@ $userLeague = strtoupper((string)($team['league'] ?? $user['league'] ?? ''));
             --ease:       cubic-bezier(.2,.8,.2,1);
             --t:          200ms;
         }
-
+        :root[data-theme="light"] {
+            --bg:        #f6f7fb;
+            --panel:     #ffffff;
+            --panel-2:   #f2f4f8;
+            --panel-3:   #e9edf4;
+            --border:    #e3e6ee;
+            --border-md: #d7dbe6;
+            --border-red:rgba(252,0,37,.18);
+            --text:      #111217;
+            --text-2:    #5b6270;
+            --text-3:    #8b93a5;
+        }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
-        body { font-family: var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
-        a { color: inherit; text-decoration: none; }
-        .app { display: flex; min-height: 100vh; }
+        html { -webkit-text-size-adjust: 100%; }
+        html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+        body { overflow-x: hidden; }
+        a, button { -webkit-tap-highlight-color: transparent; }
 
-        /* ── Sidebar ─────────────────────────────────────── */
-        .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 300; overflow-y: auto; scrollbar-width: none; transition: transform var(--t) var(--ease); }
+        /* ── Sidebar ────────────────────────��────────── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar-w); height: 100vh;
+            background: var(--panel); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; z-index: 300;
+            transition: transform var(--t) var(--ease);
+            overflow-y: auto; scrollbar-width: none;
+        }
         .sidebar::-webkit-scrollbar { display: none; }
-        .sb-brand { padding: 22px 18px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-        .sb-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
-        .sb-brand-text { font-size: 15px; font-weight: 700; line-height: 1.1; }
+        .sb-brand {
+            padding: 22px 18px 18px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+        }
+        .sb-logo {
+            width: 34px; height: 34px; border-radius: 9px; background: var(--red);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0;
+        }
+        .sb-brand-text { font-weight: 700; font-size: 15px; line-height: 1.1; }
         .sb-brand-text span { display: block; font-size: 11px; font-weight: 400; color: var(--text-2); }
-        .sb-team { margin: 14px 14px 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .sb-team {
+            margin: 14px 14px 0; background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 14px;
+            display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+        }
         .sb-team img { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
         .sb-team-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
         .sb-team-league { font-size: 11px; color: var(--red); font-weight: 600; }
+        .sb-season {
+            margin: 10px 14px 0; background: var(--red-soft); border: 1px solid var(--border-red);
+            border-radius: 8px; padding: 8px 12px;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .sb-season-label { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--text-2); }
+        .sb-season-val { font-size: 14px; font-weight: 700; color: var(--red); }
         .sb-nav { flex: 1; padding: 12px 10px 8px; }
         .sb-section { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3); padding: 12px 10px 5px; }
-        .sb-nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-sm); color: var(--text-2); font-size: 13px; font-weight: 500; margin-bottom: 2px; transition: all var(--t) var(--ease); }
+        .sb-nav a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 10px; border-radius: var(--radius-sm);
+            color: var(--text-2); font-size: 13px; font-weight: 500;
+            text-decoration: none; margin-bottom: 2px;
+            transition: all var(--t) var(--ease);
+        }
         .sb-nav a i { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
         .sb-nav a:hover { background: var(--panel-2); color: var(--text); }
         .sb-nav a.active { background: var(--red-soft); color: var(--red); font-weight: 600; }
         .sb-nav a.active i { color: var(--red); }
-        .sb-footer { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .sb-theme-toggle {
+            margin: 0 14px 12px; padding: 8px 10px; border-radius: 10px;
+            border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t) var(--ease);
+            width: calc(100% - 28px);
+        }
+        .sb-theme-toggle:hover { border-color: var(--border-red); color: var(--red); }
+        .sb-footer {
+            padding: 12px 14px; border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+        }
         .sb-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
         .sb-username { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sb-logout { width: 26px; height: 26px; border-radius: 7px; background: transparent; border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all var(--t) var(--ease); flex-shrink: 0; }
+        .sb-logout {
+            width: 26px; height: 26px; border-radius: 7px; background: transparent;
+            border: 1px solid var(--border); color: var(--text-2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; cursor: pointer; transition: all var(--t) var(--ease);
+            text-decoration: none; flex-shrink: 0;
+        }
         .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
-        /* ── Topbar mobile ───────────────────────────────── */
-        .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 199; }
+        /* ── Topbar ─────────────────────���─────────────── */
+        .topbar {
+            display: none; position: fixed; top: 0; left: 0; right: 0;
+            height: 54px; background: var(--panel); border-bottom: 1px solid var(--border);
+            align-items: center; padding: 0 16px; gap: 12px; z-index: 240;
+        }
         .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
         .topbar-title em { color: var(--red); font-style: normal; }
-        .menu-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; }
-        .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 199; }
+        .menu-btn {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: var(--panel-2); border: 1px solid var(--border);
+            color: var(--text); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 17px;
+        }
+        .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 250; }
         .sb-overlay.show { display: block; }
 
-        /* ── Main ────────────────────────────────────────── */
-        .main { margin-left: var(--sidebar-w); min-height: 100vh; width: calc(100% - var(--sidebar-w)); display: flex; flex-direction: column; }
-        .dash-hero { padding: 32px 32px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-        .dash-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
-        .dash-title { font-size: 26px; font-weight: 800; line-height: 1.1; }
-        .dash-sub { font-size: 13px; color: var(--text-2); margin-top: 3px; }
-        .content { padding: 20px 32px 40px; flex: 1; }
+        /* ── Main ─────────────────────────────────────── */
+        .main { margin-left: var(--sidebar-w); width: calc(100% - var(--sidebar-w)); padding: 32px 40px 60px; }
+        .page-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 22px; flex-wrap: wrap; }
+        .page-eyebrow { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+        .page-title { font-size: 28px; font-weight: 800; font-family: var(--font); }
+        .page-title i { color: var(--red); }
+        .page-sub { color: var(--text-2); font-size: 13px; margin-top: 4px; }
 
-        /* ── Panel ───────────────────────────────────────── */
-        .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
-        .panel-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--panel-2); }
-        .panel-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .panel-title i { color: var(--red); }
-        .panel-body { padding: 18px; }
-
-        /* ── Buttons ─────────────────────────────────────── */
-        .btn-r { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all var(--t) var(--ease); white-space: nowrap; }
-        .btn-r.primary { background: var(--red); color: #fff; border-color: var(--red); }
-        .btn-r.primary:hover { filter: brightness(1.1); color: #fff; }
-        .btn-r.ghost { background: transparent; color: var(--text-2); border-color: var(--border-md); }
-        .btn-r.ghost:hover { background: var(--panel-2); color: var(--text); }
-        .btn-r.green { background: rgba(34,197,94,.12); color: var(--green); border-color: rgba(34,197,94,.25); }
-        .btn-r.green:hover { background: var(--green); color: #fff; }
-        .btn-r.amber { background: rgba(245,158,11,.12); color: var(--amber); border-color: rgba(245,158,11,.25); }
-        .btn-r.amber:hover { background: var(--amber); color: #000; }
-        .btn-r.blue { background: rgba(59,130,246,.12); color: var(--blue); border-color: rgba(59,130,246,.25); }
-        .btn-r.blue:hover { background: var(--blue); color: #fff; }
-        .btn-r.danger { background: rgba(239,68,68,.12); color: #ef4444; border-color: rgba(239,68,68,.25); }
-        .btn-r.danger:hover { background: #ef4444; color: #fff; }
-        .btn-r.sm { padding: 5px 10px; font-size: 11px; }
-        .btn-r:disabled { opacity: .45; pointer-events: none; }
-
-        /* ── Tags ────────────────────────────────────────── */
-        .tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
-        .tag.green  { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
-        .tag.amber  { background: rgba(245,158,11,.12); color: var(--amber); border: 1px solid rgba(245,158,11,.2); }
-        .tag.blue   { background: rgba(59,130,246,.12); color: var(--blue);  border: 1px solid rgba(59,130,246,.2); }
-        .tag.gray   { background: var(--panel-3); color: var(--text-2); border: 1px solid var(--border); }
-        .tag.red    { background: var(--red-soft); color: var(--red); border: 1px solid var(--border-red); }
-
-        /* ── Form ────────────────────────────────────────── */
-        .form-control, .form-select { background: var(--panel-2) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-sm) !important; color: var(--text) !important; font-family: var(--font); font-size: 13px; }
-        .form-control:focus, .form-select:focus { border-color: var(--red) !important; box-shadow: 0 0 0 .18rem rgba(252,0,37,.15) !important; outline: none !important; }
-        .form-control::placeholder { color: var(--text-3) !important; }
-        .form-select option { background: var(--panel-2); }
-        .form-label { font-size: 11px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--text-2); margin-bottom: 5px; display: block; }
-        .form-check-input { background-color: var(--panel-2) !important; border-color: var(--border-md) !important; }
-        .form-check-input:checked { background-color: var(--red) !important; border-color: var(--red) !important; }
-        .form-check-label { font-size: 13px; color: var(--text-2); }
-        .input-group .form-control { border-radius: var(--radius-sm) 0 0 var(--radius-sm) !important; }
-        .input-group .btn { border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important; }
-
-        /* ── Layout grid ─────────────────────────────────── */
-        .two-col { display: grid; grid-template-columns: 1fr 360px; gap: 14px; }
-
-        /* ── League filter bar ───────────────────────────── */
-        .league-filter-bar {
-            display: flex; align-items: center; gap: 10px;
+        /* ── Panel ────────────────────────────────────── */
+        .panel {
             background: var(--panel); border: 1px solid var(--border);
-            border-radius: var(--radius-sm); padding: 10px 14px;
-            margin-bottom: 18px; flex-wrap: wrap;
+            border-radius: var(--radius); padding: 20px 22px;
         }
-        .league-filter-bar label { font-size: 12px; font-weight: 600; color: var(--text-2); flex-shrink: 0; }
-        .f-select-sm { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-family: var(--font); font-size: 12px; outline: none; cursor: pointer; min-width: 140px; }
-        .f-select-sm:focus { border-color: var(--red); }
-        .f-select-sm option { background: var(--panel-2); }
+        .panel + .panel { margin-top: 18px; }
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; margin-bottom: 18px; flex-wrap: wrap;
+        }
+        .panel-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .panel-title i { color: var(--red); font-size: 16px; }
 
-        /* ── Empty / loading ─────────────────────────────── */
-        .empty-r { padding: 36px 20px; text-align: center; color: var(--text-3); }
-        .empty-r i { font-size: 26px; display: block; margin-bottom: 10px; }
-        .empty-r p { font-size: 13px; }
-        .spinner-r { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin .6s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-inline { padding: 24px 18px; display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 13px; }
+        /* ── Tabs ─────────────────────────────────────── */
+        .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+        .tab-btn {
+            padding: 8px 18px; border-radius: 999px; font-size: 13px; font-weight: 600;
+            border: 1px solid var(--border); background: var(--panel-2); color: var(--text-2);
+            cursor: pointer; transition: all var(--t) var(--ease);
+        }
+        .tab-btn:hover { border-color: var(--border-red); color: var(--red); }
+        .tab-btn.active { background: var(--red-soft); border-color: var(--border-red); color: var(--red); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
 
-        /* ── Search results list-group ───────────────────── */
-        .list-group { border-radius: var(--radius-sm); overflow: hidden; }
-        .list-group-item { background: var(--panel-2) !important; border-color: var(--border) !important; color: var(--text) !important; font-size: 13px; cursor: pointer; padding: 9px 14px; transition: background var(--t) var(--ease); }
-        .list-group-item:hover { background: var(--panel-3) !important; }
+        /* ── Auction Card (leilao.js generated) ──────── */
+        .auction-card {
+            background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 16px;
+            transition: border-color var(--t) var(--ease);
+        }
+        .auction-card:hover { border-color: var(--border-md); }
+        .auction-card.my-card { border-color: rgba(252,193,7,.3); }
+        .auction-card-name { font-size: 15px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+        .auction-card-meta { font-size: 12px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .auction-card-meta span { display: flex; align-items: center; gap: 4px; }
+        .auction-timer-wrap {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--panel-3); border-radius: 8px; padding: 6px 10px;
+            margin-bottom: 10px; font-size: 13px; font-weight: 700;
+        }
+        .auction-timer-wrap i { color: var(--red); }
+        .auction-timer { font-variant-numeric: tabular-nums; }
 
-        /* ── Modal ───────────────────────────────────────── */
-        .modal-content { background: var(--panel) !important; border: 1px solid var(--border-md) !important; border-radius: var(--radius) !important; font-family: var(--font); color: var(--text); }
-        .modal-header { background: var(--panel-2) !important; border-color: var(--border) !important; padding: 16px 20px; border-radius: var(--radius) var(--radius) 0 0 !important; }
-        .modal-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .modal-title i { color: var(--red); }
-        .modal-body { padding: 20px; }
-        .modal-footer { background: var(--panel-2) !important; border-color: var(--border) !important; padding: 14px 20px; border-radius: 0 0 var(--radius) var(--radius) !important; }
-        .btn-close-white { filter: invert(1); }
+        /* ── Field / Form ─────────────────��───────────── */
+        .fgrid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0,1fr));
+            gap: 12px;
+        }
+        .span-2  { grid-column: span 2; }
+        .span-3  { grid-column: span 3; }
+        .span-4  { grid-column: span 4; }
+        .span-5  { grid-column: span 5; }
+        .span-6  { grid-column: span 6; }
+        .span-12 { grid-column: span 12; }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: .08em; }
+        .field input, .field select, .field textarea {
+            background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 9px 12px;
+            color: var(--text); font-size: 14px; font-family: var(--font);
+        }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            outline: none; border-color: var(--border-red); box-shadow: 0 0 0 3px var(--red-soft);
+        }
+        .field input::placeholder, .field textarea::placeholder { color: var(--text-3); }
+        .field select option { background: var(--panel-2); }
 
-        /* Modal scrollable area */
-        .offer-scroll { max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; background: var(--panel-2); scrollbar-width: thin; scrollbar-color: var(--red) transparent; }
+        /* ── Btn ──────────────────────────────────────── */
+        .btn-primary-red {
+            background: var(--red); border: none; color: #fff; font-weight: 700;
+            border-radius: 10px; padding: 10px 18px; font-size: 13px; cursor: pointer;
+            font-family: var(--font); transition: transform var(--t), box-shadow var(--t);
+        }
+        .btn-primary-red:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 16px var(--red-glow); }
+        .btn-primary-red:disabled { opacity: .45; cursor: not-allowed; }
+        .btn-ghost {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-2); border-radius: 10px; padding: 9px 16px;
+            font-size: 13px; cursor: pointer; font-family: var(--font);
+            transition: all var(--t) var(--ease);
+        }
+        .btn-ghost:hover { border-color: var(--border-red); color: var(--red); background: var(--red-soft); }
 
-        /* ── Animations ──────────────────────────────────── */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .panel { animation: fadeUp .35s var(--ease) both; }
+        /* ── List group (search results) ──────────────── */
+        .list-group-item {
+            background: var(--panel-2) !important; border-color: var(--border) !important;
+            color: var(--text) !important; font-size: 13px;
+        }
+        .list-group-item:hover, .list-group-item-action:hover {
+            background: var(--panel-3) !important; color: var(--text) !important;
+        }
 
-        /* ── Responsive ──────────────────────────────────── */
-        @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
-        @media (max-width: 860px) {
-            :root { --sidebar-w: 0px; }
-            .sidebar { transform: translateX(-260px); }
+        /* ── Bootstrap overrides (leilao.js HTML) ──── */
+        .text-orange     { color: var(--red)    !important; }
+        .text-light-gray { color: var(--text-2) !important; }
+        .text-muted      { color: var(--text-3) !important; }
+        .text-white      { color: var(--text)   !important; }
+
+        .table-dark {
+            --bs-table-bg: transparent;
+            --bs-table-border-color: var(--border);
+            --bs-table-color: var(--text);
+            --bs-table-hover-bg: var(--panel-3);
+        }
+        .table-dark > :not(caption) > * > * { color: var(--text); border-color: var(--border); }
+        .table-dark thead th {
+            color: var(--text-3) !important; font-size: 11px;
+            text-transform: uppercase; letter-spacing: .12em;
+        }
+
+        .card {
+            background: var(--panel-2) !important;
+            border-color: var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            color: var(--text) !important;
+        }
+        .card-header {
+            background: var(--panel-3) !important;
+            border-color: var(--border) !important;
+        }
+        .card.border-warning { border-color: rgba(252,193,7,.35) !important; }
+        .card.border-success { border-color: rgba(37,198,119,.35) !important; }
+        .card.border-secondary { border-color: var(--border) !important; }
+
+        .form-control, .form-select {
+            background-color: var(--panel-2) !important;
+            border-color: var(--border) !important;
+            color: var(--text) !important;
+            border-radius: 10px !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--border-red) !important;
+            box-shadow: 0 0 0 3px var(--red-soft) !important;
+            background-color: var(--panel-2) !important;
+            color: var(--text) !important;
+        }
+        .form-select option { background: var(--panel-2); }
+        .form-check-input:checked { background-color: var(--red) !important; border-color: var(--red) !important; }
+        .form-check-label { color: var(--text-2) !important; }
+
+        .modal-content {
+            background: var(--panel) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius) !important;
+            color: var(--text) !important;
+        }
+        .modal-header, .modal-footer { border-color: var(--border) !important; }
+        .modal-title { color: var(--text) !important; font-weight: 700; }
+        .btn-close { filter: invert(1) brightness(.7); }
+
+        .btn-primary  { background: var(--red) !important; border-color: var(--red) !important; }
+        .btn-primary:hover { background: #d4001f !important; }
+        .btn-success  { background: #25c677 !important; border-color: #25c677 !important; }
+        .btn-secondary { background: var(--panel-3) !important; border-color: var(--border-md) !important; color: var(--text-2) !important; }
+        .btn-secondary:hover { background: var(--panel-2) !important; color: var(--text) !important; }
+        .btn-info     { background: #2196f3 !important; border-color: #2196f3 !important; }
+        .btn-outline-warning { border-color: #ffc107 !important; color: #ffc107 !important; }
+        .btn-outline-warning:hover { background: rgba(255,193,7,.12) !important; }
+        .btn-outline-danger  { border-color: var(--red) !important; color: var(--red) !important; }
+        .btn-outline-danger:hover { background: var(--red-soft) !important; }
+        .btn-outline-info    { border-color: #2196f3 !important; color: #2196f3 !important; }
+        .btn-outline-info:hover { background: rgba(33,150,243,.12) !important; }
+        .btn-outline-orange  { border: 1px solid var(--border-red) !important; color: var(--red) !important; background: transparent; border-radius: 10px; }
+        .btn-outline-orange:hover { background: var(--red-soft) !important; }
+        .btn-orange   { background: var(--red) !important; border: none !important; color: #fff !important; border-radius: 10px; font-weight: 700; }
+        .btn-orange:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 16px var(--red-glow); }
+        .btn-orange:disabled { opacity: .45; cursor: not-allowed; }
+
+        .alert-info    { background: var(--panel-2) !important; border-color: var(--border) !important; color: var(--text) !important; }
+        .alert-warning { background: rgba(255,193,7,.10) !important; border-color: rgba(255,193,7,.3) !important; color: var(--text) !important; }
+        .alert-danger  { background: var(--red-soft) !important; border-color: var(--border-red) !important; color: var(--text) !important; }
+
+        .badge.bg-info     { background: #2196f3 !important; }
+        .badge.bg-warning  { background: #ffc107 !important; color: #000 !important; }
+        .badge.bg-success  { background: #25c677 !important; }
+        .badge.bg-secondary{ background: var(--panel-3) !important; color: var(--text-2) !important; }
+        .badge.bg-danger   { background: var(--red) !important; }
+        .badge.bg-dark     { background: var(--panel-3) !important; color: var(--text-2) !important; }
+        .badge.bg-primary  { background: var(--red) !important; }
+
+        hr { border-color: var(--border) !important; opacity: 1 !important; }
+
+        /* ── Responsive ─────────────────��─────────────── */
+        @media (max-width: 820px) {
+            .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
-            .main { margin-left: 0; width: 100%; padding-top: 54px; }
             .topbar { display: flex; }
-            .dash-hero, .content { padding-left: 16px; padding-right: 16px; }
-            .dash-hero { padding-top: 18px; }
+            .main { margin-left: 0; width: 100%; padding: 70px 16px 40px; }
+            .fgrid { grid-template-columns: 1fr 1fr; }
+            .span-2, .span-3, .span-4, .span-5, .span-6 { grid-column: span 2; }
+            .span-12 { grid-column: span 2; }
+        }
+        @media (max-width: 480px) {
+            .fgrid { grid-template-columns: 1fr; }
+            .span-2, .span-3, .span-4, .span-5, .span-6, .span-12 { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
 <div class="app">
 
-    <!-- ══════════ SIDEBAR ══════════════════════════════ -->
+    <!-- ══════════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════════ -->
     <aside class="sidebar" id="sidebar">
+
         <div class="sb-brand">
             <div class="sb-logo">FBA</div>
-            <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($userLeague) ?></span></div>
+            <div class="sb-brand-text">
+                FBA Manager
+                <span>Painel do GM</span>
+            </div>
         </div>
 
         <?php if ($team): ?>
         <div class="sb-team">
             <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>"
-                 alt="" onerror="this.src='/img/default-team.png'">
+                 alt="<?= htmlspecialchars($team['name'] ?? '') ?>"
+                 onerror="this.src='/img/default-team.png'">
             <div>
                 <div class="sb-team-name"><?= htmlspecialchars(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) ?></div>
-                <div class="sb-team-league"><?= htmlspecialchars($userLeague) ?></div>
+                <div class="sb-team-league"><?= htmlspecialchars($team['league'] ?? '') ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($currentSeason): ?>
+        <div class="sb-season">
+            <div>
+                <div class="sb-season-label">Temporada</div>
+                <div class="sb-season-val"><?= htmlspecialchars($seasonDisplayYear) ?></div>
+            </div>
+            <div style="text-align:right">
+                <div class="sb-season-label">Sprint</div>
+                <div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div>
             </div>
         </div>
         <?php endif; ?>
@@ -265,8 +474,11 @@ $userLeague = strtoupper((string)($team['league'] ?? $user['league'] ?? ''));
             <div class="sb-section">Liga</div>
             <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
             <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
+            <a href="/diretrizes.php"><i class="bi bi-clipboard-data"></i> Diretrizes</a>
+            <a href="/ouvidoria.php"><i class="bi bi-chat-dots"></i> Ouvidoria</a>
+            <a href="https://games.fbabrasil.com.br/auth/login.php" target="_blank" rel="noopener"><i class="bi bi-controller"></i> FBA Games</a>
 
-            <?php if ($isAdmin): ?>
+            <?php if ($is_admin): ?>
             <div class="sb-section">Admin</div>
             <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
             <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
@@ -276,346 +488,392 @@ $userLeague = strtoupper((string)($team['league'] ?? $user['league'] ?? ''));
             <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
         </nav>
 
+        <button class="sb-theme-toggle" type="button" id="themeToggle">
+            <i class="bi bi-moon"></i>
+            <span>Modo escuro</span>
+        </button>
+
         <div class="sb-footer">
             <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
-                 alt="<?= htmlspecialchars($user['name']) ?>" class="sb-avatar"
-                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
-            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
+                 alt="<?= htmlspecialchars($user['name'] ?? '') ?>"
+                 class="sb-avatar"
+                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name'] ?? 'U') ?>&background=1c1c21&color=fc0025'">
+            <span class="sb-username"><?= htmlspecialchars($user['name'] ?? '') ?></span>
             <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
         </div>
     </aside>
 
+    <!-- Overlay mobile -->
     <div class="sb-overlay" id="sbOverlay"></div>
 
+    <!-- Topbar mobile -->
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
         <div class="topbar-title">FBA <em>Leilão</em></div>
+        <?php if ($currentSeason): ?>
+        <span style="font-size:11px;font-weight:700;color:var(--red)"><?= htmlspecialchars($seasonDisplayYear) ?></span>
+        <?php endif; ?>
     </header>
 
-    <!-- ══════════ MAIN ══════════════════════════════════ -->
-    <main class="main">
-
-        <!-- Hero -->
-        <div class="dash-hero">
-            <div>
-                <div class="dash-eyebrow">Mercado · <?= htmlspecialchars($userLeague) ?></div>
-                <h1 class="dash-title">Leilão</h1>
-                <p class="dash-sub">Negocie jogadores por propostas de troca e picks</p>
-            </div>
+<!-- ── Main ───────────────────────────────────────── -->
+<main class="main">
+    <!-- Page top -->
+    <div class="page-top">
+        <div>
+            <div class="page-eyebrow">FBA Manager</div>
+            <h1 class="page-title"><i class="bi bi-hammer"></i> Leilão</h1>
+            <p class="page-sub">Leilões de jogadores em andamento e histórico de trocas</p>
         </div>
+        <?php if ($is_admin): ?>
+        <span style="background:var(--red-soft);border:1px solid var(--border-red);color:var(--red);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:700;">
+            <i class="bi bi-shield-lock-fill me-1"></i>Admin
+        </span>
+        <?php endif; ?>
+    </div>
 
-        <div class="content">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" id="tab-btn-ativos"
+                data-bs-toggle="tab" data-bs-target="#auction-active">
+            <i class="bi bi-hammer me-1"></i>Leilões ativos
+        </button>
+        <?php if ($is_admin): ?>
+        <button class="tab-btn" id="tab-btn-admin"
+                data-bs-toggle="tab" data-bs-target="#auction-admin">
+            <i class="bi bi-shield-lock-fill me-1"></i>Admin leilão
+        </button>
+        <?php endif; ?>
+    </div>
 
-            <!-- League filter -->
-            <div class="league-filter-bar">
-                <label><i class="bi bi-funnel" style="margin-right:4px"></i> Liga:</label>
-                <select id="leagueFilter" class="f-select-sm">
-                    <option value="">Todas</option>
-                    <?php foreach ($leagues as $league): ?>
-                    <option value="<?= (int)$league['id'] ?>"
-                        <?= ($defaultLeagueId !== null && (int)$league['id'] === $defaultLeagueId) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars((string)$league['name']) ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-                <span style="font-size:12px;color:var(--text-3)">Filtre os leilões por liga</span>
-            </div>
+    <!-- Tab content -->
+    <div class="tab-content-wrap">
 
-            <!-- Two-col layout: leilões ativos + minhas propostas -->
-            <div class="two-col">
+        <!-- ── Aba: Leilões Ativos ─────────────────── -->
+        <div class="tab-pane fade show active" id="auction-active" role="tabpanel">
 
-                <!-- Leilões ativos -->
-                <div class="panel" style="animation-delay:.04s">
-                    <div class="panel-head">
-                        <div class="panel-title"><i class="bi bi-hammer"></i> Leilões Ativos</div>
-                        <button class="btn-r ghost sm" onclick="carregarLeiloesAtivos()">
-                            <i class="bi bi-arrow-clockwise"></i>
-                        </button>
-                    </div>
-                    <div class="panel-body" style="padding:0">
-                        <div id="leiloesAtivosContainer">
-                            <div class="loading-inline"><div class="spinner-r"></div> Carregando leilões...</div>
-                        </div>
-                    </div>
+            <!-- Leilões em andamento -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="bi bi-hammer"></i>Leilões em andamento</div>
+                    <button class="btn-ghost" style="padding:7px 14px;font-size:12px;" onclick="carregarLeiloesAtivos()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
+                    </button>
                 </div>
-
-                <!-- Minhas propostas -->
-                <div class="panel" style="animation-delay:.08s">
-                    <div class="panel-head">
-                        <div class="panel-title"><i class="bi bi-send-fill"></i> Minhas Propostas</div>
-                        <button class="btn-r ghost sm" onclick="carregarMinhasPropostas?.()">
-                            <i class="bi bi-arrow-clockwise"></i>
-                        </button>
-                    </div>
-                    <div class="panel-body" style="padding:0">
-                        <div id="minhasPropostasContainer">
-                            <div class="loading-inline"><div class="spinner-r"></div> Carregando...</div>
-                        </div>
+                <div id="leiloesAtivosContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" style="color:var(--red);width:1.6rem;height:1.6rem;" role="status"></div>
                     </div>
                 </div>
             </div>
 
+            <?php if ($team_id): ?>
             <!-- Propostas recebidas -->
-            <?php if ($teamId > 0): ?>
-            <div class="panel" style="animation-delay:.12s">
-                <div class="panel-head">
-                    <div class="panel-title"><i class="bi bi-inbox-fill"></i> Propostas Recebidas</div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="bi bi-inbox"></i>Propostas recebidas</div>
                 </div>
-                <div class="panel-body" style="padding:0">
-                    <div id="propostasRecebidasContainer">
-                        <div class="loading-inline"><div class="spinner-r"></div> Carregando...</div>
+                <div id="propostasRecebidasContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" style="color:var(--red);width:1.6rem;height:1.6rem;" role="status"></div>
                     </div>
                 </div>
             </div>
             <?php endif; ?>
 
             <!-- Histórico -->
-            <div class="panel" style="animation-delay:.16s">
-                <div class="panel-head">
-                    <div class="panel-title"><i class="bi bi-clock-history"></i> Histórico de Leilões</div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title"><i class="bi bi-clock-history"></i>Histórico de leilões</div>
                 </div>
-                <div class="panel-body" style="padding:0">
-                    <div id="leiloesHistoricoContainer">
-                        <div class="loading-inline"><div class="spinner-r"></div> Carregando...</div>
+                <div id="leiloesHistoricoContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" style="color:var(--red);width:1.6rem;height:1.6rem;" role="status"></div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Admin panel -->
-            <?php if ($isAdmin): ?>
-            <div class="panel" style="animation-delay:.20s">
-                <div class="panel-head">
-                    <div class="panel-title"><i class="bi bi-shield-lock-fill"></i> Painel Admin</div>
-                    <div style="display:flex;gap:8px;align-items:center">
-                        <label style="font-size:12px;color:var(--text-2);margin:0">Liga:</label>
-                        <select id="selectLeague" class="f-select-sm">
-                            <option value="">Selecione</option>
-                            <?php foreach ($leagues as $league): ?>
-                            <option value="<?= (int)$league['id'] ?>"
-                                data-league-name="<?= htmlspecialchars((string)$league['name'], ENT_QUOTES) ?>"
-                                <?= ($defaultLeagueId !== null && (int)$league['id'] === $defaultLeagueId) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars((string)$league['name']) ?>
+        <?php if ($is_admin): ?>
+        <!-- ── Aba: Admin ──────────────────────────── -->
+        <div class="tab-pane fade" id="auction-admin" role="tabpanel">
+
+            <!-- Formulário de cadastro -->
+            <div class="panel">
+                <div class="panel-title" style="margin-bottom:18px;"><i class="bi bi-plus-circle"></i>Cadastrar jogador no leilão</div>
+
+                <div class="fgrid" style="margin-bottom:16px;">
+                    <!-- Liga -->
+                    <div class="field span-3">
+                        <label for="selectLeague">Liga</label>
+                        <select id="selectLeague">
+                            <option value="">Selecione...</option>
+                            <?php foreach ($leagues as $lg): ?>
+                            <option value="<?= (int)$lg['id'] ?>" data-league-name="<?= htmlspecialchars($lg['name']) ?>">
+                                <?= htmlspecialchars($lg['name']) ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                </div>
-                <div class="panel-body">
 
-                    <!-- Mode switch -->
-                    <div style="display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="auctionMode" id="auctionModeSearch" checked>
-                            <label class="form-check-label" for="auctionModeSearch">Buscar jogador existente</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="auctionMode" id="auctionModeCreate">
-                            <label class="form-check-label" for="auctionModeCreate">Criar novo jogador</label>
-                        </div>
-                    </div>
-
-                    <!-- Search area -->
-                    <div id="auctionSearchArea" style="margin-bottom:18px">
-                        <label class="form-label">Buscar por nome</label>
-                        <div class="input-group" style="max-width:420px">
-                            <input type="text" id="auctionPlayerSearch" class="form-control" placeholder="Nome do jogador...">
-                            <button class="btn-r primary" id="auctionSearchBtn" type="button">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
-                        <div id="auctionPlayerResults" class="list-group" style="display:none;max-width:420px;margin-top:6px"></div>
-                        <input type="hidden" id="auctionSelectedPlayerId">
-                        <input type="hidden" id="auctionSelectedTeamId">
-                        <small id="auctionSelectedLabel" style="display:none;font-size:12px;color:var(--green);margin-top:6px;display:flex;align-items:center;gap:5px">
-                            <i class="bi bi-check-circle-fill"></i> <span></span>
-                        </small>
-                    </div>
-
-                    <!-- Create area -->
-                    <div id="auctionCreateArea" style="display:none;margin-bottom:18px">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Nome</label>
-                                <input type="text" id="auctionPlayerName" class="form-control" placeholder="Nome do jogador">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Posição</label>
-                                <select id="auctionPlayerPosition" class="form-select">
-                                    <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Idade</label>
-                                <input type="number" id="auctionPlayerAge" class="form-control" value="25" min="16" max="45">
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">OVR</label>
-                                <input type="number" id="auctionPlayerOvr" class="form-control" value="70" min="40" max="99">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button id="btnCriarJogadorLeilao" type="button" class="btn-r blue w-100">
-                                    <i class="bi bi-plus-lg"></i> Criar
-                                </button>
-                            </div>
+                    <!-- Modo -->
+                    <div class="field span-6" style="justify-content:flex-end;">
+                        <label>Modo</label>
+                        <div style="display:flex;gap:18px;align-items:center;height:42px;">
+                            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;">
+                                <input class="form-check-input" type="radio" name="auctionMode" id="auctionModeSearch" value="search" checked>
+                                Buscar jogador
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);cursor:pointer;">
+                                <input class="form-check-input" type="radio" name="auctionMode" id="auctionModeCreate" value="create">
+                                Criar jogador
+                            </label>
                         </div>
                     </div>
 
-                    <!-- Cadastrar button -->
-                    <div style="margin-bottom:24px">
-                        <button id="btnCadastrarLeilao" type="button" class="btn-r primary" disabled>
-                            <i class="bi bi-hammer"></i> Cadastrar no Leilão
+                    <!-- Botão iniciar -->
+                    <div class="span-3" style="display:flex;align-items:flex-end;">
+                        <button id="btnCadastrarLeilao" class="btn-primary-red w-100" disabled style="padding:10px;">
+                            <i class="bi bi-play-fill me-1"></i>Iniciar leilão (20 min)
                         </button>
                     </div>
+                </div>
 
-                    <!-- Admin sub-panels -->
-                    <div class="two-col" style="gap:12px">
-                        <div class="panel" style="margin-bottom:0;animation:none">
-                            <div class="panel-head">
-                                <div class="panel-title" style="font-size:13px"><i class="bi bi-list-ul"></i> Leilões Admin</div>
-                            </div>
-                            <div class="panel-body" style="padding:0">
-                                <div id="adminLeiloesContainer">
-                                    <div class="loading-inline"><div class="spinner-r"></div> Carregando...</div>
-                                </div>
-                            </div>
+                <!-- Área busca -->
+                <div id="auctionSearchArea" style="border-top:1px solid var(--border);padding-top:16px;">
+                    <div class="fgrid">
+                        <div class="field span-6">
+                            <label for="auctionPlayerSearch">Buscar jogador na liga</label>
+                            <input type="text" id="auctionPlayerSearch" placeholder="Digite o nome do jogador">
                         </div>
-                        <div class="panel" style="margin-bottom:0;animation:none">
-                            <div class="panel-head">
-                                <div class="panel-title" style="font-size:13px"><i class="bi bi-hourglass-split"></i> Criados / Pendentes</div>
-                            </div>
-                            <div class="panel-body" style="padding:0">
-                                <div id="auctionTempList">
-                                    <div class="loading-inline"><div class="spinner-r"></div> Carregando...</div>
-                                </div>
-                            </div>
+                        <div class="span-2" style="display:flex;align-items:flex-end;">
+                            <button class="btn-ghost w-100" id="auctionSearchBtn" style="padding:10px;">
+                                <i class="bi bi-search me-1"></i>Buscar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="auctionPlayerResults" class="list-group mt-2" style="display:none;"></div>
+                    <div id="auctionSelectedLabel" class="mt-2" style="display:none;font-size:13px;color:var(--red);"></div>
+                    <input type="hidden" id="auctionSelectedPlayerId">
+                    <input type="hidden" id="auctionSelectedTeamId">
+                </div>
+
+                <!-- Área criar -->
+                <div id="auctionCreateArea" style="display:none;border-top:1px solid var(--border);padding-top:16px;">
+                    <p style="font-size:12px;color:var(--text-2);margin-bottom:14px;">
+                        <i class="bi bi-info-circle me-1" style="color:var(--red);"></i>
+                        O jogador será criado diretamente no leilão, sem time de origem.
+                    </p>
+                    <div class="fgrid" style="margin-bottom:14px;">
+                        <div class="field span-4">
+                            <label for="auctionPlayerName">Nome</label>
+                            <input type="text" id="auctionPlayerName" placeholder="Nome do jogador">
+                        </div>
+                        <div class="field span-2">
+                            <label for="auctionPlayerPosition">Posição</label>
+                            <select id="auctionPlayerPosition">
+                                <option value="PG">PG</option>
+                                <option value="SG">SG</option>
+                                <option value="SF">SF</option>
+                                <option value="PF">PF</option>
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                        <div class="field span-2">
+                            <label for="auctionPlayerAge">Idade</label>
+                            <input type="number" id="auctionPlayerAge" value="25" min="16" max="45">
+                        </div>
+                        <div class="field span-2">
+                            <label for="auctionPlayerOvr">OVR</label>
+                            <input type="number" id="auctionPlayerOvr" value="70" min="40" max="99">
+                        </div>
+                        <div class="span-2" style="display:flex;align-items:flex-end;">
+                            <button class="btn-ghost w-100" id="btnCriarJogadorLeilao" style="padding:10px;">
+                                <i class="bi bi-plus-circle me-1"></i>Criar e pendente
+                            </button>
                         </div>
                     </div>
 
+                    <!-- Lista de pendentes criados -->
+                    <div style="border-top:1px solid var(--border);padding-top:14px;">
+                        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                            <i class="bi bi-person-plus" style="color:var(--red);"></i>
+                            Jogadores criados (pendentes)
+                        </div>
+                        <div id="auctionTempList">
+                            <p style="font-size:13px;color:var(--text-2);">Nenhum jogador criado ainda.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <?php endif; ?>
 
-        </div><!-- /content -->
-    </main>
-</div>
+            <!-- Lista admin de leilões -->
+            <div class="panel">
+                <div class="panel-title" style="margin-bottom:16px;"><i class="bi bi-list-ul"></i>Todos os leilões</div>
+                <div id="adminLeiloesContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border" style="color:var(--red);width:1.6rem;height:1.6rem;" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
 
-<!-- ══════════ MODAL: PROPOSTA ══════════════════════════ -->
+    </div><!-- /tab-content-wrap -->
+</main>
+
+<!-- ── Modal: Enviar Proposta ─────────────────────── -->
 <div class="modal fade" id="modalProposta" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-send-fill"></i>
-                    Proposta — <span id="jogadorLeilaoNome" style="color:var(--red)">—</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title"><i class="bi bi-send me-2" style="color:var(--red);"></i>Enviar Proposta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="leilaoIdProposta">
-                <div class="row g-3 mb-3">
-                    <div class="col-12">
-                        <label class="form-label">Notas da proposta</label>
-                        <input type="text" id="notasProposta" class="form-control"
-                               placeholder="Ex: Incluo jogador jovem + pick 2ª rodada">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Observações adicionais</label>
-                        <textarea id="obsProposta" class="form-control" rows="2"
-                                  placeholder="Detalhes opcionais sobre a proposta..."></textarea>
-                    </div>
+
+                <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+                    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-2);margin-bottom:4px;">Jogador em leilão</div>
+                    <div id="jogadorLeilaoNome" style="font-size:16px;font-weight:700;color:var(--red);"></div>
                 </div>
-                <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                        <div style="font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-                            <i class="bi bi-person-fill" style="color:var(--red)"></i> Meus Jogadores para Troca
-                        </div>
-                        <div id="meusJogadoresParaTroca" class="offer-scroll"></div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div style="font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-                            <i class="bi bi-calendar-check" style="color:var(--amber)"></i> Minhas Picks para Troca
-                        </div>
-                        <div id="minhasPicksParaTroca" class="offer-scroll"></div>
-                    </div>
+
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">
+                    <i class="bi bi-people-fill me-1" style="color:var(--red);"></i>Jogadores que você oferece
+                </div>
+                <div id="meusJogadoresParaTroca" class="mb-3">
+                    <p style="color:var(--text-2);font-size:13px;">Carregando...</p>
+                </div>
+
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">
+                    <i class="bi bi-ticket-detailed me-1" style="color:var(--red);"></i>Picks que você oferece
+                    <span style="font-weight:400;font-size:12px;color:var(--text-2);"> (opcional)</span>
+                </div>
+                <div id="minhasPicksParaTroca" class="mb-3">
+                    <p style="color:var(--text-2);font-size:13px;">Carregando...</p>
+                </div>
+
+                <div class="field mb-3">
+                    <label for="notasProposta">O que você oferece na proposta</label>
+                    <textarea id="notasProposta" rows="3" placeholder="Ex: 1 jogador + escolha de draft ou moedas"></textarea>
+                </div>
+                <div class="field">
+                    <label for="obsProposta">Observações adicionais <span style="color:var(--text-3);">(opcional)</span></label>
+                    <textarea id="obsProposta" rows="2" placeholder="Detalhes extras..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-r ghost" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnEnviarProposta" class="btn-r primary">
-                    <i class="bi bi-send-fill"></i> Enviar Proposta
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnEnviarProposta">
+                    <i class="bi bi-send me-1"></i>Enviar proposta
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ══════════ MODAL: VER PROPOSTAS ════════════════════ -->
+<!-- ── Modal: Ver Propostas ───────────────────────── -->
 <div class="modal fade" id="modalVerPropostas" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-inbox-fill"></i> Propostas Recebidas</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title"><i class="bi bi-inbox me-2" style="color:var(--red);"></i>Propostas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="leilaoIdVerPropostas">
                 <div id="listaPropostasRecebidas">
-                    <div class="loading-inline"><div class="spinner-r"></div> Carregando propostas...</div>
+                    <p style="color:var(--text-2);font-size:13px;">Carregando...</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-r ghost" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ══════════ SCRIPTS ══════════════════════════════════ -->
-<script>
-    const isAdmin        = <?= $isAdmin ? 'true' : 'false' ?>;
-    const userTeamId     = <?= $teamId > 0 ? (int)$teamId : 'null' ?>;
-    let   currentLeagueId = <?= $defaultLeagueId !== null ? (int)$defaultLeagueId : 'null' ?>;
-    let   faStatusEnabled = true;
+<!-- ── Scripts ────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    /* ── Sidebar mobile ─────────────────────────────────── */
+<script>
+/* ── Theme ────────────────────────────────────────── */
+(function () {
+    const saved = localStorage.getItem('fba-theme');
+    const preferLight = window.matchMedia?.('(prefers-color-scheme: light)').matches;
+    document.documentElement.dataset.theme = saved || (preferLight ? 'light' : 'dark');
+})();
+
+document.addEventListener('DOMContentLoaded', function () {
+    const key  = 'fba-theme';
+    const root = document.documentElement;
+
+    const setBtn = (btn, theme) => {
+        if (!btn) return;
+        const isLight = theme === 'light';
+        btn.setAttribute('aria-pressed', String(isLight));
+        btn.innerHTML = isLight
+            ? '<i class="bi bi-moon-stars-fill"></i><span>Tema escuro</span>'
+            : '<i class="bi bi-sun-fill"></i><span>Tema claro</span>';
+    };
+    ['themeToggle','themeToggleMobile'].forEach(id => {
+        const btn = document.getElementById(id);
+        setBtn(btn, root.dataset.theme);
+        btn?.addEventListener('click', () => {
+            const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+            root.dataset.theme = next;
+            localStorage.setItem(key, next);
+            setBtn(document.getElementById('themeToggle'), next);
+        });
+    });
+
+    /* ── Sidebar mobile ───────────────────────── */
     const sidebar   = document.getElementById('sidebar');
     const sbOverlay = document.getElementById('sbOverlay');
-    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
-
-    /* ── League filter ──────────────────────────────────── */
-    const leagueFilter = document.getElementById('leagueFilter');
-    const selectLeague = document.getElementById('selectLeague');
-
-    leagueFilter?.addEventListener('change', () => {
-        currentLeagueId = leagueFilter.value ? +leagueFilter.value : null;
-        if (typeof carregarLeiloesAtivos === 'function') carregarLeiloesAtivos();
-        if (typeof carregarHistoricoLeiloes === 'function') carregarHistoricoLeiloes();
+    document.getElementById('menuBtn')?.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        sbOverlay.classList.toggle('show');
+    });
+    sbOverlay?.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        sbOverlay.classList.remove('show');
+    });
+    sidebar?.querySelectorAll('.sb-nav a').forEach(a => {
+        a.addEventListener('click', () => {
+            if (window.innerWidth <= 820) {
+                sidebar.classList.remove('open');
+                sbOverlay.classList.remove('show');
+            }
+        });
     });
 
-    /* Keep admin selectLeague in sync if no value */
-    if (selectLeague && leagueFilter && !selectLeague.value && leagueFilter.value) {
-        selectLeague.value = leagueFilter.value;
-    }
-
-    /* ── Auction mode switch ────────────────────────────── */
-    document.getElementById('auctionModeSearch')?.addEventListener('change', () => {
-        document.getElementById('auctionSearchArea').style.display = '';
-        document.getElementById('auctionCreateArea').style.display = 'none';
+    /* ── Tabs ───────────────��─────────────────── */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
     });
-    document.getElementById('auctionModeCreate')?.addEventListener('change', () => {
-        document.getElementById('auctionSearchArea').style.display = 'none';
-        document.getElementById('auctionCreateArea').style.display = '';
+    /* Sync Bootstrap tab shown event → custom .active on .tab-btn */
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(trigger => {
+        trigger.addEventListener('shown.bs.tab', e => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll(`.tab-btn[data-bs-target="${e.target.dataset.bsTarget}"]`)
+                .forEach(b => b.classList.add('active'));
+        });
     });
-
-    /* ── Stagger animation delays ───────────────────────── */
-    document.querySelectorAll('.panel').forEach((el, i) => {
-        if (!el.style.animationDelay) el.style.animationDelay = (i * 0.04 + 0.04) + 's';
-    });
+});
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/pwa.js"></script>
+<script>
+/* ── JS vars para leilao.js ─────────────────��─────── */
+const isAdmin       = <?= $is_admin ? 'true' : 'false' ?>;
+const userTeamId    = <?= $team_id  ? (int)$team_id    : 'null' ?>;
+const userTeamName  = '<?= addslashes($team ? ($team['city'] . ' ' . $team['name']) : '') ?>';
+const currentLeagueId = <?= $league_id ? (int)$league_id : 'null' ?>;
+</script>
+
 <script src="/js/leilao.js?v=<?= time() ?>"></script>
+<script src="/js/pwa.js"></script>
+</div><!-- /.app -->
 </body>
 </html>

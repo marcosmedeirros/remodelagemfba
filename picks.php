@@ -65,6 +65,22 @@ foreach ($picks as $pick) {
     else $picksByRound['other'][] = $pick;
 }
 
+function extractSwapTags(?string $notes): array
+{
+    $notes = (string)($notes ?? '');
+    $tags = [];
+    if (preg_match('/\bSB\b/i', $notes)) {
+        $tags[] = 'SB';
+    }
+    if (preg_match('/\bSW\b/i', $notes)) {
+        $tags[] = 'SW';
+    }
+    if (preg_match('/swap/i', $notes) && empty($tags)) {
+        $tags = ['SB', 'SW'];
+    }
+    return $tags;
+}
+
 $totalPicks   = count($picks);
 $ownPicks     = count(array_filter($picks, fn($p) => (int)$p['original_team_id'] === (int)$team['id']));
 $tradedIn     = $totalPicks - $ownPicks;
@@ -255,13 +271,57 @@ $tradedAway   = count($picksAway);
 <body>
 <div class="app">
 
-    <button class="sidebar-toggle" id="sidebarToggle">
-        <i class="bi bi-list fs-4"></i>
-    </button>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
     <!-- ══════════ SIDEBAR ══════════ -->
-    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+    <aside class="sidebar" id="sidebar">
+        <div class="sb-brand">
+            <div class="sb-logo">FBA</div>
+            <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($user['league']) ?></span></div>
+        </div>
+
+        <div class="sb-team">
+            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>"
+                 alt="" onerror="this.src='/img/default-team.png'">
+            <div>
+                <div class="sb-team-name"><?= htmlspecialchars($team['city'] . ' ' . $team['name']) ?></div>
+                <div class="sb-team-league"><?= htmlspecialchars($user['league']) ?></div>
+            </div>
+        </div>
+
+        <nav class="sb-nav">
+            <div class="sb-section">Principal</div>
+            <a href="/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+            <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
+            <a href="/my-roster.php"><i class="bi bi-person-fill"></i> Meu Elenco</a>
+            <a href="/picks.php" class="active"><i class="bi bi-calendar-check-fill"></i> Picks</a>
+            <a href="/trades.php"><i class="bi bi-arrow-left-right"></i> Trades</a>
+            <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
+            <a href="/leilao.php"><i class="bi bi-hammer"></i> Leilão</a>
+            <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
+
+            <div class="sb-section">Liga</div>
+            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
+            <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
+
+            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
+            <div class="sb-section">Admin</div>
+            <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
+            <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
+            <?php endif; ?>
+
+            <div class="sb-section">Conta</div>
+            <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
+        </nav>
+
+        <div class="sb-footer">
+            <img src="<?= htmlspecialchars(getUserPhoto($user['photo_url'] ?? null)) ?>"
+                 alt="<?= htmlspecialchars($user['name']) ?>" class="sb-avatar"
+                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name']) ?>&background=1c1c21&color=fc0025'">
+            <span class="sb-username"><?= htmlspecialchars($user['name']) ?></span>
+            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </aside>
+
+    <div class="sb-overlay" id="sbOverlay"></div>
 
     <header class="topbar">
         <button class="menu-btn" id="menuBtn"><i class="bi bi-list"></i></button>
@@ -342,6 +402,7 @@ $tradedAway   = count($picksAway);
                     <?php foreach ($picksByRound['1'] as $pick):
                         $isOwn = (int)$pick['original_team_id'] === (int)$team['id'];
                         $isAuto = !empty($pick['auto_generated']);
+                        $swapTags = extractSwapTags($pick['notes'] ?? '');
                     ?>
                     <div class="pick-row">
                         <div class="pick-year"><?= (int)$pick['season_year'] ?></div>
@@ -352,6 +413,11 @@ $tradedAway   = count($picksAway);
                                     <i class="bi bi-check-circle-fill" style="color:var(--green);font-size:11px;margin-right:3px"></i>Própria
                                 <?php else: ?>
                                     <i class="bi bi-arrow-down-circle-fill" style="color:var(--blue);font-size:11px;margin-right:3px"></i>via <?= htmlspecialchars($pick['original_city'] . ' ' . $pick['original_name']) ?>
+                                <?php endif; ?>
+                                <?php if (!empty($swapTags)): ?>
+                                    <?php foreach ($swapTags as $tag): ?>
+                                        <span class="tag gray" style="margin-left:6px"><?= htmlspecialchars($tag) ?></span>
+                                    <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -383,6 +449,7 @@ $tradedAway   = count($picksAway);
                     <?php foreach ($picksByRound['2'] as $pick):
                         $isOwn = (int)$pick['original_team_id'] === (int)$team['id'];
                         $isAuto = !empty($pick['auto_generated']);
+                        $swapTags = extractSwapTags($pick['notes'] ?? '');
                     ?>
                     <div class="pick-row">
                         <div class="pick-year blue"><?= (int)$pick['season_year'] ?></div>
@@ -393,6 +460,11 @@ $tradedAway   = count($picksAway);
                                     <i class="bi bi-check-circle-fill" style="color:var(--green);font-size:11px;margin-right:3px"></i>Própria
                                 <?php else: ?>
                                     <i class="bi bi-arrow-down-circle-fill" style="color:var(--blue);font-size:11px;margin-right:3px"></i>via <?= htmlspecialchars($pick['original_city'] . ' ' . $pick['original_name']) ?>
+                                <?php endif; ?>
+                                <?php if (!empty($swapTags)): ?>
+                                    <?php foreach ($swapTags as $tag): ?>
+                                        <span class="tag gray" style="margin-left:6px"><?= htmlspecialchars($tag) ?></span>
+                                    <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -457,11 +529,19 @@ $tradedAway   = count($picksAway);
                 </div>
                 <?php else: ?>
                 <?php foreach ($picksAway as $pick): ?>
+                <?php $swapTags = extractSwapTags($pick['notes'] ?? ''); ?>
                 <div class="away-row">
                     <div class="away-year"><?= (int)$pick['season_year'] ?></div>
                     <div class="away-mid">
                         <div class="away-team"><?= htmlspecialchars(trim(($pick['current_city'] ?? '') . ' ' . ($pick['current_name'] ?? ''))) ?: 'Não definido' ?></div>
-                        <div class="away-round"><?= (int)$pick['round'] ?>ª Rodada · cedida via trade</div>
+                        <div class="away-round">
+                            <?= (int)$pick['round'] ?>ª Rodada · cedida via trade
+                            <?php if (!empty($swapTags)): ?>
+                                <?php foreach ($swapTags as $tag): ?>
+                                    <span class="tag gray" style="margin-left:6px"><?= htmlspecialchars($tag) ?></span>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <span class="tag amber"><i class="bi bi-arrow-up-circle" style="font-size:9px"></i> Cedida</span>
                 </div>
@@ -474,12 +554,12 @@ $tradedAway   = count($picksAway);
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/sidebar.js"></script>
 <script src="/js/pwa.js"></script>
 <script>
-    document.getElementById('menuBtn')?.addEventListener('click', () => {
-        document.getElementById('sidebarToggle')?.click();
-    });
+    const sidebar   = document.getElementById('sidebar');
+    const sbOverlay = document.getElementById('sbOverlay');
+    document.getElementById('menuBtn')?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
+    sbOverlay.addEventListener('click', () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); });
 
     document.querySelectorAll('.round-panel, .away-panel').forEach((el, i) => {
         el.style.animationDelay = (i * 0.06 + 0.05) + 's';
