@@ -531,11 +531,11 @@ $is_admin = ($user['user_type'] ?? 'jogador') === 'admin';
                 </div>
                 <button class="collapse-toggle" type="button"
                         data-bs-toggle="collapse" data-bs-target="#addPlayerCollapse"
-                        aria-expanded="true" aria-controls="addPlayerCollapse">
+                        aria-expanded="false" aria-controls="addPlayerCollapse">
                     <i class="bi bi-chevron-down"></i>
                 </button>
             </div>
-            <div class="collapse show" id="addPlayerCollapse">
+            <div class="collapse" id="addPlayerCollapse">
                 <form id="form-player">
                     <div class="fgrid">
                         <div class="field" style="grid-column: span 4;">

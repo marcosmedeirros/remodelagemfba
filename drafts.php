@@ -1288,12 +1288,15 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
   }
 
   function openAddDraftPlayerModal() {
-    if (!currentDraftSession) return;
+    if (!currentDraftSession) {
+      alert('Nenhum draft ativo no momento.');
+      return;
+    }
     const modalEl = document.getElementById('addDraftPlayerModal');
     if (!modalEl) return;
     const form = document.getElementById('addDraftPlayerForm');
     if (form) form.reset();
-    new bootstrap.Modal(modalEl).show();
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
   }
 
   async function submitAddDraftPlayer() {
@@ -1313,7 +1316,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
     try {
       const result = await api('draft.php', { method: 'POST', body: JSON.stringify(payload) });
       alert(result.message || 'Jogador adicionado!');
-      bootstrap.Modal.getInstance(document.getElementById('addDraftPlayerModal')).hide();
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('addDraftPlayerModal')).hide();
       refreshRound2Players();
     } catch (e) { alert('Erro: ' + (e.error || 'Desconhecido')); }
   }

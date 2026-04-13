@@ -618,7 +618,7 @@ $default_admin_league = $team_league ?? ($leagues[0] ?? 'ELITE');
         <!-- ══════════════════════════════════
              TAB CONTENT
         ══════════════════════════════════ -->
-        <div id="freeAgencyTabsContent">
+        <div id="freeAgencyTabsContent" class="tab-content">
 
             <!-- ─── Tab: Free Agency ───────────────────── -->
             <div class="tab-pane fade show active" id="fa-players" role="tabpanel">
@@ -1152,8 +1152,36 @@ $default_admin_league = $team_league ?? ($leagues[0] ?? 'ELITE');
         sbOverlay.classList.remove('show');
     });
 
-    /* ── Sync Bootstrap tab active class ─ */
+    /* ── Tab switcher (Bootstrap + fallback manual) ─ */
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.bsTarget;
+            if (!targetId) return;
+            // sync active class on buttons
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // manually show/hide panes (fallback if Bootstrap tab CSS isn't fully applied)
+            document.querySelectorAll('#freeAgencyTabsContent .tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            const target = document.querySelector(targetId);
+            if (target) {
+                target.classList.add('show', 'active');
+            }
+            // fire data loading for specific tabs
+            const tabId = btn.id;
+            if (tabId === 'fa-history-tab') {
+                if (typeof carregarHistoricoNovaFA === 'function') carregarHistoricoNovaFA();
+                if (typeof carregarHistoricoFA === 'function' && typeof useNewFreeAgency !== 'undefined' && !useNewFreeAgency) carregarHistoricoFA();
+                if (typeof carregarDispensados === 'function') carregarDispensados();
+            } else if (tabId === 'fa-admin-tab') {
+                if (typeof carregarSolicitacoesNovaFA === 'function') carregarSolicitacoesNovaFA();
+                if (typeof carregarFreeAgentsAdmin === 'function') carregarFreeAgentsAdmin();
+                if (typeof carregarPropostasAdmin === 'function') carregarPropostasAdmin();
+                if (typeof carregarHistoricoContratacoes === 'function') carregarHistoricoContratacoes();
+            }
+        });
+        // also keep Bootstrap's shown.bs.tab for compatibility
         btn.addEventListener('shown.bs.tab', () => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');

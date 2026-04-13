@@ -38,7 +38,7 @@ try {
 } catch (Exception $e) {}
 $seasonDisplayYear = $seasonDisplayYear ?: date('Y');
 
-$userPhoto = getUserPhoto($user);
+$userPhoto = getUserPhoto($user['photo_url'] ?? null);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

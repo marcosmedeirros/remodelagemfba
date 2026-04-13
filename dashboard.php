@@ -636,7 +636,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
         .winner-owner { font-size: 11px; color: var(--text-2); }
 
         /* ── Quick actions ───────────────────────────── */
-        .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
         .quick-btn {
             background: var(--panel-2);
             border: 1px solid var(--border);
@@ -1204,7 +1204,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
                 </div>
 
                 <!-- ── Ações Rápidas ── -->
-                <div class="bc" style="animation-delay:.5s">
+                <div class="bc span-3" style="animation-delay:.5s">
                     <div class="bc-head">
                         <div class="bc-title"><i class="bi bi-lightning-fill"></i> Ações Rápidas</div>
                     </div>

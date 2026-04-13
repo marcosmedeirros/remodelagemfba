@@ -59,7 +59,7 @@ if ($is_admin) {
     } catch (Exception $e) {}
 }
 
-$userPhoto = getUserPhoto($user);
+$userPhoto = getUserPhoto($user['photo_url'] ?? null);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

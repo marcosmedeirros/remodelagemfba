@@ -325,14 +325,155 @@ $tradesLeft = max(0, $maxTrades - $tradeCount);
         .filter-bar select { cursor: pointer; }
 
         /* ── Trade cards from JS ───────────────────────── */
-        #receivedTradesList .trade-card,
-        #sentTradesList .trade-card,
-        #historyTradesList .trade-card,
-        #leagueTradesList .trade-card {
-            background: var(--panel-2) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: var(--radius-sm) !important;
-            margin-bottom: 10px;
+        .trade-card-new {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            transition: border-color var(--t) var(--ease);
+        }
+        .trade-card-new:hover { border-color: var(--border-strong); }
+        .trade-card-new.pending { border-left: 3px solid var(--red); }
+        .trade-card-new .tc-header {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+        }
+        .trade-card-new .tc-teams {
+            display: flex; align-items: center; gap: 8px;
+            font-family: var(--font-display); font-weight: 700;
+            font-size: 15px; color: var(--text); flex-wrap: wrap;
+        }
+        .trade-card-new .tc-teams i { color: var(--red); font-size: 13px; }
+        .trade-card-new .tc-date {
+            font-size: 11px; color: var(--text-3); margin-top: 3px;
+        }
+        .trade-card-new .tc-body {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 640px) { .trade-card-new .tc-body { grid-template-columns: 1fr; } }
+        .trade-card-new .tc-side {
+            background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 14px 16px;
+        }
+        .trade-card-new .tc-side-label {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-3); margin-bottom: 10px;
+        }
+        .trade-card-new .tc-item {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 6px 0; border-bottom: 1px solid var(--border);
+            font-size: 13px; color: var(--text);
+        }
+        .trade-card-new .tc-item:last-child { border-bottom: none; }
+        .trade-card-new .tc-item i { color: var(--red); font-size: 13px; margin-top: 2px; flex-shrink: 0; }
+        .trade-card-new .tc-empty { font-size: 12px; color: var(--text-3); font-style: italic; }
+        .trade-card-new .tc-note {
+            background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 10px 14px;
+            font-size: 12px; color: var(--text-2); margin-bottom: 12px;
+        }
+        .trade-card-new .tc-note i { color: var(--text-3); margin-right: 4px; }
+        .trade-card-new .tc-response {
+            background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2);
+            border-radius: var(--radius-sm); padding: 10px 14px;
+            font-size: 12px; color: #f59e0b; margin-bottom: 12px;
+        }
+        .trade-card-new .tc-actions {
+            display: flex; gap: 8px; flex-wrap: wrap; padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .trade-card-new .tc-textarea {
+            width: 100%; background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text); padding: 8px 12px;
+            font-family: var(--font-body); font-size: 12px; resize: none;
+            margin-bottom: 10px; margin-top: 12px;
+            transition: border-color var(--t) var(--ease); outline: none;
+        }
+        .trade-card-new .tc-textarea:focus { border-color: var(--red); }
+        .trade-card-new .tc-textarea::placeholder { color: var(--text-3); }
+        /* Reação */
+        .trade-card-new .reaction-bar { padding-top: 12px; border-top: 1px solid var(--border); }
+
+        /* Status badges */
+        .tc-badge {
+            display: inline-flex; align-items: center;
+            padding: 3px 10px; border-radius: 999px;
+            font-size: 11px; font-weight: 700; letter-spacing: .3px;
+        }
+        .tc-badge.pending  { background: rgba(245,158,11,.12); color: #f59e0b; }
+        .tc-badge.accepted { background: rgba(22,163,74,.12); color: #4ade80; }
+        .tc-badge.rejected { background: rgba(220,38,38,.12); color: #f87171; }
+        .tc-badge.cancelled{ background: var(--panel-3); color: var(--text-3); }
+        .tc-badge.countered{ background: rgba(99,102,241,.12); color: #818cf8; }
+
+        /* Action buttons */
+        .btn-tc-accept {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            background: rgba(22,163,74,.12); border: 1px solid rgba(22,163,74,.25); color: #4ade80;
+            font-family: var(--font-body); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all var(--t) var(--ease);
+        }
+        .btn-tc-accept:hover { background: rgba(22,163,74,.22); }
+        .btn-tc-accept:disabled { opacity: .4; cursor: not-allowed; }
+        .btn-tc-reject {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            background: rgba(220,38,38,.08); border: 1px solid rgba(220,38,38,.2); color: #f87171;
+            font-family: var(--font-body); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all var(--t) var(--ease);
+        }
+        .btn-tc-reject:hover { background: rgba(220,38,38,.18); }
+        .btn-tc-counter {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.2); color: #818cf8;
+            font-family: var(--font-body); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all var(--t) var(--ease);
+        }
+        .btn-tc-counter:hover { background: rgba(99,102,241,.18); }
+        .btn-tc-modify {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2); color: #f59e0b;
+            font-family: var(--font-body); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all var(--t) var(--ease);
+        }
+        .btn-tc-modify:hover { background: rgba(245,158,11,.18); }
+        .btn-tc-cancel {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            background: var(--panel-2); border: 1px solid var(--border); color: var(--text-2);
+            font-family: var(--font-body); font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: all var(--t) var(--ease);
+        }
+        .btn-tc-cancel:hover { border-color: var(--border-strong); color: var(--text); }
+
+        /* Trade list player cards */
+        .tl-player-card {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+            background: var(--panel); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 14px 18px;
+            margin-bottom: 8px;
+            transition: border-color var(--t) var(--ease);
+        }
+        .tl-player-card:hover { border-color: var(--border-strong); }
+        .tl-player-name { font-weight: 700; font-size: 14px; color: var(--text); }
+        .tl-player-meta { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+        .tl-team-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--panel-2); border: 1px solid var(--border);
+            border-radius: 999px; padding: 5px 12px 5px 6px;
+            font-size: 12px; font-weight: 600; color: var(--text); flex-shrink: 0;
+        }
+        .tl-team-badge {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--red-soft); border: 1px solid var(--border-red);
+            color: var(--red); font-size: 9px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
         /* ── Player card (trade-list) ──────────────────── */
@@ -760,9 +901,6 @@ $tradesLeft = max(0, $maxTrades - $tradeCount);
                 <button class="tab-btn" data-tab="league">
                     <i class="bi bi-trophy"></i> Liga
                 </button>
-                <button class="tab-btn" data-tab="rumors">
-                    <i class="bi bi-megaphone"></i> Rumores
-                </button>
                 <button class="tab-btn" data-tab="trade-list">
                     <i class="bi bi-list-stars"></i> Trade List
                 </button>
@@ -804,48 +942,6 @@ $tradesLeft = max(0, $maxTrades - $tradeCount);
                         </select>
                     </div>
                     <div id="leagueTradesList"></div>
-                </div>
-            </div>
-
-            <!-- Rumores -->
-            <div class="tab-pane" id="tab-rumors">
-                <div class="panel-card">
-                    <div class="panel-header">
-                        <div>
-                            <div class="panel-title">Rumores da Liga</div>
-                            <div class="panel-sub">Compartilhe o que está procurando ou quer negociar</div>
-                        </div>
-                        <span class="badge-pill gray" id="rumorsCount">0 rumores</span>
-                    </div>
-
-                    <!-- Admin comments -->
-                    <div class="mb-4">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);">
-                                <i class="bi bi-pin-angle-fill" style="color:var(--red);margin-right:4px;"></i>Fixados pelo Admin
-                            </span>
-                            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
-                            <button class="btn-ghost" style="padding:5px 12px;font-size:12px;" id="addAdminCommentBtn">
-                                <i class="bi bi-plus-lg"></i> Adicionar
-                            </button>
-                            <?php endif; ?>
-                        </div>
-                        <div id="adminCommentsList"></div>
-                    </div>
-
-                    <!-- New rumor -->
-                    <div style="margin-bottom:20px;">
-                        <label class="form-label">Seu rumor</label>
-                        <textarea class="form-control" id="rumorContent" rows="2"
-                                  placeholder="Ex.: Procuro SG com OVR 80+ ou vendo PF..."></textarea>
-                        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-                            <button class="btn-primary-red" id="submitRumorBtn" style="padding:8px 16px;">
-                                <i class="bi bi-megaphone-fill"></i> Publicar
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="rumorsList"></div>
                 </div>
             </div>
 
