@@ -83,7 +83,34 @@
 	--fba-brand-soft: rgba(252,0,37,.10);
 	--fba-text: #111217;
 	--fba-text-muted: #5b6270;
+
+	/* ── Page-specific token overrides (higher specificity than inline :root) ── */
+	--bg:         #f4f6fb;
+	--panel:      #ffffff;
+	--panel-2:    #f0f2f8;
+	--panel-3:    #e8ebf4;
+	--border:     rgba(15,23,42,.09);
+	--border-md:  rgba(15,23,42,.14);
+	--border-red: rgba(252,0,37,.20);
+	--text:       #111217;
+	--text-2:     #5b6270;
+	--text-3:     #9ca0ae;
+	--red-soft:   rgba(252,0,37,.08);
+	--red-glow:   rgba(252,0,37,.12);
 }
+
+/* ── Sidebar overlay (all pages) ─────────────────── */
+.sidebar-overlay {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,.65);
+	-webkit-backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
+	z-index: 299;
+}
+.sidebar-overlay.active,
+.sidebar-overlay.show { display: block; }
 
 /* ---------- Base ---------- */
 *,

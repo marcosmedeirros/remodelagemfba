@@ -125,7 +125,8 @@ async function showHome() {
 <div class="col-md-6"><div class="action-card" onclick="showDirectives()"><i class="bi bi-clipboard-check"></i><h4>Diretrizes</h4><p>Gerencie prazos e visualize diretrizes</p></div></div>
 <div class="col-md-6"><div class="action-card" onclick="showSeasonsManagement()"><i class="bi bi-calendar3"></i><h4>Temporadas</h4><p>Inicie temporadas e acompanhe o draft inicial</p></div></div>
 <div class="col-md-6"><div class="action-card" onclick="showTapas()"><i class="bi bi-hand-index-thumb"></i><h4>Tapas</h4><p>Defina os tapas de cada time</p></div></div>
-<div class="col-md-6"><div class="action-card" onclick="showOuvidoriaModal()"><i class="bi bi-chat-left-dots"></i><h4>Ouvidoria</h4><p>Ver mensagens anonimas</p></div></div></div>`;
+<div class="col-md-6"><div class="action-card" onclick="showOuvidoriaModal()"><i class="bi bi-chat-left-dots"></i><h4>Ouvidoria</h4><p>Ver mensagens anonimas</p></div></div>
+<div class="col-md-6"><div class="action-card" onclick="showFreeAgency()"><i class="bi bi-hammer"></i><h4>Admin Leilão</h4><p>Gerencie leilões e free agents</p></div></div></div>`;
   container.innerHTML += `
   <div class="row g-4 mt-1">
     <div class="col-12">

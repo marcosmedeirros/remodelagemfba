@@ -1,7 +1,6 @@
 ﻿<?php
-session_start();
-require_once 'backend/auth.php';
-require_once 'backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+require_once __DIR__ . '/backend/db.php';
 requireAuth();
 
 $user = getUserSession();
@@ -14,6 +13,20 @@ $team = $stmtTeam->fetch();
 $isAdmin = ($user['user_type'] ?? 'jogador') === 'admin';
 $userLeague = strtoupper($team['league'] ?? $user['league'] ?? 'ELITE');
 $currentTeamId = (int)($team['id'] ?? 0);
+$currentSeason = null;
+$currentSeasonYear = (int)date('Y');
+if (!empty($team['league'])) {
+    try {
+        $stmtSeason = $pdo->prepare('SELECT s.season_number, s.year, sp.start_year FROM seasons s LEFT JOIN sprints sp ON s.sprint_id = sp.id WHERE s.league = ? AND (s.status IS NULL OR s.status NOT IN ("completed")) ORDER BY s.created_at DESC LIMIT 1');
+        $stmtSeason->execute([$team['league']]);
+        $currentSeason = $stmtSeason->fetch();
+        if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season_number'])) {
+            $currentSeasonYear = (int)$currentSeason['start_year'] + (int)$currentSeason['season_number'] - 1;
+        } elseif ($currentSeason && isset($currentSeason['year'])) {
+            $currentSeasonYear = (int)$currentSeason['year'];
+        }
+    } catch (Exception $e) { $currentSeason = null; }
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -245,6 +258,35 @@ $currentTeamId = (int)($team['id'] ?? 0);
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .ranking-panel { animation: fadeUp .35s var(--ease) both; }
 
+        /* ── Light theme overrides ───────────────────── */
+        :root[data-theme="light"] {
+            --bg:         #f4f6fb;
+            --panel:      #ffffff;
+            --panel-2:    #f0f2f8;
+            --panel-3:    #e8ebf4;
+            --border:     rgba(15,23,42,.09);
+            --border-md:  rgba(15,23,42,.14);
+            --border-red: rgba(252,0,37,.20);
+            --text:       #111217;
+            --text-2:     #5b6270;
+            --text-3:     #9ca0ae;
+        }
+        [data-theme="light"] body { background: var(--bg); color: var(--text); }
+        [data-theme="light"] .modal-content { background: var(--panel) !important; color: var(--text) !important; border-color: var(--border-md) !important; }
+        [data-theme="light"] .modal-header { background: var(--panel-2) !important; border-color: var(--border) !important; }
+        [data-theme="light"] .modal-footer { background: var(--panel-2) !important; border-color: var(--border) !important; }
+        [data-theme="light"] .btn-close { filter: none; }
+        [data-theme="light"] .form-control { background: var(--panel-2) !important; border-color: var(--border-md) !important; color: var(--text) !important; }
+        [data-theme="light"] .table-dark { --bs-table-bg: var(--panel); --bs-table-color: var(--text); --bs-table-border-color: var(--border); }
+        [data-theme="light"] .table-dark thead th { background: var(--panel-2); color: var(--text-3); border-color: var(--border) !important; }
+        [data-theme="light"] .table-dark tbody td { border-color: var(--border) !important; }
+        [data-theme="light"] .table-dark tbody tr:hover { background: var(--panel-2) !important; }
+
+        /* ── Sidebar toggle (hidden — topbar handles mobile) ─ */
+        .sidebar-toggle { display: none !important; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 199; }
+        .sidebar-overlay.active, .sidebar-overlay.show { display: block; }
+
         /* ── Responsive ──────────────────────────── */
         @media (max-width: 860px) {
             :root { --sidebar-w: 0px; }
@@ -261,6 +303,8 @@ $currentTeamId = (int)($team['id'] ?? 0);
         }
         @media (max-width: 480px) {
             .podium { display: none; }
+            .league-tabs { gap: 4px; }
+            .league-tab { padding: 6px 12px; font-size: 11px; }
         }
     </style>
 </head>

@@ -284,7 +284,12 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
     .tag.green { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
     .tag.red { background: var(--red-soft); color: var(--red); border: 1px solid var(--border-red); }
     .tag.amber { background: rgba(245,158,11,.12); color: var(--amber); border: 1px solid rgba(245,158,11,.2); }
+    .tag.blue { background: rgba(59,130,246,.12); color: var(--blue); border: 1px solid rgba(59,130,246,.2); }
     .tag.gray { background: var(--panel-3); color: var(--text-2); border: 1px solid var(--border); }
+
+    /* ── Trade split layout ──────────────────────── */
+    .trade-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 4px; }
+    @media (max-width: 580px) { .trade-split { grid-template-columns: 1fr; } }
 
     /* ── Buttons ─────────────────────────────────── */
     .btn-r { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all var(--t) var(--ease); text-decoration: none; white-space: nowrap; }
@@ -353,6 +358,36 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
     .trade-list-panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
     #pick-swaps, .pick-swaps, .pick-swap { display: none !important; }
 
+    /* ── Light theme overrides ───────────────────── */
+    :root[data-theme="light"] {
+      --bg:         #f4f6fb;
+      --panel:      #ffffff;
+      --panel-2:    #f0f2f8;
+      --panel-3:    #e8ebf4;
+      --border:     rgba(15,23,42,.09);
+      --border-md:  rgba(15,23,42,.14);
+      --border-red: rgba(252,0,37,.20);
+      --text:       #111217;
+      --text-2:     #5b6270;
+      --text-3:     #9ca0ae;
+    }
+    [data-theme="light"] body { background: var(--bg); color: var(--text); }
+    [data-theme="light"] .modal-content { background: var(--panel) !important; color: var(--text) !important; border-color: var(--border-md) !important; }
+    [data-theme="light"] .modal-header { background: var(--panel-2) !important; border-color: var(--border) !important; }
+    [data-theme="light"] .modal-footer { background: var(--panel-2) !important; border-color: var(--border) !important; }
+    [data-theme="light"] .btn-close { filter: none; }
+    [data-theme="light"] .form-control,
+    [data-theme="light"] .form-select { background: var(--panel-2) !important; border-color: var(--border-md) !important; color: var(--text) !important; }
+    [data-theme="light"] .input-group-text { background: var(--panel-3) !important; border-color: var(--border-md) !important; color: var(--text-2) !important; }
+    [data-theme="light"] .f-search input,
+    [data-theme="light"] .f-select { background: var(--panel-2); border-color: var(--border-md); color: var(--text); }
+    [data-theme="light"] .composer textarea { background: var(--panel-3); border-color: var(--border-md); color: var(--text); }
+
+    /* ── Sidebar toggle (hidden — topbar handles mobile) ─ */
+    .sidebar-toggle { display: none !important; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 199; }
+    .sidebar-overlay.active, .sidebar-overlay.show { display: block; }
+
     /* ── Responsive ──────────────────────────────── */
     @media (max-width: 860px) {
       :root { --sidebar-w: 0px; }
@@ -362,6 +397,13 @@ $tradesPct  = $maxTrades > 0 ? min(100, round(($tradeCount / $maxTrades) * 100))
       .topbar { display: flex; }
       .dash-hero, .blocked-banner, .admin-bar, .stats-strip, .content { padding-left: 16px; padding-right: 16px; }
       .dash-hero { padding-top: 18px; }
+      .stats-strip { gap: 8px; }
+      .stat-pill { padding: 8px 12px; }
+    }
+    @media (max-width: 480px) {
+      .tab-nav { padding: 3px; }
+      .tab-btn { padding: 6px 10px; font-size: 11px; }
+      .hero-actions { gap: 6px; }
     }
   </style>
 </head>

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l **/*.php)",
+      "Bash(ls -1 /c/Users/marco/OneDrive/Desktop/novos/*.php)",
+      "Bash(grep -r \"titles\\\\|championships\\\\|dispensas_used\\\\|waivers_used\\\\|trades_used\" /c/Users/marco/OneDrive/Desktop/novos/sql/*.sql)",
+      "Bash(grep -n \"ALTER TABLE teams\" /c/Users/marco/OneDrive/Desktop/novos/sql/*.sql)"
+    ]
+  }
+}

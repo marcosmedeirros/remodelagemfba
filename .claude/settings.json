@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.php$\")",
+      "Bash(grep -r \"temporada\\\\|season.*year\\\\|ano.*\" /c/Users/marco/OneDrive/Desktop/novos/js/*.js)",
+      "Bash(grep -r \"ranking_titles\\\\|cap_top8\\\\|tapas\" /c/Users/marco/OneDrive/Desktop/novos/sql/*.sql)",
+      "Bash(grep -r \"ranking_titles\\\\|secondary_position\" /c/Users/marco/OneDrive/Desktop/novos/sql/*.sql)",
+      "Bash(grep -n \"function topEightCap\" /c/Users/marco/OneDrive/Desktop/novos/backend/*.php)",
+      "Bash(grep -n \"function syncTeamTradeCounterLocal\" /c/Users/marco/OneDrive/Desktop/novos/api/*.php)"
+    ]
+  }
+}
