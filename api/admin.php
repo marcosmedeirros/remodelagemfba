@@ -401,6 +401,12 @@ if ($method === 'GET') {
 
             $team['cap_top8'] = topEightCap($pdo, $teamId);
 
+            // Buscar limite de trades da liga
+            $stmtCfg = $pdo->prepare('SELECT max_trades FROM league_settings WHERE league = ?');
+            $stmtCfg->execute([$team['league']]);
+            $cfg = $stmtCfg->fetch(PDO::FETCH_ASSOC);
+            $team['max_trades'] = $cfg ? (int)$cfg['max_trades'] : 3;
+
             echo json_encode(['success' => true, 'team' => $team]);
             break;
 

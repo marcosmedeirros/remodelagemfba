@@ -462,7 +462,15 @@ async function showTeam(teamId) {
 <p class="text-light-gray mb-0"><strong>Liga:</strong> <span class="badge bg-gradient-orange">${t.league}</span></p></div>
 <div class="col-md-4 text-end"><button class="btn btn-outline-orange mb-2 w-100" onclick="editTeam(${t.id})"><i class="bi bi-pencil-fill me-2"></i>Editar</button>
 <div class="bg-dark rounded p-3 mb-2"><h4 class="text-orange mb-0">${t.cap_top8}</h4><small class="text-light-gray">CAP Top 8</small></div>
-<div class="bg-dark rounded p-3"><h4 class="text-warning mb-0">${parseInt(t.tapas || 0)}</h4><small class="text-light-gray">Tapas</small></div></div></div></div>
+<div class="bg-dark rounded p-3 mb-2"><h4 class="text-warning mb-0">${parseInt(t.tapas || 0)}</h4><small class="text-light-gray">Tapas</small></div>
+<div class="bg-dark rounded p-3 mb-2 d-flex align-items-center justify-content-between">
+  <div><span class="text-white fw-bold fs-5" id="tradesUsedVal">${parseInt(t.trades_used || 0)}</span><span class="text-light-gray">/${t.max_trades}</span><br><small class="text-light-gray">Trades usadas</small></div>
+  <button class="btn btn-sm btn-outline-secondary ms-2" style="padding:2px 7px" onclick="inlineEditStat('tradesUsedVal','trades_used',${t.id},${parseInt(t.trades_used||0)})"><i class="bi bi-pencil-fill" style="font-size:10px"></i></button>
+</div>
+<div class="bg-dark rounded p-3 d-flex align-items-center justify-content-between">
+  <div><span class="text-white fw-bold fs-5" id="waiversUsedVal">${parseInt(t.waivers_used || 0)}</span><br><small class="text-light-gray">Dispensas usadas</small></div>
+  <button class="btn btn-sm btn-outline-secondary ms-2" style="padding:2px 7px" onclick="inlineEditStat('waiversUsedVal','waivers_used',${t.id},${parseInt(t.waivers_used||0)})"><i class="bi bi-pencil-fill" style="font-size:10px"></i></button>
+</div></div></div></div>
 <ul class="nav nav-tabs mb-3"><li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#roster-tab">Elenco (${t.players.length})</button></li>
 <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#picks-tab">Picks (${t.picks ? t.picks.length : 0})</button></li></ul>
 <div class="tab-content">
@@ -1114,6 +1122,57 @@ async function saveTeamEdit(teamId) {
     await showTeam(teamId);
     alert('Atualizado!');
   } catch (e) { alert('Erro'); }
+}
+
+function inlineEditStat(spanId, field, teamId, currentVal) {
+  const span = document.getElementById(spanId);
+  if (!span) return;
+  // Prevent double-clicking
+  if (span.querySelector('input')) return;
+
+  const orig = span.outerHTML;
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.min = 0;
+  input.value = currentVal;
+  input.style.cssText = 'width:60px;background:#111;color:#fff;border:1px solid var(--orange,#fc0025);border-radius:6px;padding:2px 6px;font-size:14px;font-weight:700;';
+
+  const btnSave = document.createElement('button');
+  btnSave.className = 'btn btn-sm btn-orange ms-1';
+  btnSave.style.padding = '1px 6px';
+  btnSave.innerHTML = '<i class="bi bi-check-lg"></i>';
+
+  const btnCancel = document.createElement('button');
+  btnCancel.className = 'btn btn-sm btn-secondary ms-1';
+  btnCancel.style.padding = '1px 6px';
+  btnCancel.innerHTML = '<i class="bi bi-x-lg"></i>';
+
+  span.innerHTML = '';
+  span.appendChild(input);
+  span.appendChild(btnSave);
+  span.appendChild(btnCancel);
+  input.focus();
+
+  const restore = () => { span.outerHTML = orig; };
+
+  btnCancel.addEventListener('click', restore);
+
+  btnSave.addEventListener('click', async () => {
+    const newVal = parseInt(input.value) || 0;
+    try {
+      await api('admin.php?action=team', {
+        method: 'PUT',
+        body: JSON.stringify({ team_id: teamId, [field]: newVal })
+      });
+      // Update appState
+      if (appState.currentTeam) appState.currentTeam[field] = newVal;
+      const freshSpan = document.getElementById(spanId);
+      if (freshSpan) freshSpan.innerHTML = newVal;
+    } catch (e) {
+      alert('Erro ao salvar');
+      restore();
+    }
+  });
 }
 
 function editPlayer(playerId) {
