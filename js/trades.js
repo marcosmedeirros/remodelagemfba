@@ -308,7 +308,7 @@ const updateMultiItemOptions = async (row, keepItemSelection = false) => {
 
   const list = await loadMultiAssets(teamId, type === 'player' ? 'players' : 'picks');
   if (!list || list.length === 0) {
-    itemSelect.innerHTML = '<option value="">Nenhum item dispon?vel</option>';
+    itemSelect.innerHTML = '<option value="">Nenhum item disponível</option>';
     return;
   }
 
@@ -319,7 +319,7 @@ const updateMultiItemOptions = async (row, keepItemSelection = false) => {
   } else {
     itemSelect.innerHTML = '<option value="">Selecione a pick</option>' + list.map((pick) => {
       const summary = buildPickSummary(pick);
-      const via = summary.via ? ` ? ${summary.via}` : '';
+      const via = summary.via ? ` via ${summary.via}` : '';
       const meta = summary.meta ? ` ${summary.meta}` : '';
       return `<option value="${pick.id}">${summary.title}${meta} (${summary.origin}${via})</option>`;
     }).join('');
@@ -1309,7 +1309,6 @@ function createMultiTradeCard(trade, type) {
     const toL   = teamMap[item.to_team_id]   || `Time ${item.to_team_id}`;
     let detail = '';
     if (item.player_id) {
-      detail = formatTradePlayerDisplay({ name: item.player_name, position: item.player_position, age: item.player_age, ovr: item.player_ovr });
       detail = formatTradePlayerDisplay({ name: item.player_name, position: item.player_position, age: item.player_age, ovr: item.player_ovr });
     } else if (item.pick_id) {
       detail = formatTradePickDisplay(item);

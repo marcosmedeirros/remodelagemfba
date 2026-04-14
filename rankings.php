@@ -1,8 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/backend/auth.php';
-require_once __DIR__ . '/backend/db.php';
-
 require_once __DIR__ . '/backend/auth.php';
 require_once __DIR__ . '/backend/db.php';
 requireAuth();
@@ -22,7 +18,7 @@ $currentSeason = null;
 $currentSeasonYear = (int)date('Y');
 if (!empty($team['league'])) {
     try {
-        $stmtSeason = $pdo->prepare('SELECT s.season_number, s.year, sp.start_year FROM seasons s LEFT JOIN sprints sp ON s.sprint_id = sp.id WHERE s.league = ? AND (s.status IS NULL OR s.status NOT IN ("completed")) ORDER BY s.created_at DESC LIMIT 1');
+        $stmtSeason = $pdo->prepare('SELECT s.season_number, s.year, sp.start_year, sp.sprint_number FROM seasons s LEFT JOIN sprints sp ON s.sprint_id = sp.id WHERE s.league = ? AND (s.status IS NULL OR s.status NOT IN ("completed")) ORDER BY s.created_at DESC LIMIT 1');
         $stmtSeason->execute([$team['league']]);
         $currentSeason = $stmtSeason->fetch();
         if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season_number'])) {
@@ -32,6 +28,7 @@ if (!empty($team['league'])) {
         }
     } catch (Exception $e) { $currentSeason = null; }
 }
+$seasonDisplayYear = (string)$currentSeasonYear;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -291,7 +288,7 @@ if (!empty($team['league'])) {
 
         <nav class="sb-nav">
             <div class="sb-section">Principal</div>
-            <a href="/dashboard.php" class="active"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+            <a href="/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
             <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
             <a href="/my-roster.php"><i class="bi bi-person-fill"></i> Meu Elenco</a>
             <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
@@ -301,7 +298,7 @@ if (!empty($team['league'])) {
             <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
 
             <div class="sb-section">Liga</div>
-            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
+            <a href="/rankings.php" class="active"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
             <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
             <a href="/diretrizes.php"><i class="bi bi-clipboard-data"></i> Diretrizes</a>
             <a href="/ouvidoria.php"><i class="bi bi-chat-dots"></i> Ouvidoria</a>
