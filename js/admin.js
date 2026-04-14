@@ -1084,7 +1084,11 @@ function editTeam(teamId) {
 <div class="mb-3"><label class="form-label text-light-gray">Conferência</label>
 <select class="form-select bg-dark text-white border-orange" id="editTeamConference">
 <option value="">Sem conferência</option><option value="LESTE" ${t.conference === 'LESTE' ? 'selected' : ''}>LESTE</option>
-<option value="OESTE" ${t.conference === 'OESTE' ? 'selected' : ''}>OESTE</option></select></div></div>
+<option value="OESTE" ${t.conference === 'OESTE' ? 'selected' : ''}>OESTE</option></select></div>
+<div class="row"><div class="col-md-6 mb-3"><label class="form-label text-light-gray">Trades Utilizadas</label>
+<input type="number" class="form-control bg-dark text-white border-orange" id="editTeamTradesUsed" value="${t.trades_used ?? 0}" min="0"></div>
+<div class="col-md-6 mb-3"><label class="form-label text-light-gray">Dispensas (Waivers) Utilizadas</label>
+<input type="number" class="form-control bg-dark text-white border-orange" id="editTeamWaiversUsed" value="${t.waivers_used ?? 0}" min="0"></div></div></div>
 <div class="modal-footer border-orange"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
 <button type="button" class="btn btn-orange" onclick="saveTeamEdit(${teamId})">Salvar</button></div></div></div>`;
   
@@ -1101,7 +1105,9 @@ async function saveTeamEdit(teamId) {
         team_id: teamId,
         city: document.getElementById('editTeamCity').value,
         name: document.getElementById('editTeamName').value,
-        conference: document.getElementById('editTeamConference').value
+        conference: document.getElementById('editTeamConference').value,
+        trades_used: parseInt(document.getElementById('editTeamTradesUsed').value) || 0,
+        waivers_used: parseInt(document.getElementById('editTeamWaiversUsed').value) || 0
       })
     });
     bootstrap.Modal.getInstance(document.querySelector('.modal')).hide();

@@ -12,7 +12,7 @@ $stmtTeam->execute([$user['id']]);
 $team = $stmtTeam->fetch() ?: null;
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -56,6 +56,33 @@ $team = $stmtTeam->fetch() ?: null;
             --ease:       cubic-bezier(.2,.8,.2,1);
             --t:          200ms;
         }
+
+        :root[data-theme="light"] {
+            --bg: #f6f7fb;
+            --panel: #ffffff;
+            --panel-2: #f2f4f8;
+            --panel-3: #e9edf4;
+            --border: #e3e6ee;
+            --border-md: #d7dbe6;
+            --border-red: rgba(252,0,37,.18);
+            --text: #111217;
+            --text-2: #5b6270;
+            --text-3: #8b93a5;
+        }
+
+        .sb-theme-toggle {
+            margin: 0 14px 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--panel-2);
+            color: var(--text);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 12px; font-weight: 600;
+            cursor: pointer;
+            transition: all var(--t) var(--ease);
+        }
+        .sb-theme-toggle:hover { border-color: var(--border-red); color: var(--red); }
 
         *, *::before, *::after { box-sizing: border-box; }
         html, body { height: 100%; }
@@ -231,7 +258,12 @@ $team = $stmtTeam->fetch() ?: null;
         <div class="app-logo">FBA</div>
         <div class="app-title">Configurações <span>Perfil e time</span></div>
     </div>
-    <a href="dashboard.php" class="back-link"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    <div style="display:flex;align-items:center;gap:10px">
+        <button id="themeToggle" type="button" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 200ms">
+            <i class="bi bi-moon"></i><span>Modo escuro</span>
+        </button>
+        <a href="dashboard.php" class="back-link"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    </div>
 </div>
 
 <div class="app-wrap">
@@ -433,5 +465,26 @@ $team = $stmtTeam->fetch() ?: null;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/settings.js"></script>
 <script src="/js/pwa.js"></script>
+<script>
+  const themeKey = 'fba-theme';
+  const themeToggle = document.getElementById('themeToggle');
+  const applyTheme = (theme) => {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      if (themeToggle) themeToggle.innerHTML = '<i class="bi bi-sun"></i><span>Modo claro</span>';
+      return;
+    }
+    document.documentElement.removeAttribute('data-theme');
+    if (themeToggle) themeToggle.innerHTML = '<i class="bi bi-moon"></i><span>Modo escuro</span>';
+  };
+  applyTheme(localStorage.getItem(themeKey) || 'dark');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      localStorage.setItem(themeKey, next);
+      applyTheme(next);
+    });
+  }
+</script>
 </body>
 </html>

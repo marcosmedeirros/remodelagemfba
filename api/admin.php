@@ -1118,6 +1118,16 @@ if ($method === 'PUT') {
                 $updates[] = 'division_id = ?';
                 $params[] = $divisionId;
             }
+            $tradesUsed = $data['trades_used'] ?? null;
+            $waiversUsed = $data['waivers_used'] ?? null;
+            if ($tradesUsed !== null) {
+                $updates[] = 'trades_used = ?';
+                $params[] = (int)$tradesUsed;
+            }
+            if ($waiversUsed !== null) {
+                $updates[] = 'waivers_used = ?';
+                $params[] = (int)$waiversUsed;
+            }
 
             if (empty($updates)) {
                 http_response_code(400);

@@ -105,7 +105,7 @@ $averageCapTop8 = $teamsCount > 0 ? round($totalCapTop8 / $teamsCount, 1) : 0;
 $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas franquias na FBA?');
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -210,7 +210,7 @@ $tradesPct = $maxTrades > 0 ? min(100, round(($tradesCount / $maxTrades) * 100))
 $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 100)) : 0;
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
