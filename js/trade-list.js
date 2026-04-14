@@ -26,7 +26,7 @@
       const { sort, dir } = parseSort(sortSelect.value);
       const url = `/api/trade-list.php?q=${encodeURIComponent(q)}&sort=${encodeURIComponent(sort)}&dir=${encodeURIComponent(dir)}`;
 
-      playersListEl.innerHTML = `<div class="text-center py-4"><div class="spinner-border" style="color: var(--fba-orange);"></div></div>`;
+      playersListEl.innerHTML = `<div style="text-align:center;padding:32px 16px;"><div class="spinner-border" style="color:var(--red);"></div></div>`;
 
       try {
         const res = await fetch(url);
@@ -36,18 +36,18 @@
         countBadge.textContent = `${data.count || currentData.length} jogadores`;
         renderPlayers(currentData);
       } catch (e) {
-        playersListEl.innerHTML = `<div class="alert alert-danger">Erro ao carregar lista de trocas.</div>`;
+        playersListEl.innerHTML = `<div style="text-align:center;padding:32px 16px;color:var(--text-3);font-size:13px;"><i class="bi bi-exclamation-circle" style="display:block;font-size:24px;margin-bottom:8px;color:var(--red);"></i>Erro ao carregar lista de trocas.</div>`;
       }
     }
 
     function renderPlayers(players) {
       if (!players || players.length === 0) {
         playersListEl.innerHTML = `
-        <div class="alert alert-info d-flex align-items-center" role="alert">
-          <i class="bi bi-info-circle me-2"></i>
-          <div>Nenhum jogador disponível para troca na sua liga.</div>
-        </div>
-      `;
+          <div style="text-align:center;padding:40px 16px;color:var(--text-3);">
+            <i class="bi bi-person-x" style="font-size:28px;display:block;margin-bottom:10px;"></i>
+            <div style="font-size:13px;">Nenhum jogador disponível para troca na sua liga.</div>
+          </div>
+        `;
         return;
       }
 
@@ -61,16 +61,14 @@
           .join('')
           .slice(0, 3) || 'GM';
         return `
-        <div class="player-card">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="player-name">${p.name}</div>
-              <div class="player-meta">Pos: ${p.position}${secPos} • Idade: ${p.age} • OVR: ${p.ovr} • Função: ${p.role || '-'}</div>
-            </div>
-            <div class="team-chip no-image">
-              <span class="team-chip-badge">${teamBadge}</span>
-              <span>${teamName}</span>
-            </div>
+        <div class="tl-player-card">
+          <div>
+            <div class="tl-player-name">${p.name}</div>
+            <div class="tl-player-meta">Pos: ${p.position}${secPos} &bull; Idade: ${p.age} &bull; OVR: <strong style="color:var(--text);">${p.ovr}</strong> &bull; Função: ${p.role || '—'}</div>
+          </div>
+          <div class="tl-team-chip">
+            <span class="tl-team-badge">${teamBadge}</span>
+            ${teamName}
           </div>
         </div>
         `;

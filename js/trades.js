@@ -1310,6 +1310,7 @@ function createMultiTradeCard(trade, type) {
     let detail = '';
     if (item.player_id) {
       detail = formatTradePlayerDisplay({ name: item.player_name, position: item.player_position, age: item.player_age, ovr: item.player_ovr });
+      detail = formatTradePlayerDisplay({ name: item.player_name, position: item.player_position, age: item.player_age, ovr: item.player_ovr });
     } else if (item.pick_id) {
       detail = formatTradePickDisplay(item);
     }

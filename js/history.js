@@ -1,271 +1,207 @@
 /**
  * History.js - Visualização do Histórico de Temporadas
- * Mostra: Campeão, Vice, MVP, DPOY, MIP, 6º Homem
+ * Usa as classes CSS do novo design system (season-card, award-chip, etc.)
  */
 
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('historyContainer');
     const league = container?.dataset?.league || 'ELITE';
-    
     loadHistory(league);
 });
 
 async function loadHistory(league) {
     const container = document.getElementById('historyContainer');
-    
+
     try {
         container.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-orange"></div>
-                <p class="text-muted mt-2">Carregando histórico...</p>
+            <div style="text-align:center;padding:48px 16px;color:var(--text-3);">
+                <div class="spinner-border" style="color:var(--red);"></div>
+                <p style="margin-top:10px;font-size:13px;">Carregando histórico...</p>
             </div>
         `;
-        
+
         const response = await fetch(`/api/history-points.php?action=get_history&league=${encodeURIComponent(league)}`);
         const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.error || 'Erro ao carregar histórico');
-        }
-        
+
+        if (!data.success) throw new Error(data.error || 'Erro ao carregar histórico');
+
         const history = data.history[league] || [];
-        
+
         if (history.length === 0) {
-            const leagueLabel = league.toUpperCase();
             container.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="bi bi-clock-history display-1 text-white-50"></i>
-                    <h4 class="text-white mt-3">Nenhum histórico registrado</h4>
-                    <p class="text-white mt-2">O histórico de temporadas da liga ${leagueLabel} aparecerá aqui após ser registrado.</p>
+                <div style="text-align:center;padding:48px 16px;color:var(--text-3);">
+                    <i class="bi bi-clock-history" style="font-size:36px;display:block;margin-bottom:12px;"></i>
+                    <div style="font-size:15px;font-weight:700;color:var(--text-2);">Nenhum histórico registrado</div>
+                    <p style="font-size:13px;margin-top:6px;">O histórico da liga ${league.toUpperCase()} aparecerá aqui após ser registrado.</p>
                 </div>
             `;
             return;
         }
-        
-        // Renderizar histórico
-        let html = '<div class="row g-4">';
-        
+
+        const awardsConfig = [
+            { key: 'champion',    label: 'Campeão',    icon: 'bi-trophy-fill',       color: 'gold',   teamKey: 'champion_team_name' },
+            { key: 'runner_up',   label: 'Vice',        icon: 'bi-award-fill',        color: 'silver', teamKey: 'runner_up_team_name' },
+            { key: 'mvp',         label: 'MVP',         icon: 'bi-star-fill',         color: 'amber',  teamKey: 'mvp_team_name' },
+            { key: 'dpoy',        label: 'DPOY',        icon: 'bi-shield-fill',       color: 'blue',   teamKey: 'dpoy_team_name' },
+            { key: 'sixth_man',   label: '6º Homem',    icon: 'bi-person-fill-add',   color: 'purple', teamKey: 'sixth_man_team_name' },
+            { key: 'roy',         label: 'ROY',         icon: 'bi-person-up',         color: 'red',    teamKey: 'roy_team_name' },
+            { key: 'mip',         label: 'MIP',         icon: 'bi-graph-up-arrow',    color: 'green',  teamKey: 'mip_team_name' },
+        ];
+
+        // Map field names: API returns e.g. champion_name, mvp_player
+        const valueKey = {
+            champion:  'champion_name',
+            runner_up: 'runner_up_name',
+            mvp:       'mvp_player',
+            dpoy:      'dpoy_player',
+            sixth_man: 'sixth_man_player',
+            roy:       'roy_player',
+            mip:       'mip_player',
+        };
+
+        let html = '';
+
         history.forEach(season => {
-            html += `
-                <div class="col-12">
-                    <div class="card bg-dark border-orange" style="border-radius: 15px;">
-                        <div class="card-header bg-transparent border-orange">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 text-white">
-                                    <i class="bi bi-trophy-fill text-orange me-2"></i>
-                                    Sprint ${season.sprint_number} - Temporada ${season.season_number}
-                                </h5>
-                                <span class="badge bg-orange">${season.year}</span>
-                            </div>
+            const yearBadge = season.year ? `<span class="season-year-badge">${season.year}</span>` : '';
+
+            const awards = awardsConfig
+                .filter(a => season[valueKey[a.key]])
+                .map(a => {
+                    const name = season[valueKey[a.key]];
+                    const team = season[a.teamKey] || '';
+                    return `
+                    <div class="award-chip">
+                        <div class="award-icon ${a.color}">
+                            <i class="bi ${a.icon}" style="color:inherit;"></i>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <!-- Campeão -->
-                                ${season.champion_name ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-orange">
-                                        <i class="bi bi-trophy-fill text-warning fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-orange">Campeão</small>
-                                            <div class="text-white fw-bold">${season.champion_name}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <!-- Vice-Campeão -->
-                                ${season.runner_up_name ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-secondary">
-                                        <i class="bi bi-award-fill text-secondary fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-light-gray">Vice-Campeão</small>
-                                            <div class="text-white fw-bold">${season.runner_up_name}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <!-- MVP -->
-                                ${season.mvp_player ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-warning">
-                                        <i class="bi bi-star-fill text-warning fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-warning">MVP</small>
-                                            <div class="text-white fw-bold">${season.mvp_player}</div>
-                                            ${season.mvp_team_name ? `<small class="text-light-gray">${season.mvp_team_name}</small>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <!-- DPOY -->
-                                ${season.dpoy_player ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-info">
-                                        <i class="bi bi-shield-fill text-info fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-info">DPOY</small>
-                                            <div class="text-white fw-bold">${season.dpoy_player}</div>
-                                            ${season.dpoy_team_name ? `<small class="text-light-gray">${season.dpoy_team_name}</small>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <!-- MIP -->
-                                ${season.mip_player ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-success">
-                                        <i class="bi bi-graph-up-arrow text-success fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-success">MIP</small>
-                                            <div class="text-white fw-bold">${season.mip_player}</div>
-                                            ${season.mip_team_name ? `<small class="text-light-gray">${season.mip_team_name}</small>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <!-- 6º Homem -->
-                                ${season.sixth_man_player ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-primary">
-                                        <i class="bi bi-person-fill-add text-primary fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-primary">6º Homem</small>
-                                            <div class="text-white fw-bold">${season.sixth_man_player}</div>
-                                            ${season.sixth_man_team_name ? `<small class="text-light-gray">${season.sixth_man_team_name}</small>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                                
-                                <!-- ROY -->
-                                ${season.roy_player ? `
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="d-flex align-items-center p-3 bg-dark-secondary rounded border border-danger">
-                                        <i class="bi bi-person-up text-danger fs-3 me-3"></i>
-                                        <div>
-                                            <small class="text-danger">ROY</small>
-                                            <div class="text-white fw-bold">${season.roy_player}</div>
-                                            ${season.roy_team_name ? `<small class="text-light-gray">${season.roy_team_name}</small>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                            </div>
-                            
-                            <!-- Botão Ver Draft -->
-                            ${season.has_draft_history ? `
-                            <div class="mt-3 text-end">
-                                <button class="btn btn-sm btn-outline-orange" onclick="viewDraftHistory(${season.season_id})">
-                                    <i class="bi bi-list-ol me-1"></i>Ver Draft
-                                </button>
-                            </div>
-                            ` : ''}
+                        <div>
+                            <div class="award-label ${a.color}">${a.label}</div>
+                            <div class="award-name">${name}</div>
+                            ${team ? `<div class="award-team">${team}</div>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+
+            const draftBtn = season.has_draft_history
+                ? `<div class="season-foot">
+                       <button class="btn-ghost-sm" onclick="viewDraftHistory(${season.season_id})">
+                           <i class="bi bi-list-ol"></i> Ver Draft
+                       </button>
+                   </div>`
+                : '';
+
+            html += `
+            <div class="season-card">
+                <div class="season-head">
+                    <div class="season-head-left">
+                        <div class="season-icon"><i class="bi bi-trophy-fill" style="color:#f59e0b;"></i></div>
+                        <div>
+                            <div class="season-title">Sprint ${season.sprint_number} — Temporada ${season.season_number}</div>
+                            <div class="season-sub">Liga ${league.toUpperCase()}</div>
                         </div>
                     </div>
+                    ${yearBadge}
                 </div>
-            `;
+                <div class="season-body">
+                    ${awards ? `<div class="awards-grid">${awards}</div>` : '<div style="font-size:13px;color:var(--text-3);font-style:italic;">Nenhum prêmio registrado.</div>'}
+                </div>
+                ${draftBtn}
+            </div>`;
         });
-        
-        html += '</div>';
+
         container.innerHTML = html;
-        
+
     } catch (error) {
         console.error('Erro ao carregar histórico:', error);
         container.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle me-2"></i>
+            <div style="padding:24px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:12px;color:#f87171;font-size:13px;">
+                <i class="bi bi-exclamation-triangle" style="margin-right:6px;"></i>
                 Erro ao carregar histórico: ${error.message}
             </div>
         `;
     }
 }
 
-// Visualizar histórico do draft de uma temporada
 async function viewDraftHistory(seasonId) {
     try {
         const response = await fetch(`/api/draft.php?action=draft_history&season_id=${seasonId}`);
         const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.error || 'Erro ao carregar histórico do draft');
-        }
-        
+
+        if (!data.success) throw new Error(data.error || 'Erro ao carregar histórico do draft');
+
         const order = data.draft_order || [];
-        
+
         if (order.length === 0) {
             alert('Nenhum registro de draft encontrado para esta temporada.');
             return;
         }
-        
-        // Criar modal com o histórico
-        let modalHtml = `
+
+        const rows = order.map(p => `
+            <tr>
+                <td>
+                    <span style="display:inline-flex;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;
+                        background:${p.round === 1 ? 'var(--red-soft)' : 'var(--panel-3)'};
+                        color:${p.round === 1 ? 'var(--red)' : 'var(--text-2)'};">
+                        R${p.round} #${p.pick_position}
+                    </span>
+                </td>
+                <td style="font-weight:600;color:var(--text);">${p.player_name || '—'}</td>
+                <td>
+                    <span style="display:inline-flex;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--red-soft);color:var(--red);">
+                        ${p.player_position || '—'}
+                    </span>
+                </td>
+                <td style="color:var(--text-2);">${p.player_ovr || '—'}</td>
+                <td style="color:var(--text-2);">
+                    ${p.team_city} ${p.team_name}
+                    ${p.traded_from_city ? `<span style="font-size:11px;color:var(--text-3);"> (via ${p.traded_from_city})</span>` : ''}
+                </td>
+            </tr>
+        `).join('');
+
+        const modalHtml = `
             <div class="modal fade" id="draftHistoryModal" tabindex="-1">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div class="modal-content bg-dark border-orange">
-                        <div class="modal-header border-orange">
-                            <h5 class="modal-title text-white">
-                                <i class="bi bi-list-ol me-2 text-orange"></i>
-                                Histórico do Draft - Temporada ${data.season?.season_number || ''}
+                    <div class="modal-content" style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);">
+                        <div class="modal-header" style="border-bottom:1px solid var(--border);">
+                            <h5 class="modal-title" style="font-family:var(--font);font-weight:700;color:var(--text);">
+                                <i class="bi bi-list-ol" style="color:var(--red);margin-right:8px;"></i>
+                                Draft — Temporada ${data.season?.season_number || ''}
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="modal-body">
-                            <div class="table-responsive">
-                                <table class="table table-dark table-sm">
+                        <div class="modal-body" style="padding:20px;">
+                            <div style="overflow-x:auto;">
+                                <table style="width:100%;border-collapse:collapse;font-family:var(--font);font-size:13px;">
                                     <thead>
-                                        <tr>
-                                            <th>Pick</th>
-                                            <th>Jogador</th>
-                                            <th>Pos</th>
-                                            <th>OVR</th>
-                                            <th>Time</th>
+                                        <tr style="border-bottom:1px solid var(--border);">
+                                            <th style="padding:8px 12px;color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Pick</th>
+                                            <th style="padding:8px 12px;color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Jogador</th>
+                                            <th style="padding:8px 12px;color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Pos</th>
+                                            <th style="padding:8px 12px;color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">OVR</th>
+                                            <th style="padding:8px 12px;color:var(--text-3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Time</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        ${order.map((p, idx) => `
-                                            <tr>
-                                                <td>
-                                                    <span class="badge ${p.round === 1 ? 'bg-orange' : 'bg-secondary'}">
-                                                        R${p.round} #${p.pick_position}
-                                                    </span>
-                                                </td>
-                                                <td class="text-white fw-bold">${p.player_name || '-'}</td>
-                                                <td><span class="badge bg-orange">${p.player_position || '-'}</span></td>
-                                                <td>${p.player_ovr || '-'}</td>
-                                                <td class="text-light-gray">
-                                                    ${p.team_city} ${p.team_name}
-                                                    ${p.traded_from_city ? `<small class="text-muted">(via ${p.traded_from_city})</small>` : ''}
-                                                </td>
-                                            </tr>
-                                        `).join('')}
+                                    <tbody style="color:var(--text);">
+                                        ${rows}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        <div class="modal-footer border-orange">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <div class="modal-footer" style="border-top:1px solid var(--border);">
+                            <button type="button" class="btn-ghost-sm" data-bs-dismiss="modal">Fechar</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        
-        // Remover modal existente se houver
+
         const existing = document.getElementById('draftHistoryModal');
         if (existing) existing.remove();
-        
-        // Adicionar modal ao body
+
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
-        // Mostrar modal
-        const modal = new bootstrap.Modal(document.getElementById('draftHistoryModal'));
-        modal.show();
-        
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('draftHistoryModal')).show();
+
     } catch (error) {
         console.error('Erro:', error);
         alert(error.message || 'Erro ao carregar histórico do draft');

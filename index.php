@@ -1,5 +1,14 @@
 <?php
-declare(strict_types=1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-header('Location: /login.php', true, 302);
+session_start();
+
+// Não carrega nada desnecessário, apenas redirecionaaa
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login.php');
+    exit;
+}
+
+header('Location: /dashboard.php');
 exit;
