@@ -1170,31 +1170,6 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
             </div>
         </div>
 
-        <!-- Stats Strip -->
-        <div class="stats-strip">
-            <div class="stat-pill">
-                <div class="stat-pill-icon"><i class="bi bi-people-fill"></i></div>
-                <div>
-                    <div class="stat-pill-val"><?= $teamsCount ?></div>
-                    <div class="stat-pill-label">Franquias</div>
-                </div>
-            </div>
-            <div class="stat-pill">
-                <div class="stat-pill-icon"><i class="bi bi-graph-up"></i></div>
-                <div>
-                    <div class="stat-pill-val"><?= number_format($averageCapTop8, 0, ',', '.') ?></div>
-                    <div class="stat-pill-label">CAP Médio</div>
-                </div>
-            </div>
-            <div class="stat-pill">
-                <div class="stat-pill-icon"><i class="bi bi-bar-chart-fill"></i></div>
-                <div>
-                    <div class="stat-pill-val"><?= number_format($totalCapTop8, 0, ',', '.') ?></div>
-                    <div class="stat-pill-label">CAP Total</div>
-                </div>
-            </div>
-        </div>
-
         <!-- Controls -->
         <div class="controls">
             <div class="search-wrap">

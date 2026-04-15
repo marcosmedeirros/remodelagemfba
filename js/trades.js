@@ -1432,11 +1432,11 @@ function createTradeCard(trade, type) {
     <div class="panel-body">
       <div class="trade-split">
         <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:8px">${fromTeam} oferece</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red,#fc0025);margin-bottom:8px">${fromTeam} oferece</div>
           <ul class="list-unstyled" style="margin:0">${offerItems}</ul>
         </div>
         <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:8px">${toTeam} envia</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red,#fc0025);margin-bottom:8px">${toTeam} envia</div>
           <ul class="list-unstyled" style="margin:0">${requestItems}</ul>
         </div>
       </div>

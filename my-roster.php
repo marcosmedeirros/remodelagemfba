@@ -489,7 +489,7 @@ $is_admin = ($user['user_type'] ?? 'jogador') === 'admin';
                 <div class="stat-pill-icon"><i class="bi bi-graph-up"></i></div>
                 <div>
                     <div class="stat-pill-val" id="cap-top8">—</div>
-                    <div class="stat-pill-label">CAP Top 8</div>
+                    <div class="stat-pill-label">CAP</div>
                 </div>
             </div>
             <div class="stat-pill">

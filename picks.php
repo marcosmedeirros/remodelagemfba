@@ -372,12 +372,6 @@ $tradedAway   = count($picksAway);
             </div>
         </div>
 
-        <!-- Info banner -->
-        <div class="info-banner">
-            <i class="bi bi-info-circle-fill"></i>
-            <span>As picks são geradas automaticamente quando uma nova temporada é criada. Cada time recebe 2 picks (1ª e 2ª rodada) por temporada. Picks podem ser trocadas via sistema de trades.</span>
-        </div>
-
         <!-- Stats strip -->
         <div class="stats-strip">
             <div class="stat-pill">

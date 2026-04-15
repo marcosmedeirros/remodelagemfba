@@ -2512,14 +2512,14 @@ button.sidebar-theme-toggle i {
 
 /* ── Shared design system — panel cards (used by trades.js, etc.) ── */
 .panel {
-	background: var(--panel, #101013);
-	border: 1px solid var(--border, rgba(255,255,255,.06));
+	background: var(--bg, #07070a);
+	border: 1px solid rgba(255,255,255,.07);
 	border-radius: 12px;
 	overflow: hidden;
 }
 .panel-head {
 	padding: 14px 18px;
-	border-bottom: 1px solid var(--border, rgba(255,255,255,.06));
+	border-bottom: 1px solid rgba(255,255,255,.07);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
