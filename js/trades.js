@@ -1363,7 +1363,7 @@ function createMultiTradeCard(trade, type) {
     footer.style.cssText = 'padding:12px 18px;border-top:1px solid var(--border);background:var(--panel-2)';
     footer.innerHTML = `
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn-r" style="background:rgba(239,68,68,.10);color:#f87171;border:1px solid rgba(239,68,68,.25)"><i class="bi bi-x-circle"></i> Cancelar</button>
+        <button class="btn-r danger"><i class="bi bi-x-circle"></i> Cancelar</button>
       </div>`;
     footer.querySelector('button').addEventListener('click', () => respondMultiTrade(trade.id, 'cancelled'));
     card.appendChild(footer);
@@ -1454,7 +1454,7 @@ function createTradeCard(trade, type) {
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn-r primary" onclick="respondTrade(${trade.id},'accepted')"><i class="bi bi-check-circle"></i> Aceitar</button>
-        <button class="btn-r" style="background:rgba(239,68,68,.10);color:#f87171;border:1px solid rgba(239,68,68,.25)" onclick="respondTrade(${trade.id},'rejected')"><i class="bi bi-x-circle"></i> Rejeitar</button>
+        <button class="btn-r danger" onclick="respondTrade(${trade.id},'rejected')"><i class="bi bi-x-circle"></i> Rejeitar</button>
         <button class="btn-r blue" onclick="openCounterProposal(${trade.id},${JSON.stringify(trade).replace(/"/g,'&quot;')})"><i class="bi bi-arrow-repeat"></i> Contraproposta</button>
       </div>`;
     card.appendChild(footer);
@@ -1466,7 +1466,7 @@ function createTradeCard(trade, type) {
     footer.innerHTML = `
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn-r ghost" onclick="openModifyTrade(${trade.id},${JSON.stringify(trade).replace(/"/g,'&quot;')})"><i class="bi bi-pencil"></i> Modificar</button>
-        <button class="btn-r" style="background:rgba(239,68,68,.10);color:#f87171;border:1px solid rgba(239,68,68,.25)" onclick="respondTrade(${trade.id},'cancelled')"><i class="bi bi-x-circle"></i> Cancelar</button>
+        <button class="btn-r danger" onclick="respondTrade(${trade.id},'cancelled')"><i class="bi bi-x-circle"></i> Cancelar</button>
       </div>`;
     card.appendChild(footer);
   }

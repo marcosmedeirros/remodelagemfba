@@ -2474,9 +2474,119 @@ body.offline::after {
 	body {
 		min-height: -webkit-fill-available;
 	}
-	
+
 	.dashboard-sidebar {
 		height: -webkit-fill-available;
 	}
 }
+
+/* ── Sidebar theme toggle — force visibility over Bootstrap resets ── */
+button.sidebar-theme-toggle {
+	display: flex !important;
+	align-items: center;
+	gap: 8px;
+	width: calc(100% - 20px);
+	margin: 4px 10px 10px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	border: 1px solid var(--border-md, rgba(255,255,255,.12)) !important;
+	background: var(--panel-3, #1c1c21) !important;
+	color: var(--text-2, #868690) !important;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 200ms ease;
+}
+button.sidebar-theme-toggle:hover {
+	border-color: rgba(252,0,37,.35) !important;
+	color: var(--red, #fc0025) !important;
+	background: rgba(252,0,37,.08) !important;
+}
+button.sidebar-theme-toggle i {
+	font-size: 15px;
+	width: 18px;
+	text-align: center;
+	flex-shrink: 0;
+}
+
+/* ── Shared design system — panel cards (used by trades.js, etc.) ── */
+.panel {
+	background: var(--panel, #101013);
+	border: 1px solid var(--border, rgba(255,255,255,.06));
+	border-radius: 12px;
+	overflow: hidden;
+}
+.panel-head {
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--border, rgba(255,255,255,.06));
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.panel-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text, #f0f0f3);
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+.panel-body {
+	padding: 16px 18px;
+}
+.trade-split {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+@media (max-width: 576px) {
+	.trade-split { grid-template-columns: 1fr; }
+}
+
+/* ── Shared tags ── */
+.tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.tag.gray   { background: var(--panel-3, #1c1c21);         color: var(--text-2, #868690); }
+.tag.green  { background: rgba(34,197,94,.12);              color: #22c55e; }
+.tag.red    { background: rgba(252,0,37,.12);               color: #fc0025; }
+.tag.amber  { background: rgba(245,158,11,.14);             color: #f59e0b; }
+.tag.blue   { background: rgba(59,130,246,.12);             color: #3b82f6; }
+.tag.purple { background: rgba(168,85,247,.12);             color: #a855f7; }
+
+/* ── Shared buttons (btn-r) ── */
+.btn-r {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	border-radius: 8px;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	border: none;
+	cursor: pointer;
+	text-decoration: none;
+	transition: opacity 200ms ease, background 200ms ease, border-color 200ms ease;
+}
+.btn-r:hover   { opacity: .85; }
+.btn-r:disabled { opacity: .4; cursor: not-allowed; }
+
+.btn-r.primary  { background: var(--red, #fc0025);                   color: #fff; }
+.btn-r.secondary{ background: var(--panel-3, #1c1c21); color: var(--text-2, #868690); border: 1px solid var(--border, rgba(255,255,255,.06)); }
+.btn-r.outline  { background: transparent; color: var(--red, #fc0025); border: 1px solid rgba(252,0,37,.30); }
+.btn-r.ghost    { background: var(--panel-2, #16161a); color: var(--text, #f0f0f3);   border: 1px solid var(--border, rgba(255,255,255,.06)); }
+.btn-r.blue     { background: rgba(59,130,246,.15);    color: #3b82f6;                border: 1px solid rgba(59,130,246,.25); }
+.btn-r.green    { background: rgba(34,197,94,.12);     color: #22c55e;                border: 1px solid rgba(34,197,94,.25); }
+.btn-r.danger   { background: rgba(239,68,68,.10);     color: #f87171;                border: 1px solid rgba(239,68,68,.25); }
 
