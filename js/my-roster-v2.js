@@ -409,112 +409,78 @@ function renderPlayers(players) {
     const row = document.createElement('div');
     row.className = 'row g-3';
 
+    // ── Titulares ──────────────────────────────────
     const colLeft = document.createElement('div');
     colLeft.className = 'col-12 col-lg-8';
     const startersSection = document.createElement('div');
     startersSection.className = 'roster-section';
-    startersSection.innerHTML = '<h5>Quinteto Titular</h5>';
+    startersSection.innerHTML = '<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);margin-bottom:14px;">QUINTETO TITULAR</div>';
+
     if (starters.length === 0) {
-      startersSection.innerHTML += '<div class="text-center text-light-gray">Sem jogadores marcados como Titular.</div>';
+      startersSection.innerHTML += '<div style="text-align:center;color:var(--text-3);padding:32px 0;font-size:13px;">Sem jogadores marcados como Titular.</div>';
     } else {
-      const courtContainer = document.createElement('div');
-      courtContainer.className = 'court-container';
-      courtContainer.style.position = 'relative';
-      courtContainer.style.width = '100%';
-      courtContainer.style.minHeight = '600px';
-      courtContainer.style.borderRadius = 'var(--radius-sm)';
-      courtContainer.style.border = '1px solid var(--court-line-soft)';
-      courtContainer.style.background = 'linear-gradient(180deg, #151924 0%, #11161f 100%)';
-      courtContainer.style.overflow = 'hidden';
-      courtContainer.style.display = 'flex';
-      courtContainer.style.alignItems = 'center';
-      courtContainer.style.justifyContent = 'center';
-      courtContainer.style.padding = '12px';
+      const startersGrid = document.createElement('div');
+      startersGrid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:10px;';
 
       starters.forEach(p => {
         const ovrColor = getOvrColor(p.ovr);
-        const posClass = (p.position || '').toString().trim().toLowerCase();
-        const col = document.createElement('div');
-        col.className = `starter-slot starter-${posClass}`;
-        col.dataset.playerId = p.id;
-        col.dataset.role = 'Titular';
-        col.style.position = 'absolute';
-        col.style.cursor = 'grab';
-        col.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
-
         const card = document.createElement('div');
-        card.className = 'roster-card';
-        card.style.borderColor = 'var(--border-red)';
-        card.style.width = '180px';
+        card.style.cssText = 'background:var(--panel-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;';
         card.innerHTML = `
-          <div style=\"padding: 12px; display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;\">
-            <img src=\"${getPlayerPhotoUrl(p)}\" alt=\"${p.name}\" style=\"width: 72px; height: 72px; object-fit: cover; border-radius: 50%; border: 2px solid var(--red); background: #1a1a1a;\" onerror=\"this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=121212&color=f17507&rounded=true&bold=true'\">
-            <div>
-              <h6 style=\"color: var(--text); margin: 0 0 4px 0; font-weight: bold; font-size: 0.95rem;\">${p.name}</h6>
-              <div style=\"display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;\">
-                <span style=\"background: #4b5563; color: var(--text); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;\">${p.position}${p.secondary_position ? '/' + p.secondary_position : ''}</span>
-              </div>
-            </div>
-            <div style=\"text-align: center;\">
-              <div style=\"font-size: 1.8rem; line-height: 1; color: ${ovrColor}; font-weight: bold;\">${p.ovr}</div>
-              <small style=\"color: var(--text-2);\">${p.age} anos</small>
-            </div>
-          </div>`;
-        
-        col.appendChild(card);
-        courtContainer.appendChild(col);
+          <img src="${getPlayerPhotoUrl(p)}" alt="${p.name}"
+            style="width:64px;height:64px;object-fit:cover;border-radius:50%;border:2px solid var(--red);background:#1a1a1a;flex-shrink:0;"
+            onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=121212&color=fc0025&rounded=true&bold=true'">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text);line-height:1.25;word-break:break-word;">${p.name}</div>
+          <span style="background:var(--panel-3);color:var(--text-2);padding:2px 7px;border-radius:4px;font-size:0.7rem;font-weight:600;">${p.position}${p.secondary_position ? '/' + p.secondary_position : ''}</span>
+          <div style="font-size:1.7rem;font-weight:800;color:${ovrColor};line-height:1;">${p.ovr}</div>`;
+        startersGrid.appendChild(card);
       });
 
-      if (starters.length < 5) {
-        const dropzone = document.createElement('div');
-        dropzone.className = 'starter-dropzone';
-        dropzone.innerHTML = '<i class="bi bi-hand-index-thumb"></i><span>Arraste aqui</span>';
-        startersSection.appendChild(dropzone);
+      for (let i = starters.length; i < 5; i++) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'background:var(--panel-2);border:1px dashed var(--border-md);border-radius:var(--radius-sm);padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:180px;';
+        empty.innerHTML = '<i class="bi bi-person-fill" style="font-size:2rem;color:var(--text-3);"></i><span style="font-size:0.7rem;color:var(--text-3);">Vazio</span>';
+        startersGrid.appendChild(empty);
       }
 
-      startersSection.appendChild(courtContainer);
+      startersSection.appendChild(startersGrid);
     }
     colLeft.appendChild(startersSection);
 
+    // ── Banco ──────────────────────────────────────
     const colRight = document.createElement('div');
     colRight.className = 'col-12 col-lg-4';
     const benchSection = document.createElement('div');
     benchSection.className = 'roster-section';
-    benchSection.innerHTML = '<h5>Banco</h5>';
+    benchSection.innerHTML = '<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);margin-bottom:14px;">BANCO</div>';
+
     if (bench.length === 0) {
-      benchSection.innerHTML += '<div class="text-center text-light-gray">Sem jogadores no banco.</div>';
+      benchSection.innerHTML += '<div style="text-align:center;color:var(--text-3);padding:32px 0;font-size:13px;">Sem jogadores no banco.</div>';
     } else {
       const ul = document.createElement('ul');
-      ul.className = 'list-group list-group-flush';
+      ul.style.cssText = 'list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;';
       bench.forEach(p => {
+        const ovrColor = getOvrColor(p.ovr);
         const li = document.createElement('li');
-        li.className = 'list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 bench-slot';
-        li.dataset.playerId = p.id;
-        li.dataset.role = 'Banco';
+        li.style.cssText = 'background:var(--panel-2);border:1px solid var(--border);border-radius:var(--radius-xs);padding:10px 12px;display:flex;align-items:center;gap:12px;';
         li.innerHTML = `
-          <div class="d-flex align-items-center gap-2" style="flex:1;">
-            <img src="${getPlayerPhotoUrl(p)}" alt="${p.name}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 50%; border: 1px solid var(--border-red); background: #1a1a1a;">
-            <div class="flex-grow-1">
-              <div class="text-white fw-500" style="font-size: 0.9rem;">${p.name}</div>
-              <small class="text-light-gray">${p.position}${p.secondary_position ? '/' + p.secondary_position : ''} • OVR ${p.ovr}</small>
-            </div>
-          </div>`;
+          <img src="${getPlayerPhotoUrl(p)}" alt="${p.name}"
+            style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:1px solid var(--border-red);background:#1a1a1a;flex-shrink:0;"
+            onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=121212&color=fc0025&rounded=true&bold=true'">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+            <div style="font-size:0.75rem;color:var(--text-2);">${p.position}${p.secondary_position ? '/' + p.secondary_position : ''}</div>
+          </div>
+          <div style="font-size:1.1rem;font-weight:800;color:${ovrColor};flex-shrink:0;">${p.ovr}</div>`;
         ul.appendChild(li);
       });
       benchSection.appendChild(ul);
     }
     colRight.appendChild(benchSection);
 
-    const benchDropzone = document.createElement('div');
-    benchDropzone.className = 'bench-dropzone mt-2';
-    benchDropzone.innerHTML = '<i class="bi bi-arrow-down-circle"></i><span>Arraste um Titular para o Banco</span>';
-    benchSection.appendChild(benchDropzone);
-    
     row.appendChild(colLeft);
     row.appendChild(colRight);
     grid.appendChild(row);
-
-    setupRosterDragAndDrop();
 
     document.getElementById('players-status').style.display = 'none';
     grid.style.display = '';

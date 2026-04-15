@@ -62,7 +62,7 @@ async function loadHistory(league) {
         let html = '';
 
         history.forEach(season => {
-            const yearBadge = season.year ? `<span class="season-year-badge">${season.year}</span>` : '';
+            const yearBadge = '';
 
             const awards = awardsConfig
                 .filter(a => season[valueKey[a.key]])
@@ -96,7 +96,7 @@ async function loadHistory(league) {
                     <div class="season-head-left">
                         <div class="season-icon"><i class="bi bi-trophy-fill" style="color:#f59e0b;"></i></div>
                         <div>
-                            <div class="season-title">Sprint ${season.sprint_number} — Temporada ${season.season_number}</div>
+                            <div class="season-title">Temporada ${season.year || season.season_number}</div>
                             <div class="season-sub">Liga ${league.toUpperCase()}</div>
                         </div>
                     </div>

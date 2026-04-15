@@ -478,7 +478,7 @@ $is_admin = ($user['user_type'] ?? 'jogador') === 'admin';
         <div class="page-top">
             <div>
                 <div class="page-eyebrow">Liga &mdash; <?= $currentSeasonYear ?></div>
-                <h1 class="page-title">Meu ElencoOOOOO</h1>
+                <h1 class="page-title">Meu Elenco</h1>
                 <p class="page-sub"><?= $team ? htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? ''))) : 'Sem time' ?></p>
             </div>
         </div>
@@ -495,7 +495,7 @@ $is_admin = ($user['user_type'] ?? 'jogador') === 'admin';
                 <div class="stat-pill-icon"><i class="bi bi-people-fill"></i></div>
                 <div>
                     <div class="stat-pill-val" id="total-players"><?= $playerCount ?></div>
-                    <div class="stat-pill-label">JogadoresSSSSSS</div>
+                    <div class="stat-pill-label">Jogadores</div>
                 </div>
             </div>
             <div class="stat-pill">
