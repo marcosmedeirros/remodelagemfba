@@ -112,6 +112,116 @@
 .sidebar-overlay.active,
 .sidebar-overlay.show { display: block; }
 
+/* ── New sidebar design system (sb-* classes used by includes/sidebar.php) ── */
+.sidebar {
+	position: fixed; top: 0; left: 0;
+	width: var(--sidebar-w, 260px); height: 100vh;
+	background: var(--panel, #101013);
+	border-right: 1px solid var(--border, rgba(255,255,255,.06));
+	display: flex; flex-direction: column;
+	z-index: 300;
+	transition: transform 200ms cubic-bezier(.2,.8,.2,1);
+	overflow-y: auto;
+	scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.sb-brand {
+	padding: 22px 18px 18px;
+	border-bottom: 1px solid var(--border, rgba(255,255,255,.06));
+	display: flex; align-items: center; gap: 12px;
+	flex-shrink: 0;
+}
+.sb-logo {
+	width: 34px; height: 34px; border-radius: 9px;
+	background: var(--red, #fc0025);
+	display: flex; align-items: center; justify-content: center;
+	font-weight: 800; font-size: 13px; color: #fff;
+	flex-shrink: 0;
+}
+.sb-brand-text { font-weight: 700; font-size: 15px; line-height: 1.1; color: var(--text, #f0f0f3); }
+.sb-brand-text span { display: block; font-size: 11px; font-weight: 400; color: var(--text-2, #868690); }
+
+.sb-team {
+	margin: 14px 14px 0;
+	background: var(--panel-2, #16161a);
+	border: 1px solid var(--border, rgba(255,255,255,.06));
+	border-radius: 10px;
+	padding: 14px;
+	display: flex; align-items: center; gap: 10px;
+	flex-shrink: 0;
+}
+.sb-team img { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; border: 1px solid var(--border-md, rgba(255,255,255,.10)); flex-shrink: 0; }
+.sb-team-name { font-size: 13px; font-weight: 600; color: var(--text, #f0f0f3); line-height: 1.2; }
+.sb-team-league { font-size: 11px; color: var(--red, #fc0025); font-weight: 600; }
+
+.sb-nav { flex: 1; padding: 12px 10px 8px; }
+.sb-section {
+	font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+	text-transform: uppercase; color: var(--text-3, #48484f);
+	padding: 12px 10px 5px;
+}
+.sb-nav a {
+	display: flex; align-items: center; gap: 10px;
+	padding: 9px 10px; border-radius: 10px;
+	color: var(--text-2, #868690); font-size: 13px; font-weight: 500;
+	text-decoration: none; margin-bottom: 2px;
+	transition: all 200ms cubic-bezier(.2,.8,.2,1);
+}
+.sb-nav a i { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.sb-nav a:hover { background: var(--panel-2, #16161a); color: var(--text, #f0f0f3); }
+.sb-nav a.active {
+	background: rgba(252,0,37,.10);
+	color: var(--red, #fc0025); font-weight: 600;
+}
+.sb-nav a.active i { color: var(--red, #fc0025); }
+
+.sidebar-theme-toggle {
+	display: flex; align-items: center; gap: 8px;
+	width: calc(100% - 20px); margin: 4px 10px 8px;
+	padding: 9px 10px; border-radius: 10px;
+	border: 1px solid var(--border, rgba(255,255,255,.06));
+	background: var(--panel-2, #16161a);
+	color: var(--text-2, #868690);
+	font-size: 13px; font-weight: 500;
+	cursor: pointer;
+	transition: all 200ms cubic-bezier(.2,.8,.2,1);
+}
+.sidebar-theme-toggle:hover { border-color: rgba(252,0,37,.22); color: var(--red, #fc0025); }
+.sidebar-theme-toggle i { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+
+.sb-footer {
+	padding: 12px 14px;
+	border-top: 1px solid var(--border, rgba(255,255,255,.06));
+	display: flex; align-items: center; gap: 10px;
+	flex-shrink: 0;
+}
+.sb-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-md, rgba(255,255,255,.10)); flex-shrink: 0; }
+.sb-username { font-size: 12px; font-weight: 500; color: var(--text, #f0f0f3); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-logout {
+	width: 26px; height: 26px; border-radius: 7px;
+	background: transparent; border: 1px solid var(--border, rgba(255,255,255,.06));
+	color: var(--text-2, #868690); display: flex; align-items: center; justify-content: center;
+	font-size: 12px; cursor: pointer; transition: all 200ms cubic-bezier(.2,.8,.2,1);
+	text-decoration: none; flex-shrink: 0;
+}
+.sb-logout:hover { background: rgba(252,0,37,.10); border-color: rgba(252,0,37,.22); color: var(--red, #fc0025); }
+
+/* sb-overlay used in redesigned pages */
+.sb-overlay {
+	display: none; position: fixed; inset: 0; z-index: 299;
+	background: rgba(0,0,0,.55);
+	-webkit-backdrop-filter: blur(2px);
+	backdrop-filter: blur(2px);
+}
+.sb-overlay.active { display: block; }
+
+/* Sidebar open state on mobile */
+@media (max-width: 768px) {
+	.sidebar { transform: translateX(-100%); }
+	.sidebar.open { transform: translateX(0); }
+}
+
 /* ---------- Base ---------- */
 *,
 *::before,
