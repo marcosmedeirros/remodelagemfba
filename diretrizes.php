@@ -339,7 +339,7 @@ $isEliteOrNext = in_array(($team['league'] ?? ''), ['ELITE', 'NEXT'], true);
     <aside class="sidebar" id="sidebar">
         <div class="sb-brand">
             <div class="sb-logo">FBA</div>
-            <div class="sb-brand-text">FBA Manager<span>Painel do GM</span></div>
+            <div class="sb-brand-text">FBA Manager<span>Liga <?= htmlspecialchars($user['league']) ?></span></div>
         </div>
 
         <div class="sb-team">
@@ -350,13 +350,6 @@ $isEliteOrNext = in_array(($team['league'] ?? ''), ['ELITE', 'NEXT'], true);
                 <div class="sb-team-league"><?= htmlspecialchars($user['league']) ?></div>
             </div>
         </div>
-
-        <?php if ($currentSeason): ?>
-        <div class="sb-season">
-            <div><div class="sb-season-label">Temporada</div><div class="sb-season-val"><?= $seasonDisplayYear ?></div></div>
-            <div style="text-align:right"><div class="sb-season-label">Sprint</div><div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div></div>
-        </div>
-        <?php endif; ?>
 
         <nav class="sb-nav">
             <div class="sb-section">Principal</div>

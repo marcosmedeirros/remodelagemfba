@@ -7,7 +7,9 @@
       "Bash(grep -r \"ranking_titles\\\\|secondary_position\" /c/Users/marco/OneDrive/Desktop/novos/sql/*.sql)",
       "Bash(grep -n \"function topEightCap\" /c/Users/marco/OneDrive/Desktop/novos/backend/*.php)",
       "Bash(grep -n \"function syncTeamTradeCounterLocal\" /c/Users/marco/OneDrive/Desktop/novos/api/*.php)",
-      "Bash(grep -l 'data-theme=\"\"' *.php)"
+      "Bash(grep -l 'data-theme=\"\"' *.php)",
+      "Bash(grep -l \"dashboard-sidebar\\\\|sidebar-menu\\\\|<aside class\" c:/Users/marco/OneDrive/Desktop/novos/*.php)",
+      "Bash(grep -l \"includes/sidebar.php\" c:/Users/marco/OneDrive/Desktop/novos/*.php)"
     ]
   }
 }

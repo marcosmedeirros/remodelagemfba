@@ -718,7 +718,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
             <div class="sb-logo">FBA</div>
             <div class="sb-brand-text">
                 FBA Manager
-                <span>Painel do GM</span>
+                <span>Liga <?= htmlspecialchars($user['league']) ?></span>
             </div>
         </div>
 
@@ -731,19 +731,6 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
                 <div class="sb-team-league"><?= htmlspecialchars($user['league']) ?></div>
             </div>
         </div>
-
-        <?php if ($currentSeason): ?>
-        <div class="sb-season">
-            <div>
-                <div class="sb-season-label">Temporada</div>
-                <div class="sb-season-val"><?= $seasonDisplayYear ?></div>
-            </div>
-            <div style="text-align:right">
-                <div class="sb-season-label">Sprint</div>
-                <div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div>
-            </div>
-        </div>
-        <?php endif; ?>
 
         <nav class="sb-nav">
             <div class="sb-section">Principal</div>

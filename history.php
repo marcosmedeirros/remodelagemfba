@@ -316,7 +316,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
 
     <div class="sb-brand">
       <div class="sb-logo">FBA</div>
-      <div class="sb-brand-text">FBA Manager <span>Painel do GM</span></div>
+      <div class="sb-brand-text">FBA Manager <span>Liga <?= htmlspecialchars($userLeague) ?></span></div>
     </div>
 
     <div class="sb-team">
@@ -328,19 +328,6 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
         <div class="sb-team-league"><?= htmlspecialchars($userLeague) ?></div>
       </div>
     </div>
-
-    <?php if ($currentSeason): ?>
-    <div class="sb-season">
-      <div>
-        <div class="sb-season-label">Temporada</div>
-        <div class="sb-season-val"><?= $seasonDisplayYear ?></div>
-      </div>
-      <div style="text-align:right">
-        <div class="sb-season-label">Sprint</div>
-        <div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div>
-      </div>
-    </div>
-    <?php endif; ?>
 
     <nav class="sb-nav">
       <div class="sb-section">Principal</div>

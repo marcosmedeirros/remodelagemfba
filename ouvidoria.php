@@ -245,7 +245,7 @@ try {
             <div class="sb-logo">FBA</div>
             <div class="sb-brand-text">
                 FBA Manager
-                <span>Painel do GM</span>
+                <span>Liga <?= htmlspecialchars($user['league']) ?></span>
             </div>
         </div>
 
@@ -257,19 +257,6 @@ try {
             <div>
                 <div class="sb-team-name"><?= htmlspecialchars(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) ?></div>
                 <div class="sb-team-league"><?= htmlspecialchars($user['league']) ?></div>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <?php if ($currentSeason): ?>
-        <div class="sb-season">
-            <div>
-                <div class="sb-season-label">Temporada</div>
-                <div class="sb-season-val"><?= $seasonDisplayYear ?></div>
-            </div>
-            <div style="text-align:right">
-                <div class="sb-season-label">Sprint</div>
-                <div class="sb-season-val"><?= (int)($currentSeason['sprint_number'] ?? 1) ?></div>
             </div>
         </div>
         <?php endif; ?>

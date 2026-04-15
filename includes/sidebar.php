@@ -70,7 +70,7 @@ function sidebarHref(string $path): string {
         <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>" alt="Meu Time">
         <div class="sidebar-myteam-info">
             <div class="sidebar-myteam-name sb-team-name"><?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? ''))) ?></div>
-            <div class="sidebar-myteam-sub sb-team-league">Franquia ativa</div>
+            <div class="sidebar-myteam-sub sb-team-league"><?= htmlspecialchars($team['league'] ?? '') ?></div>
         </div>
     </div>
     <?php endif; ?>
