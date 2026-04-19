@@ -142,10 +142,10 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
     /* Main */
     .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
     .topbar {
-      position: sticky; top: 0; z-index: 200;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 240;
       background: var(--panel); border-bottom: 1px solid var(--border);
-      padding: 0 24px; height: 56px;
-      display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; height: 54px;
+      display: none; align-items: center; gap: 12px;
     }
     .topbar-menu-btn {
       display: none; background: none; border: none; color: var(--text-2);
@@ -153,6 +153,30 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
     }
     .topbar-title { font-size: 14px; font-weight: 600; color: var(--text); }
     .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    /* ── Sidebar ── */
+    .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 300; transition: transform var(--t) var(--ease); overflow-y: auto; scrollbar-width: none; }
+    .sidebar::-webkit-scrollbar { display: none; }
+    .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 299; }
+    .sb-overlay.show, .sb-overlay.active { display: block; }
+    .sb-team { margin: 14px 14px 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .sb-team img { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
+    .sb-team-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .sb-team-league { font-size: 11px; color: var(--red); font-weight: 600; }
+    .sb-nav { flex: 1; padding: 12px 10px 8px; }
+    .sb-section { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-3); padding: 12px 10px 5px; }
+    .sb-nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-sm); color: var(--text-2); font-size: 13px; font-weight: 500; text-decoration: none; margin-bottom: 2px; transition: all var(--t) var(--ease); }
+    .sb-nav a i { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+    .sb-nav a:hover { background: var(--panel-2); color: var(--text); }
+    .sb-nav a.active { background: var(--red-soft); color: var(--red); font-weight: 600; }
+    .sb-nav a.active i { color: var(--red); }
+    .sb-theme-toggle { margin: 0 14px 12px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t) var(--ease); }
+    .sb-theme-toggle:hover { border-color: var(--border-red); color: var(--red); }
+    .sb-footer { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .sb-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-md); flex-shrink: 0; }
+    .sb-username { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-logout { width: 26px; height: 26px; border-radius: 7px; background: transparent; border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all var(--t) var(--ease); text-decoration: none; flex-shrink: 0; }
+    .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
     .page-hero {
       padding: 28px 28px 0;
@@ -292,17 +316,12 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
       border-radius: var(--radius-sm); padding: 14px;
     }
 
-    /* Sidebar overlay */
-    .sb-overlay {
-      display: none; position: fixed; inset: 0; z-index: 299;
-      background: rgba(0,0,0,.55); backdrop-filter: blur(2px);
-    }
-    .sb-overlay.active { display: block; }
-
     @media (max-width: 992px) {
+      :root { --sidebar-w: 0px; }
       .sidebar { transform: translateX(-260px); }
       .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; width: 100%; }
+      .main { margin-left: 0; width: 100%; padding-top: 54px; }
+      .topbar { display: flex; }
       .topbar-menu-btn { display: flex; }
       .page-hero { padding: 16px 16px 0; }
       .content { padding: 16px 16px 32px; }
