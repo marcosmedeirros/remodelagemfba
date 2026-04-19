@@ -433,14 +433,12 @@ $default_admin_league = $team_league ?? ($leagues[0] ?? 'ELITE');
         .fa-admin-inline{ display: none; }
 
         /* ── Responsive ─────────────────────────────────  */
-        @media (max-width: 900px) {
+        @media (max-width: 992px) {
             .stats-strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
-        }
-        @media (max-width: 820px) {
-            .sidebar { transform: translateX(-100%); }
+            .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }
             .topbar { display: flex; }
-            .main { margin-left: 0; width: 100%; padding: 80px 20px 40px; }
+            .main { margin-left: 0; width: 100%; padding: 54px 16px 40px; }
             .fgrid { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 560px) {

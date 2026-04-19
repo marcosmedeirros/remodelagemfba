@@ -305,11 +305,11 @@ $userPhoto = getUserPhoto($user['photo_url'] ?? null);
         #adminToast.toast-info    i { color: #2196f3; }
 
         /* ── Responsive ───────────────────────────────── */
-        @media (max-width: 820px) {
-            .sidebar { transform: translateX(-100%); }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }
             .topbar { display: flex; }
-            .main { margin-left: 0; width: 100%; padding: 70px 16px 40px; }
+            .main { margin-left: 0; width: 100%; padding: 54px 16px 40px; }
         }
 
         /* ══════════════════════════════════════════════

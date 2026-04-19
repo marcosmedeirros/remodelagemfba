@@ -410,14 +410,12 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 		@media (max-width: 1100px) {
 			.filters-grid { grid-template-columns: repeat(6, minmax(0,1fr)); }
 		}
-		@media (max-width: 900px) {
+		@media (max-width: 992px) {
 			.stats-strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
-		}
-		@media (max-width: 820px) {
-			.sidebar { transform: translateX(-100%); }
+			.sidebar { transform: translateX(-260px); }
 			.sidebar.open { transform: translateX(0); }
 			.topbar { display: flex; }
-			.main { margin-left: 0; width: 100%; padding: 100px 24px 40px; }
+			.main { margin-left: 0; width: 100%; padding: 54px 16px 40px; }
 			.filters-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
 		}
 		@media (max-width: 560px) {
@@ -694,7 +692,7 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 	const paginationInfo = document.getElementById('playersPaginationInfo');
 	const prevPageBtn = document.getElementById('playersPrevPage');
 	const nextPageBtn = document.getElementById('playersNextPage');
-	const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
+	const isMobile = () => window.matchMedia('(max-width: 992px)').matches;
 	let currentPage = 1;
 	let totalPages = 1;
 	const perPage = 50;

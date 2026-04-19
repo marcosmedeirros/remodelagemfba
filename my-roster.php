@@ -361,16 +361,16 @@ $is_admin = ($user['user_type'] ?? 'jogador') === 'admin';
 
         /* ── Responsive ────────────────────────────────── */
         @media (max-width: 1100px) { .stats-strip { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-        @media (max-width: 820px) {
-            .sidebar { transform: translateX(-100%); }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }
             .topbar { display: flex; }
-            .main { margin-left: 0; width: 100%; padding: 80px 20px 40px; }
+            .main { margin-left: 0; width: 100%; padding: 54px 16px 40px; }
             .fgrid { grid-template-columns: 1fr 1fr; }
             #players-table-wrapper, #players-grid { display: none !important; }
             .roster-mobile-cards { display: flex !important; flex-direction: column; gap: 10px; }
         }
-        @media (min-width: 821px) {
+        @media (min-width: 993px) {
             .roster-mobile-cards { display: none !important; }
         }
         @media (max-width: 560px) {

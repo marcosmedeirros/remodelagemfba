@@ -224,7 +224,7 @@ $seasonDisplayYear = (string)$currentSeasonYear;
         .sidebar-overlay.active, .sidebar-overlay.show { display: block; }
 
         /* ── Responsivo ──────────────────────────────── */
-        @media (max-width: 860px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }

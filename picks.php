@@ -283,7 +283,7 @@ $tradedAway   = count($picksAway);
         .round-panel, .away-panel { animation: fadeUp .35s var(--ease) both; }
 
         /* ── Responsive ──────────────────────────── */
-        @media (max-width: 860px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }

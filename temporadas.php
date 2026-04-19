@@ -305,7 +305,7 @@ $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
         .draft-order-item:hover { border-color: var(--border-red); }
 
         /* Responsive */
-        @media (max-width: 991px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }

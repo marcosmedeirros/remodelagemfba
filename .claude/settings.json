@@ -9,7 +9,10 @@
       "Bash(grep -n \"function syncTeamTradeCounterLocal\" /c/Users/marco/OneDrive/Desktop/novos/api/*.php)",
       "Bash(grep -l 'data-theme=\"\"' *.php)",
       "Bash(grep -l \"dashboard-sidebar\\\\|sidebar-menu\\\\|<aside class\" c:/Users/marco/OneDrive/Desktop/novos/*.php)",
-      "Bash(grep -l \"includes/sidebar.php\" c:/Users/marco/OneDrive/Desktop/novos/*.php)"
+      "Bash(grep -l \"includes/sidebar.php\" c:/Users/marco/OneDrive/Desktop/novos/*.php)",
+      "Bash(grep -l \"topbar-menu-btn\\\\|menu-btn\\\\|menuBtn\\\\|sidebarToggle\" *.php)",
+      "Bash(ls *.php)",
+      "Bash(grep -l \"include.*sidebar.php\" *.php)"
     ]
   }
 }

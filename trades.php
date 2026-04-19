@@ -299,10 +299,12 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
     }
     .sb-overlay.active { display: block; }
 
-    @media (max-width: 768px) {
-      .main { margin-left: 0; }
-      .topbar-menu-btn { display: block; }
-      .page-hero { padding: 20px 16px 0; }
+    @media (max-width: 992px) {
+      .sidebar { transform: translateX(-260px); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .topbar-menu-btn { display: flex; }
+      .page-hero { padding: 16px 16px 0; }
       .content { padding: 16px 16px 32px; }
     }
   </style>

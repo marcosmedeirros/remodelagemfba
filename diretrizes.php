@@ -321,7 +321,7 @@ $isEliteOrNext = in_array(($team['league'] ?? ''), ['ELITE', 'NEXT'], true);
         .btn-orange:hover { filter: brightness(1.1); color: #fff; }
 
         /* Responsive */
-        @media (max-width: 991px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }

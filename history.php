@@ -292,7 +292,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
     .modal-footer { border-top: 1px solid var(--border); padding: 14px 20px; }
 
     /* ── Responsive ──────────────────────────────── */
-    @media (max-width: 991px) {
+    @media (max-width: 992px) {
       :root { --sidebar-w: 0px; }
       .sidebar { transform: translateX(-260px); }
       .sidebar.open { transform: translateX(0); }

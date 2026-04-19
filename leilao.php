@@ -145,11 +145,11 @@ if ($is_admin) {
         .list-group-item:hover { background: var(--panel-3); }
         /* alert info */
         .info-box { background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 12px 16px; font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
-        @media (max-width: 860px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }
-            .main { width: 100%; }
+            .main { margin-left: 0; width: 100%; padding-top: 54px; }
             .topbar { display: flex; }
             .page-hero { padding: 16px 16px 0; }
             .content { padding: 16px 16px 48px; }

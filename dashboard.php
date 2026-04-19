@@ -681,7 +681,7 @@ $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 1
             .bento { grid-template-columns: 1fr 1fr; }
             .span-3 { grid-column: span 2; }
         }
-        @media (max-width: 860px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }

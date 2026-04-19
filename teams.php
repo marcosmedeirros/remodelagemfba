@@ -999,11 +999,11 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
         }
 
         /* ── Responsive ────────────────────────────────── */
-        @media (max-width: 900px) {
+        @media (max-width: 992px) {
             :root { --sidebar-w: 0px; }
             .sidebar { transform: translateX(-260px); }
             .sidebar.open { transform: translateX(0); }
-            .main { margin-left: 0; width: 100%; padding-top: 56px; }
+            .main { margin-left: 0; width: 100%; padding-top: 54px; }
             .topbar { display: flex; }
             .page-top, .stats-strip, .controls, .content-area { padding-left: 16px; padding-right: 16px; }
             .footer-strip { margin: 0 16px 24px; }
