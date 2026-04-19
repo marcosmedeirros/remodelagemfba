@@ -311,7 +311,66 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
 </head>
 <body>
   <div class="app">
-    <?php include __DIR__ . '/includes/sidebar.php'; ?>
+
+    <!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+
+        <?php if ($team): ?>
+        <div class="sb-team">
+            <img src="<?= htmlspecialchars($team['photo_url'] ?? '/img/default-team.png') ?>"
+                 alt="<?= htmlspecialchars(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')) ?>"
+                 onerror="this.src='/img/default-team.png'">
+            <div>
+                <div class="sb-team-name"><?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? ''))) ?></div>
+                <div class="sb-team-league"><?= htmlspecialchars($team['league'] ?? '') ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <nav class="sb-nav">
+            <div class="sb-section">Principal</div>
+            <a href="/dashboard.php"><i class="bi bi-house-door-fill"></i> Dashboard</a>
+            <a href="/teams.php"><i class="bi bi-people-fill"></i> Times</a>
+            <a href="/my-roster.php"><i class="bi bi-person-fill"></i> Meu Elenco</a>
+            <a href="/picks.php"><i class="bi bi-calendar-check-fill"></i> Picks</a>
+            <a href="/trades.php" class="active"><i class="bi bi-arrow-left-right"></i> Trades</a>
+            <a href="/free-agency.php"><i class="bi bi-coin"></i> Free Agency</a>
+            <a href="/leilao.php"><i class="bi bi-hammer"></i> Leilão</a>
+            <a href="/drafts.php"><i class="bi bi-trophy"></i> Draft</a>
+
+            <div class="sb-section">Liga</div>
+            <a href="/rankings.php"><i class="bi bi-bar-chart-fill"></i> Rankings</a>
+            <a href="/history.php"><i class="bi bi-clock-history"></i> Histórico</a>
+            <a href="/diretrizes.php"><i class="bi bi-clipboard-data"></i> Diretrizes</a>
+            <a href="/ouvidoria.php"><i class="bi bi-chat-dots"></i> Ouvidoria</a>
+            <a href="https://games.fbabrasil.com.br/auth/login.php" target="_blank" rel="noopener"><i class="bi bi-controller"></i> FBA Games</a>
+
+            <?php if (($user['user_type'] ?? 'jogador') === 'admin'): ?>
+            <div class="sb-section">Admin</div>
+            <a href="/admin.php"><i class="bi bi-shield-lock-fill"></i> Admin</a>
+            <a href="/temporadas.php"><i class="bi bi-calendar3"></i> Temporadas</a>
+            <?php endif; ?>
+
+            <div class="sb-section">Conta</div>
+            <a href="/settings.php"><i class="bi bi-gear-fill"></i> Configurações</a>
+        </nav>
+
+        <button class="sb-theme-toggle" type="button" id="themeToggle" data-theme-toggle>
+            <i class="bi bi-moon"></i>
+            <span>Modo escuro</span>
+        </button>
+
+        <div class="sb-footer">
+            <img src="<?= htmlspecialchars($user['photo_url'] ?? '/img/default-avatar.png') ?>"
+                 alt="<?= htmlspecialchars($user['name'] ?? '') ?>"
+                 class="sb-avatar"
+                 onerror="this.src='https://ui-avatars.com/api/?name=<?= rawurlencode($user['name'] ?? 'U') ?>&background=1c1c21&color=fc0025'">
+            <span class="sb-username"><?= htmlspecialchars($user['name'] ?? '') ?></span>
+            <a href="/logout.php" class="sb-logout" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </aside>
+
+    <!-- Overlay mobile -->
     <div class="sb-overlay" id="sbOverlay"></div>
 
     <main class="main">
