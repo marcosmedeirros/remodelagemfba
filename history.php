@@ -43,6 +43,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#fc0025" />
   <title>Histórico - FBA Manager</title>
@@ -157,7 +158,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
     .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
     /* ── Topbar mobile ───────────────────────────── */
-    .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 240; }
+    .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 260; }
     .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
     .topbar-title em { color: var(--red); font-style: normal; }
     .menu-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; }

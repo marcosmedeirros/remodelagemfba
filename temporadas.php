@@ -158,7 +158,7 @@ $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
         .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
         /* Topbar mobile */
-        .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 240; }
+        .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 260; }
         .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
         .topbar-title em { color: var(--red); font-style: normal; }
         .menu-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; }
@@ -3037,7 +3037,7 @@ Stephen Curry,PG,35,95</code>
         const menuBtn  = document.getElementById('menuBtn');
         if (!sidebar) return;
         const close = () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); };
-        if (menuBtn)  menuBtn.addEventListener('click', () => { const open = sidebar.classList.toggle('open'); overlay.classList.toggle('show', open); });
+        if (menuBtn)  menuBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('show'); });
         if (overlay)  overlay.addEventListener('click', close);
         document.querySelectorAll('.sb-nav a').forEach(a => a.addEventListener('click', close));
     })();

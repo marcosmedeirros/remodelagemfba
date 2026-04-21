@@ -34,6 +34,7 @@ $seasonDisplayYear = (string)$currentSeasonYear;
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
+    <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Rankings - FBA Manager</title>
     
@@ -123,7 +124,7 @@ $seasonDisplayYear = (string)$currentSeasonYear;
         .sb-logout { width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all var(--t) var(--ease); }
         .sb-logout:hover { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 
-        .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 240; }
+        .topbar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 54px; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; padding: 0 16px; gap: 12px; z-index: 260; }
         .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
         .menu-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 17px; cursor: pointer; }
         .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); z-index: 250; }
@@ -431,8 +432,8 @@ $seasonDisplayYear = (string)$currentSeasonYear;
     const menuBtn = document.getElementById('menuBtn');
     const sbOverlay = document.getElementById('sbOverlay');
     const closeSidebar = () => { sidebar.classList.remove('open'); sbOverlay.classList.remove('show'); };
-    menuBtn?.addEventListener('click', () => { sidebar.classList.toggle('open'); sbOverlay.classList.toggle('show'); });
-    sbOverlay?.addEventListener('click', closeSidebar);
+    if (menuBtn) menuBtn.addEventListener('click', () => { sidebar.classList.add('open'); sbOverlay.classList.add('show'); });
+    if (sbOverlay) sbOverlay.addEventListener('click', closeSidebar);
 
     /* ── Lógica de Rankings ── */
     let userLeague = "<?= htmlspecialchars($user['league'] ?? 'ELITE') ?>".toUpperCase();
