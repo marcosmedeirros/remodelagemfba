@@ -1034,8 +1034,10 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
                 gap: 8px;
             }
             .list-team-cell { flex: 1; min-width: 0; }
+            .list-team-cell > div { min-width: 0; overflow: hidden; }
             .list-team-logo { width: 32px; height: 32px; }
-            .list-team-name { font-size: 13px; }
+            .list-team-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .list-team-owner { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .list-cell { display: none; }
             .list-row > .list-cell:nth-child(2) { display: flex; flex-shrink: 0; align-items: center; }
             .list-actions { flex-shrink: 0; gap: 4px; }
