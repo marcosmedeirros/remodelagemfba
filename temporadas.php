@@ -181,6 +181,8 @@ $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
         .bc-head { padding: 16px 18px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
         .bc-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .bc-title i { color: var(--red); font-size: 15px; }
+        .season-top-grid { display: grid; grid-template-columns: 1fr auto; gap: 16px; margin-bottom: 16px; align-items: start; }
+        @media (max-width: 576px) { .season-top-grid { grid-template-columns: 1fr; } }
         .bc-body { padding: 16px 18px; }
 
         /* League grid */
@@ -530,7 +532,7 @@ $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
           <i class="bi bi-arrow-left"></i> Voltar
         </button>
 
-        <div style="display:grid;grid-template-columns:1fr auto;gap:16px;margin-bottom:16px;align-items:start;flex-wrap:wrap;">
+        <div class="season-top-grid">
 
           <!-- Card principal da liga -->
           <div class="bc">
@@ -559,7 +561,7 @@ $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
           </div>
 
           <!-- Card progresso -->
-          <div class="bc" style="min-width:220px;">
+          <div class="bc">
             <div class="bc-head">
               <div class="bc-title"><i class="bi bi-bar-chart-fill"></i> Progresso do Sprint</div>
             </div>
