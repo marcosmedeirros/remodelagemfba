@@ -13,7 +13,8 @@
       "Bash(grep -l \"topbar-menu-btn\\\\|menu-btn\\\\|menuBtn\\\\|sidebarToggle\" *.php)",
       "Bash(ls *.php)",
       "Bash(grep -l \"include.*sidebar.php\" *.php)",
-      "Bash(grep -n '$user\\\\[' leilao.php)"
+      "Bash(grep -n '$user\\\\[' leilao.php)",
+      "Bash(xargs grep *)"
     ]
   }
 }

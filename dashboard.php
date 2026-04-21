@@ -210,9 +210,10 @@ $tradesPct = $maxTrades > 0 ? min(100, round(($tradesCount / $maxTrades) * 100))
 $playersPct = $maxPlayers > 0 ? min(100, round(($totalPlayers / $maxPlayers) * 100)) : 0;
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#fc0025">
     <meta name="apple-mobile-web-app-capable" content="yes">

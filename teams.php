@@ -105,10 +105,11 @@ $averageCapTop8 = $teamsCount > 0 ? round($totalCapTop8 / $teamsCount, 1) : 0;
 $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas franquias na FBA?');
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
     <?php include __DIR__ . '/includes/head-pwa.php'; ?>
     <title>Times - FBA Manager</title>
 
@@ -187,16 +188,17 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
         .sidebar {
             position: fixed;
             top: 0; left: 0;
-            width: var(--sidebar-w);
+            width: 260px;
             height: 100vh;
             background: var(--panel);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             z-index: 300;
+            overflow-y: auto;
+            scrollbar-width: none;
             transition: transform var(--t) var(--ease);
         }
-            z-index: 240;
         .sidebar-brand, .sb-brand {
             padding: 24px 20px 20px;
             border-bottom: 1px solid var(--border);
@@ -1022,49 +1024,21 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
             .team-stat:nth-child(3) { border-top: 1px solid var(--border); }
         }
 
-        /* Ajuste para listagem de times no mobile */
+        /* Mobile list view — flex row, show only Team + CAP + Actions */
         @media (max-width: 600px) {
+            .list-header { display: none; }
             .list-row {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 12px 8px;
-                gap: 6px;
-            }
-            .list-header {
-                font-size: 13px;
-            }
-            .list-header-cell {
-                font-size: 12px;
-                padding: 6px 4px;
-            }
-            .list-team-cell {
-                flex-direction: row;
+                display: flex;
                 align-items: center;
+                padding: 10px 12px;
                 gap: 8px;
-                min-width: 0;
             }
-            .list-team-logo {
-                width: 32px;
-                height: 32px;
-            }
-            .list-team-name {
-                font-size: 15px;
-                font-weight: 600;
-                word-break: break-word;
-                max-width: 140px;
-            }
-            .list-team-owner {
-                font-size: 12px;
-                color: var(--text-2);
-                margin-top: 2px;
-            }
-            .list-cell {
-                font-size: 13px;
-                padding: 4px 2px;
-            }
-            .list-actions {
-                gap: 4px;
-            }
+            .list-team-cell { flex: 1; min-width: 0; }
+            .list-team-logo { width: 32px; height: 32px; }
+            .list-team-name { font-size: 13px; }
+            .list-cell { display: none; }
+            .list-row > .list-cell:nth-child(2) { display: flex; flex-shrink: 0; align-items: center; }
+            .list-actions { flex-shrink: 0; gap: 4px; }
         }
 
         /* Stagger animation */
@@ -1444,9 +1418,8 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 <script>
     const themeKey = 'fba-theme';
     const root = document.documentElement;
-    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
     const savedTheme = localStorage.getItem(themeKey);
-    const initialTheme = savedTheme || (prefersLight ? 'light' : 'dark');
+    const initialTheme = savedTheme || 'dark';
     root.dataset.theme = initialTheme;
 
     const themeToggle = document.getElementById('themeToggle');

@@ -2,9 +2,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     const themeKey = 'fba-theme';
     const root = document.documentElement;
-    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
     const savedTheme = localStorage.getItem(themeKey);
-    const initialTheme = savedTheme || (prefersLight ? 'light' : 'dark');
+    const initialTheme = savedTheme || 'dark';
     root.dataset.theme = initialTheme;
 
     const themeButtons = Array.from(document.querySelectorAll('#themeToggle, [data-theme-toggle]'));

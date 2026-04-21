@@ -85,10 +85,11 @@ function syncTeamTradeCounter(PDO $pdo, int $teamId): int
 $tradeCount = (int)($team['trades_used'] ?? 0);
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
   <?php include __DIR__ . '/includes/head-pwa.php'; ?>
   <title>Trades - FBA Manager</title>
   <meta name="theme-color" content="#fc0025">
@@ -314,6 +315,29 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
     .cap-card {
       background: var(--panel-2); border: 1px solid var(--border);
       border-radius: var(--radius-sm); padding: 14px;
+    }
+
+    /* ── Trade List cards ── */
+    .tl-player-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px;
+      transition: background var(--t) var(--ease);
+    }
+    .tl-player-card:last-child { border-bottom: none; }
+    .tl-player-card:hover { background: var(--panel-2); }
+    .tl-player-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .tl-player-meta { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+    .tl-team-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--panel-3); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 11px; font-weight: 500; color: var(--text-2);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .tl-team-badge { font-size: 10px; font-weight: 700; color: var(--red); }
+    @media (max-width: 576px) {
+      .tl-player-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .tl-team-chip { align-self: flex-start; }
     }
 
     @media (max-width: 992px) {
@@ -739,7 +763,6 @@ $tradeCount = (int)($team['trades_used'] ?? 0);
     window.__TEAM_NAME__ = '<?= htmlspecialchars(trim(($team['city'] ?? '') . ' ' . ($team['name'] ?? '')), ENT_QUOTES) ?>';
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/js/sidebar.js"></script>
   <script src="/js/trades.js?v=20260309"></script>
   <script src="/js/trade-list.js?v=20260130"></script>
   <script src="/js/rumors.js?v=20260130"></script>

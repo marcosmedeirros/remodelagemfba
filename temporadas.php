@@ -42,9 +42,10 @@ try {
 $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#fc0025">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -123,7 +124,7 @@ $seasonDisplayYear = $seasonDisplayYear ?: (int)date('Y');
         /* Sidebar */
         .sidebar {
             position: fixed; top: 0; left: 0;
-            width: var(--sidebar-w); height: 100vh;
+            width: 260px; height: 100vh;
             background: var(--panel);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column;

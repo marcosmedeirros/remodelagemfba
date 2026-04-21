@@ -40,7 +40,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -120,7 +120,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
     /* ── Sidebar ─────────────────────────────────── */
     .sidebar {
       position: fixed; top: 0; left: 0;
-      width: var(--sidebar-w); height: 100vh;
+      width: 260px; height: 100vh;
       background: var(--panel); border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
       z-index: 300; transition: transform var(--t) var(--ease);

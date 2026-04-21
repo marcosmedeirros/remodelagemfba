@@ -152,7 +152,7 @@ $whatsappDefaultMessage = rawurlencode('Olá! Podemos conversar sobre nossas fra
 		.sidebar {
 			position: fixed;
 			top: 0; left: 0;
-			width: var(--sidebar-w);
+			width: 260px;
 			height: 100vh;
 			background: var(--panel);
 			border-right: 1px solid var(--border);

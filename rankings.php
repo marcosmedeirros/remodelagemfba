@@ -94,7 +94,7 @@ $seasonDisplayYear = (string)$currentSeasonYear;
         /* ── Shell (Sidebar & Topbar) ────────────────── */
         .app { display: flex; min-height: 100vh; }
         .sidebar {
-            position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+            position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
             background: var(--panel); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; z-index: 300;
             transition: transform var(--t) var(--ease); overflow-y: auto;

@@ -87,7 +87,7 @@ if ($currentSeason && isset($currentSeason['start_year'], $currentSeason['season
     /* ── Sidebar ─────────────────────────────────── */
     .sidebar {
       position: fixed; top: 0; left: 0;
-      width: var(--sidebar-w); height: 100vh;
+      width: 260px; height: 100vh;
       background: var(--panel); border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
       z-index: 300; transition: transform var(--t) var(--ease);

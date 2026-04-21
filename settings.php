@@ -12,9 +12,10 @@ $stmtTeam->execute([$user['id']]);
 $team = $stmtTeam->fetch() ?: null;
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Configurações — FBA Manager</title>
 

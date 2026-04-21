@@ -77,9 +77,10 @@ if ($is_admin) {
 $default_admin_league = $team_league ?? ($leagues[0] ?? 'ELITE');
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.dataset.theme = localStorage.getItem('fba-theme') || 'dark';</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php include __DIR__ . '/includes/head-pwa.php'; ?>
     <title>Free Agency - FBA Manager</title>
@@ -151,7 +152,7 @@ $default_admin_league = $team_league ?? ($leagues[0] ?? 'ELITE');
         /* ── Sidebar ───────────────────────────────────── */
         .sidebar {
             position: fixed; top: 0; left: 0;
-            width: var(--sidebar-w); height: 100vh;
+            width: 260px; height: 100vh;
             background: var(--panel); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; z-index: 300;
             transition: transform var(--t) var(--ease);
@@ -440,10 +441,12 @@ $default_admin_league = $team_league ?? ($leagues[0] ?? 'ELITE');
             .topbar { display: flex; }
             .main { margin-left: 0; width: 100%; padding: 54px 16px 40px; }
             .fgrid { grid-template-columns: 1fr 1fr; }
+            .fgrid > * { grid-column: auto !important; }
         }
         @media (max-width: 560px) {
             .stats-strip { grid-template-columns: 1fr; }
             .fgrid { grid-template-columns: 1fr; }
+            .fgrid > * { grid-column: 1 !important; }
             .page-title { font-size: 24px; }
             .tab-btn { font-size: 12px; padding: 7px 12px; }
         }
